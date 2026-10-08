@@ -77,8 +77,9 @@ export function SegmentCard({
         <div className="callout callout--closed">
           <Ban aria-hidden="true" size={18} />
           <p>
-            <strong>Confirmed closure.</strong> {risk.closure.reason}. Set by {risk.closure.setBy} at{' '}
-            <time className="mono" dateTime={risk.closure.setAt}>{formatTimeIST(risk.closure.setAt)}</time>
+            <strong>Confirmed closure.</strong>{risk.closure.reason && ` ${risk.closure.reason}.`}
+            {risk.closure.setBy && ` Set by ${risk.closure.setBy}`}
+            {risk.closure.setAt && <>{' '}at <time className="mono" dateTime={risk.closure.setAt}>{formatTimeIST(risk.closure.setAt)}</time></>}
             {risk.closure.expiresAt && (
               <>
                 , until <time className="mono" dateTime={risk.closure.expiresAt}>{formatTimeIST(risk.closure.expiresAt)}</time>

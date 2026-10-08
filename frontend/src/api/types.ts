@@ -1,8 +1,5 @@
-// API contract consumed by the frontend.
-//
-// Derived from Architecture.md §3 (domain model) and §7 (API surface) and
-// Agents.md §2 (observation schema). Fields marked "frontend assumption" are
-// not yet pinned in Architecture.md and are listed in frontend/README.md.
+// View models consumed by the frontend. Real HTTP responses are adapted from
+// the authoritative wire contract in ../../../contracts/types.ts.
 
 export type ISOTime = string;
 export type LngLat = [number, number];
@@ -134,9 +131,9 @@ export type ClosureStatus = 'confirmed' | 'cleared';
 export interface Closure {
   segmentId: string;
   status: ClosureStatus;
-  reason: string;
-  setBy: string;
-  setAt: ISOTime;
+  reason?: string;
+  setBy?: string;
+  setAt?: ISOTime;
   expiresAt?: ISOTime | null;
 }
 
@@ -310,7 +307,7 @@ export interface RouteComparison {
   status: 'ok' | 'unavailable';
   outcome: RouteOutcome;
   recommendedCandidateId: string | null;
-  fastestCandidateId: string;
+  fastestCandidateId: string | null;
   exposureThreshold: number;
   candidates: RouteCandidate[];
   computedAt: ISOTime;
@@ -347,9 +344,11 @@ export interface InterventionOption {
   routeExposureAfter: number | null;
   exposureReduction: number;
   segmentsLeavingHigh: number;
-  affectedRouteCount: number;
+  /** Only shown when a provider actually returns this metric. */
+  affectedRouteCount?: number;
   segmentChanges: SegmentChange[];
-  routeOutcomeAfter: {
+  /** The fixture API does not recalculate route advice after an intervention. */
+  routeOutcomeAfter?: {
     outcome: RouteOutcome;
     recommendedCandidateId: string | null;
     candidates: { id: string; exposure: number | null; blocked: boolean }[];
@@ -374,6 +373,6 @@ export interface InterventionComparison {
     unchangedInputs: FeatureKey[];
     statements: string[];
   };
-  createdAt: ISOTime;
+  createdAt: ISOTime | null;
   modelVersion: string;
 }

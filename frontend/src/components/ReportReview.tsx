@@ -42,7 +42,7 @@ export function ReportQueue({ onOpen, activeId }: { onOpen: (id: string) => void
       </div>
       {reports.status === 'loading' && <p className="detail">Loading reports…</p>}
       {reports.status === 'error' && <p className="field-error">Reports could not be refreshed: {reports.error.message}</p>}
-      {shown.length === 0 && reports.status !== 'loading' && <p className="detail">No reports awaiting review.</p>}
+      {shown.length === 0 && reports.status !== 'loading' && reports.status !== 'error' && <p className="detail">No reports awaiting review.</p>}
       <ul className="queue-list">
         {shown.map((r) => (
           <li key={r.id}>

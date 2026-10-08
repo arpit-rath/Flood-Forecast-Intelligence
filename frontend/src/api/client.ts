@@ -34,6 +34,6 @@ export interface VarunaApi {
 export function createApi(): VarunaApi {
   const baseUrl = import.meta.env.VITE_API_BASE_URL as string | undefined;
   const useMocks = (import.meta.env.VITE_USE_MOCKS as string | undefined) !== 'false';
-  if (!useMocks && baseUrl) return createHttpApi(baseUrl);
+  if (!useMocks) return createHttpApi(baseUrl || 'http://127.0.0.1:8000');
   return createMockApi();
 }

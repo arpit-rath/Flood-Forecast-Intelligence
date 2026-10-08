@@ -18,10 +18,19 @@ export default defineConfig({
     { name: 'mobile-360', use: { viewport: { width: 360, height: 760 }, hasTouch: true, isMobile: true } },
     { name: 'desktop-1280', use: { viewport: { width: 1280, height: 800 } } },
   ],
-  webServer: {
-    command: 'npm run dev -- --port 5173 --strictPort',
-    url: 'http://localhost:5173',
-    reuseExistingServer: true,
-    timeout: 60_000,
-  },
+  webServer: [
+    ...(process.env.VITE_USE_MOCKS === 'false' ? [{
+      command: 'python -m backend.varuna.local_server --host 127.0.0.1 --port 8000',
+      cwd: '..',
+      url: 'http://127.0.0.1:8000/health',
+      reuseExistingServer: true,
+      timeout: 60_000,
+    }] : []),
+    {
+      command: 'npm run dev -- --port 5173 --strictPort',
+      url: 'http://localhost:5173',
+      reuseExistingServer: true,
+      timeout: 60_000,
+    },
+  ],
 });

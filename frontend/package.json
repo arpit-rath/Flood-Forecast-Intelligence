@@ -8,6 +8,7 @@
     "build": "tsc -b && vite build",
     "typecheck": "tsc -b",
     "lint": "oxlint src scripts",
+    "test:unit": "vitest run src",
     "preview": "vite preview",
     "fixtures": "node scripts/build-fixtures.mjs",
     "test:e2e": "playwright test"

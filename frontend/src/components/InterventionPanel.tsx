@@ -167,8 +167,8 @@ function InterventionResult({ data }: { data: InterventionComparison }) {
               </span>
               <span className="detail">
                 Route exposure {formatExposure(o.routeExposureBefore)} → {formatExposure(o.routeExposureAfter)} (
-                {o.exposureReduction > 0 ? `−${o.exposureReduction.toFixed(2)}` : 'no change'}) · {pluralize(o.segmentsLeavingHigh, 'segment')} out of High ·{' '}
-                {pluralize(o.affectedRouteCount, 'route')} affected
+                {o.exposureReduction > 0 ? `−${o.exposureReduction.toFixed(2)}` : 'no change'}) · {pluralize(o.segmentsLeavingHigh, 'segment')} out of High
+                {o.affectedRouteCount !== undefined && ` · ${pluralize(o.affectedRouteCount, 'route')} affected`}
                 {!o.hasEstimatedBenefit && ' · no estimated benefit'}
               </span>
             </span>
@@ -206,8 +206,8 @@ function InterventionResult({ data }: { data: InterventionComparison }) {
           ))}
         </ul>
         <p className="detail">
-          Baseline snapshot <span className="mono">{data.baselineSnapshotId}</span> · {data.modelVersion} ·{' '}
-          <time className="mono" dateTime={data.createdAt}>{formatTimeIST(data.createdAt)}</time>
+          Baseline snapshot <span className="mono">{data.baselineSnapshotId}</span> · {data.modelVersion}
+          {data.createdAt && <>{' '}· <time className="mono" dateTime={data.createdAt}>{formatTimeIST(data.createdAt)}</time></>}
         </p>
       </details>
       <HowEstimatedButton topic="simulation" />
@@ -228,8 +228,8 @@ function BeforeAfter({
   const highBefore = option.segmentChanges.filter((c) => c.beforeClass === 'high').length;
   const highAfter = option.segmentChanges.filter((c) => c.afterClass === 'high').length;
   const recBefore = data.baselineRouteOutcome.recommendedCandidateId;
-  const recAfter = option.routeOutcomeAfter.recommendedCandidateId;
-  const routeChanges = recBefore !== recAfter;
+  const recAfter = option.routeOutcomeAfter?.recommendedCandidateId ?? null;
+  const routeChanges = Boolean(option.routeOutcomeAfter) && recBefore !== recAfter;
 
   return (
     <>
@@ -271,7 +271,11 @@ function BeforeAfter({
             <div>
               <dt>Route advice</dt>
               <dd>
-                {routeLabel(recAfter)} <span className="detail">({OUTCOME_SHORT[option.routeOutcomeAfter.outcome]})</span>
+                {option.routeOutcomeAfter ? (
+                  <>{routeLabel(recAfter)} <span className="detail">({OUTCOME_SHORT[option.routeOutcomeAfter.outcome]})</span></>
+                ) : (
+                  <span className="detail">Not recalculated by the local API; only selected-route exposure is estimated.</span>
+                )}
               </dd>
             </div>
           </dl>

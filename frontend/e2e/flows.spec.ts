@@ -1,5 +1,7 @@
 import { expect, test, type Page } from '@playwright/test';
 
+test.skip(process.env.VITE_USE_MOCKS === 'false', 'Mock-only fixture flow');
+
 // 1×1 PNG used as the uploaded photo.
 const PNG = Buffer.from(
   'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==',

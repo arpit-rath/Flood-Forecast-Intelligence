@@ -68,6 +68,14 @@ export function RouteComparisonPanel() {
     );
   }
 
+  if (currentRoutes.status === 'unavailable' || currentRoutes.candidates.length === 0) {
+    return (
+      <section className="route-results" aria-label="Route comparison">
+        <p className="callout callout--muted">No route is available between these pilot points. The map and road list remain available.</p>
+      </section>
+    );
+  }
+
   const summary = outcomeSummary(currentRoutes);
   return (
     <section className="route-results" aria-labelledby="route-results-title" aria-busy={routes.status === 'loading'}>

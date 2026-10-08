@@ -116,6 +116,15 @@ export function ReportForm({ headingRef }: { headingRef?: React.Ref<HTMLHeadingE
 
   const busy = phase.kind === 'uploading';
 
+  if (api.kind === 'http') {
+    return (
+      <section className="report-flow" aria-labelledby={`${formId}-title`}>
+        <h2 id={`${formId}-title`} className="panel-heading" ref={headingRef} tabIndex={-1}>Report a road condition</h2>
+        <p className="callout callout--muted">Photo upload and report submission are unavailable in the local API. No report has been sent.</p>
+      </section>
+    );
+  }
+
   return (
     <section className="report-flow" aria-labelledby={`${formId}-title`}>
       <h2 id={`${formId}-title`} className="panel-heading" ref={headingRef} tabIndex={-1}>

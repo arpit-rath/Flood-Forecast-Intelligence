@@ -10,11 +10,12 @@ npm install
 npm run dev        # http://localhost:5173
 npm run build      # type-check and production build into frontend/dist
 npm run lint       # oxlint
+npm run test:unit  # API adapter unit checks
 npm run fixtures   # regenerate mock fixture JSON
 npm run test:e2e   # Playwright: both core flows at 360 px and 1280 px
 ```
 
-`test:e2e` uses the locally installed Microsoft Edge (`PW_CHANNEL=chrome` for Chrome) and starts the dev server itself. It covers the resident flow (Scenario banner, route comparison, segment evidence, photo report to Pending review), the Live-unavailable state, the responder flow (accept report, recalculated route advice, two-drain comparison, simulated map view), keyboard tabs, and no horizontal scroll at either width. To test the production build, run `npm run build && npx vite preview --port 5173` in another terminal first; the tests reuse a running server.
+`test:e2e` uses the locally installed Microsoft Edge (`PW_CHANNEL=chrome` for Chrome) and starts the dev server itself. In mock mode it covers the resident and responder fixture flows at 360 px and 1280 px. With `VITE_USE_MOCKS=false`, it also starts the local Python API and tests the real HTTP scenario, routes, interventions, unavailable reports, and unavailable Live weather. To test the production build, run `npm run build && npx vite preview --port 5173` in another terminal first; the tests reuse a running server.
 
 Views: `#/resident` (default) and `#/responder`.
 
@@ -29,6 +30,14 @@ Copy `.env.example` to `.env.local`.
 | `VITE_BASEMAP_STYLE_URL` | empty | Optional MapLibre style URL; leave empty while geometry is illustrative |
 
 The browser never holds AWS credentials or Bedrock access. Operator authentication is expected to come from the API, not from frontend secrets.
+
+## Local API mode
+
+From the repository root, start `python -m backend.varuna.local_server`. Then start the frontend with `VITE_USE_MOCKS=false` and `VITE_API_BASE_URL=http://127.0.0.1:8000` (or set these in `frontend/.env.local`). If no URL is supplied in HTTP mode, the client defaults to that local address; it never silently falls back to mock data.
+
+The HTTP adapter follows [`contracts/types.ts`](../contracts/types.ts) and [`contracts/README.md`](../contracts/README.md). It maps the backend's two default pilot nodes to the route controls and translates wire states for display. Risk scores, route exposures, and drain rankings come only from the backend. The displayed drain points are illustrative positions derived from affected segments because the fixture wire contract has no drain coordinates.
+
+Photo upload, report submission, and persistent review are unavailable in this API mode, and the UI says so. `Live` returns an unavailable state. The intervention API recalculates exposure on the selected route, but not post-action route advice; the UI leaves that field explicitly unavailable rather than borrowing a mock result. The backend data is synthetic Scenario data, not live AWS output.
 
 ## Mock mode
 
@@ -59,7 +68,7 @@ scripts/        fixture authoring
 
 ## Contract status
 
-`src/api/types.ts` was written from Architecture.md before `contracts/types.ts` was published on the backend branch. The two differ (enum casing such as `"Scenario"`/`"Low"`/`"Pending Review"`, node-based route queries, segment geometry shape, nested `error` bodies, closure and confidence fields). The frontend must be aligned to `contracts/types.ts` before it uses the real API. Frontend-only additions that still need a backend decision:
+`src/api/types.ts` defines view models for both the mock and real modes; `src/api/wireAdapter.ts` translates the real responses from the published contract. Fields the fixture backend does not supply are not represented as backend results. Further backend decisions are still needed for:
 
 - `GET /v1/reports/{id}` for polling analysis status (Architecture §7 says the UI polls but lists no endpoint).
 - Named pilot places for route search, or a decision to expose node IDs to users.

@@ -109,6 +109,12 @@ export function ModeBanner() {
             </dd>
           </div>
         )}
+        {api.kind === 'http' && data?.mode === 'scenario' && (
+          <div>
+            <dt>Data source</dt>
+            <dd><span className="tag tag--neutral">Synthetic Scenario API</span></dd>
+          </div>
+        )}
       </dl>
     </section>
   );

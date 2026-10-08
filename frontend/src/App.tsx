@@ -47,7 +47,7 @@ export function App() {
         {view === 'responder' && (
           <span className="operator-chip">
             <UserCheck aria-hidden="true" size={16} />
-            {api.kind === 'mock' ? 'Demo operator (mock session)' : 'Operator'}
+            {api.kind === 'mock' ? 'Demo operator (mock session)' : 'Responder view (read-only reports)'}
           </span>
         )}
       </header>
