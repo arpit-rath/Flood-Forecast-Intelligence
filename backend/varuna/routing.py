@@ -15,19 +15,26 @@ SPEED_METERS_PER_MINUTE = {"Pedestrian": 80.0, "Scooter": 220.0, "Car": 350.0}
 def candidate_paths(
     segments: Iterable[Segment], origin: str, destination: str,
     travel_mode: str, *, max_candidates: int = 12,
+    excluded_segment_ids: Iterable[str] = (),
 ) -> list[dict[str, Any]]:
     """Enumerate the fastest simple paths on the small fixture graph."""
     if travel_mode not in SPEED_METERS_PER_MINUTE:
         raise ValueError("unsupported travel mode")
     ordered = tuple(segments)
+    excluded = set(excluded_segment_ids)
+    all_nodes = {node for segment in ordered for node in (segment.from_node, segment.to_node)}
     adjacency: dict[str, list[tuple[str, Segment]]] = defaultdict(list)
     for segment in ordered:
+        if segment.id in excluded:
+            continue
         adjacency[segment.from_node].append((segment.to_node, segment))
         adjacency[segment.to_node].append((segment.from_node, segment))
-    if origin not in adjacency or destination not in adjacency:
+    if origin not in all_nodes or destination not in all_nodes:
         raise ValueError("origin or destination is outside the pilot graph")
     if origin == destination:
         raise ValueError("origin and destination must differ")
+    if origin not in adjacency or destination not in adjacency:
+        return []
     for entries in adjacency.values():
         entries.sort(key=lambda item: item[1].id)
     speed = SPEED_METERS_PER_MINUTE[travel_mode]
@@ -85,7 +92,10 @@ def compare_routes(
     ordered = tuple(segments)
     by_id = {segment.id: segment for segment in ordered}
     risks = {risk["segmentId"]: risk for risk in snapshot["segments"]}
-    paths = candidate_paths(ordered, origin, destination, travel_mode, max_candidates=max_candidates)
+    paths = candidate_paths(
+        ordered, origin, destination, travel_mode, max_candidates=max_candidates,
+        excluded_segment_ids=[key for key, risk in risks.items() if risk["isClosed"]],
+    )
     candidates = []
     for index, path in enumerate(paths, start=1):
         candidate = {"id": f"R{index}", **path, **route_exposure(path["segmentIds"], by_id, risks)}

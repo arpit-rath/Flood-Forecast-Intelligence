@@ -125,9 +125,10 @@ def score_segments(
             "computedAt": valid_at,
             "modelVersion": VERSION,
         })
-    digest = sha256(json.dumps(results, sort_keys=True, separators=(",", ":")).encode("utf-8")).hexdigest()[:12]
+    digest_input = {"segments": results, "weather": weather}
+    digest = sha256(json.dumps(digest_input, sort_keys=True, separators=(",", ":")).encode("utf-8")).hexdigest()[:12]
     return {
         "id": f"{bundle_version}:{mode}:{valid_at}:{digest}", "bundleVersion": bundle_version,
         "mode": mode, "computedAt": valid_at, "modelVersion": VERSION,
-        "weather": weather, "segments": results,
+        "weather": weather, "weatherStale": weather_stale, "segments": results,
     }

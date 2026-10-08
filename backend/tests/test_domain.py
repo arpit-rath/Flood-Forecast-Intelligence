@@ -60,6 +60,22 @@ class DomainTests(unittest.TestCase):
         self.assertEqual(0.0, risk["features"]["T"])
         self.assertIsNone(risk["features"]["O"])
 
+    def test_stale_weather_reduces_confidence_without_inventing_freshness(self) -> None:
+        old_weather = {**self.fixture.weather, "validAt": "2026-10-08T09:00:00Z"}
+        snapshot = score_segments(self.fixture.segments, old_weather,
+                                  valid_at=self.fixture.metadata["validAt"])
+        self.assertTrue(snapshot["weatherStale"])
+        self.assertEqual("Low", snapshot["segments"][0]["confidence"])
+
+    def test_expired_accepted_report_does_not_affect_current_score(self) -> None:
+        accepted = self.fixture.reports[0]
+        expired = replace(accepted, captured_at="2026-10-08T08:00:00Z")
+        with_expired = score_segments(self.fixture.segments, self.fixture.weather, (expired,),
+                                      valid_at=self.fixture.metadata["validAt"])
+        without_report = score_segments(self.fixture.segments, self.fixture.weather, (),
+                                        valid_at=self.fixture.metadata["validAt"])
+        self.assertEqual(without_report, with_expired)
+
     def test_pending_report_does_not_change_risk_until_accepted(self) -> None:
         baseline = self.service.snapshot()
         without_pending = VarunaService(self.fixture)
@@ -80,7 +96,8 @@ class DomainTests(unittest.TestCase):
         self.assertIn(closed["class"], ("Low", "Watch", "High", "Unknown"))
         q = self.fixture.route_query
         routes = self.service.routes(q["originNodeId"], q["destinationNodeId"], q["travelMode"], snapshot["id"])
-        self.assertTrue(any(item["blocked"] for item in routes["candidates"]))
+        self.assertTrue(routes["candidates"])
+        self.assertTrue(all("H-2-1" not in item["segmentIds"] for item in routes["candidates"]))
         recommended = next(item for item in routes["candidates"] if item["id"] == routes["recommendedRouteId"])
         self.assertFalse(recommended["blocked"])
 
@@ -90,6 +107,16 @@ class DomainTests(unittest.TestCase):
         q = self.fixture.route_query
         with self.assertRaises(SnapshotConflictError):
             self.service.routes(q["originNodeId"], q["destinationNodeId"], q["travelMode"], old_id)
+
+    def test_closing_all_departure_edges_returns_no_route(self) -> None:
+        self.service.set_closure("H-2-0", True)
+        self.service.set_closure("V-1-0", True)
+        self.service.set_closure("V-2-0", True)
+        snapshot = self.service.snapshot()
+        q = self.fixture.route_query
+        comparison = self.service.routes(q["originNodeId"], q["destinationNodeId"], q["travelMode"], snapshot["id"])
+        self.assertEqual([], comparison["candidates"])
+        self.assertIsNone(comparison["recommendedRouteId"])
 
     def test_exposure_uses_assessed_distance_and_reports_unknown_share(self) -> None:
         a, b = self.fixture.segments[:2]
@@ -118,6 +145,10 @@ class DomainTests(unittest.TestCase):
     def test_model_rejects_invalid_report_status_and_segment_coordinates(self) -> None:
         report = self.fixture.reports[0].as_dict()
         report["reviewStatus"] = "Closed"
+        with self.assertRaises(ValueError):
+            Report.from_dict(report)
+        report = self.fixture.reports[0].as_dict()
+        report["observations"] = {**report["observations"], "estimated_depth_cm": 35}
         with self.assertRaises(ValueError):
             Report.from_dict(report)
         segment = self.fixture.segments[0].as_dict()

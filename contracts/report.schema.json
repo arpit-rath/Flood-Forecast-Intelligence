@@ -13,8 +13,24 @@
     "capturedAt": {"type": ["string", "null"], "format": "date-time"},
     "imageKey": {"type": "string", "minLength": 1},
     "reviewStatus": {"enum": ["Pending Review", "Accepted", "Rejected", "Needs Manual Review"]},
-    "observations": {"type": "object"},
+    "observations": {"oneOf": [{"type": "object", "maxProperties": 0}, {"$ref": "#/$defs/observation"}]},
     "modelConfidence": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
     "source": {"type": "string", "minLength": 1}
+  },
+  "$defs": {
+    "observation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["visible_water", "drain_state", "visible_hazards", "access_concern", "confidence", "evidence_summary", "needs_human_review"],
+      "properties": {
+        "visible_water": {"enum": ["none", "possible", "clear", "uncertain"]},
+        "drain_state": {"enum": ["blocked", "clear", "not_visible", "uncertain"]},
+        "visible_hazards": {"type": "array", "items": {"enum": ["debris", "open_manhole", "stranded_vehicle", "person_in_water", "other"]}},
+        "access_concern": {"enum": ["none", "possible", "clear", "uncertain"]},
+        "confidence": {"type": "number", "minimum": 0, "maximum": 1},
+        "evidence_summary": {"type": "string", "maxLength": 240},
+        "needs_human_review": {"type": "boolean"}
+      }
+    }
   }
 }

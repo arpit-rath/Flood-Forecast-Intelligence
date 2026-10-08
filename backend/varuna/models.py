@@ -128,6 +128,28 @@ class Report:
         observations = raw.get("observations")
         if not isinstance(observations, dict):
             raise ValueError("report observations must be an object")
+        if observations:
+            expected = {"visible_water", "drain_state", "visible_hazards", "access_concern",
+                        "confidence", "evidence_summary", "needs_human_review"}
+            if set(observations) != expected:
+                raise ValueError("report observations do not match the bounded agent schema")
+            if observations["visible_water"] not in ("none", "possible", "clear", "uncertain"):
+                raise ValueError("invalid visible_water")
+            if observations["drain_state"] not in ("blocked", "clear", "not_visible", "uncertain"):
+                raise ValueError("invalid drain_state")
+            if observations["access_concern"] not in ("none", "possible", "clear", "uncertain"):
+                raise ValueError("invalid access_concern")
+            allowed_hazards = {"debris", "open_manhole", "stranded_vehicle", "person_in_water", "other"}
+            hazards = observations["visible_hazards"]
+            if not isinstance(hazards, list) or any(
+                not isinstance(hazard, str) or hazard not in allowed_hazards for hazard in hazards
+            ):
+                raise ValueError("invalid visible_hazards")
+            unit_interval(observations["confidence"], "observations.confidence")
+            if not isinstance(observations["evidence_summary"], str) or len(observations["evidence_summary"]) > 240:
+                raise ValueError("evidence_summary must be short text")
+            if not isinstance(observations["needs_human_review"], bool):
+                raise ValueError("needs_human_review must be boolean")
         confidence = raw.get("modelConfidence")
         if confidence is not None:
             confidence = unit_interval(confidence, "modelConfidence")
