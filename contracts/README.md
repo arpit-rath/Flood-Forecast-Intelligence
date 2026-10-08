@@ -1,6 +1,6 @@
 # Backend contract
 
-The JSON schemas define the wire shape for `Segment` and `Report`. Coordinates are `[longitude, latitude]` in WGS84. Scores are ordinal 0–1 indicators, not water depth or flood probability. `null` means missing data; it must never be interpreted as zero.
+The JSON schemas define the wire shape for `Segment` and `Report`. [`types.ts`](types.ts) defines the response types for TypeScript consumers. Coordinates are `[longitude, latitude]` in WGS84. Scores are ordinal 0–1 indicators, not water depth or flood probability. `null` means missing data; it must never be interpreted as zero.
 
 ## Read endpoints
 
