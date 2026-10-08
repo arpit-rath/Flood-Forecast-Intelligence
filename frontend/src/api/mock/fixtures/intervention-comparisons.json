@@ -1,0 +1,4082 @@
+{
+  "snap-scn-0001|cmp-0001-west-gate-east-gate-pedestrian|rt-central": {
+    "comparisonId": "ivc-0001-rt-central-pedestrian-west-gate",
+    "baselineSnapshotId": "snap-scn-0001",
+    "routeComparisonId": "cmp-0001-west-gate-east-gate-pedestrian",
+    "selectedRouteId": "rt-central",
+    "selectedRouteBlocked": false,
+    "drainIds": [
+      "D-01",
+      "D-02"
+    ],
+    "options": [
+      {
+        "runId": "run-0001-rt-central-pedestrian-west-gate-D-01",
+        "drainId": "D-01",
+        "drainLabel": "Canal Street culvert inlet",
+        "affectedSegmentIds": [
+          "S-H22",
+          "S-H23",
+          "S-V32"
+        ],
+        "routeExposureBefore": 0.426,
+        "routeExposureAfter": 0.38,
+        "exposureReduction": 0.046,
+        "segmentsLeavingHigh": 0,
+        "affectedRouteCount": 1,
+        "segmentChanges": [
+          {
+            "segmentId": "S-H22",
+            "beforeScore": 0.491,
+            "afterScore": 0.403,
+            "beforeClass": "watch",
+            "afterClass": "watch",
+            "drainageBefore": 0.35,
+            "drainageAfter": 0
+          },
+          {
+            "segmentId": "S-H23",
+            "beforeScore": 0.559,
+            "afterScore": 0.434,
+            "beforeClass": "watch",
+            "afterClass": "watch",
+            "drainageBefore": 0.5,
+            "drainageAfter": 0
+          },
+          {
+            "segmentId": "S-V32",
+            "beforeScore": 0.591,
+            "afterScore": 0.466,
+            "beforeClass": "watch",
+            "afterClass": "watch",
+            "drainageBefore": 0.5,
+            "drainageAfter": 0
+          }
+        ],
+        "routeOutcomeAfter": {
+          "outcome": "fastest_default",
+          "recommendedCandidateId": "rt-central",
+          "candidates": [
+            {
+              "id": "rt-central",
+              "exposure": 0.38,
+              "blocked": false
+            },
+            {
+              "id": "rt-hostel",
+              "exposure": 0.331,
+              "blocked": false
+            },
+            {
+              "id": "rt-library",
+              "exposure": 0.433,
+              "blocked": true
+            }
+          ]
+        },
+        "hasEstimatedBenefit": true,
+        "rank": 1
+      },
+      {
+        "runId": "run-0001-rt-central-pedestrian-west-gate-D-02",
+        "drainId": "D-02",
+        "drainLabel": "Library Lane gully line",
+        "affectedSegmentIds": [
+          "S-H31",
+          "S-H32",
+          "S-V22"
+        ],
+        "routeExposureBefore": 0.426,
+        "routeExposureAfter": 0.426,
+        "exposureReduction": 0,
+        "segmentsLeavingHigh": 1,
+        "affectedRouteCount": 1,
+        "segmentChanges": [
+          {
+            "segmentId": "S-H31",
+            "beforeScore": 0.541,
+            "afterScore": 0.416,
+            "beforeClass": "watch",
+            "afterClass": "watch",
+            "drainageBefore": 0.55,
+            "drainageAfter": 0.05
+          },
+          {
+            "segmentId": "S-H32",
+            "beforeScore": 0.612,
+            "afterScore": 0.488,
+            "beforeClass": "high",
+            "afterClass": "watch",
+            "drainageBefore": 0.65,
+            "drainageAfter": 0.15
+          },
+          {
+            "segmentId": "S-V22",
+            "beforeScore": 0.513,
+            "afterScore": 0.387,
+            "beforeClass": "watch",
+            "afterClass": "watch",
+            "drainageBefore": 0.5,
+            "drainageAfter": 0
+          }
+        ],
+        "routeOutcomeAfter": {
+          "outcome": "fastest_default",
+          "recommendedCandidateId": "rt-central",
+          "candidates": [
+            {
+              "id": "rt-central",
+              "exposure": 0.426,
+              "blocked": false
+            },
+            {
+              "id": "rt-hostel",
+              "exposure": 0.331,
+              "blocked": false
+            },
+            {
+              "id": "rt-library",
+              "exposure": 0.396,
+              "blocked": true
+            }
+          ]
+        },
+        "hasEstimatedBenefit": true,
+        "rank": 2
+      }
+    ],
+    "rankBasis": "route_exposure_reduction",
+    "noEstimatedBenefit": false,
+    "baselineRouteOutcome": {
+      "outcome": "fastest_default",
+      "recommendedCandidateId": "rt-central"
+    },
+    "assumptions": {
+      "drainageReduction": 0.5,
+      "floor": 0,
+      "unchangedInputs": [
+        "R",
+        "T",
+        "O"
+      ],
+      "statements": [
+        "Clearing a modelled drain lowers the curated drainage-vulnerability input by 0.5 (floored at zero) on its listed segments only.",
+        "Rainfall, terrain and accepted report evidence are held at baseline values.",
+        "Drain locations are illustrative choke points, not a verified drainage network.",
+        "This is a comparative what-if estimate, not a physical flood simulation or a time to recovery."
+      ]
+    },
+    "createdAt": "2026-10-08T11:31:05Z",
+    "modelVersion": "pilot-heuristic-v1"
+  },
+  "snap-scn-0001|cmp-0001-west-gate-east-gate-pedestrian|rt-hostel": {
+    "comparisonId": "ivc-0001-rt-hostel-pedestrian-west-gate",
+    "baselineSnapshotId": "snap-scn-0001",
+    "routeComparisonId": "cmp-0001-west-gate-east-gate-pedestrian",
+    "selectedRouteId": "rt-hostel",
+    "selectedRouteBlocked": false,
+    "drainIds": [
+      "D-01",
+      "D-02"
+    ],
+    "options": [
+      {
+        "runId": "run-0001-rt-hostel-pedestrian-west-gate-D-02",
+        "drainId": "D-02",
+        "drainLabel": "Library Lane gully line",
+        "affectedSegmentIds": [
+          "S-H31",
+          "S-H32",
+          "S-V22"
+        ],
+        "routeExposureBefore": 0.331,
+        "routeExposureAfter": 0.331,
+        "exposureReduction": 0,
+        "segmentsLeavingHigh": 1,
+        "affectedRouteCount": 1,
+        "segmentChanges": [
+          {
+            "segmentId": "S-H31",
+            "beforeScore": 0.541,
+            "afterScore": 0.416,
+            "beforeClass": "watch",
+            "afterClass": "watch",
+            "drainageBefore": 0.55,
+            "drainageAfter": 0.05
+          },
+          {
+            "segmentId": "S-H32",
+            "beforeScore": 0.612,
+            "afterScore": 0.488,
+            "beforeClass": "high",
+            "afterClass": "watch",
+            "drainageBefore": 0.65,
+            "drainageAfter": 0.15
+          },
+          {
+            "segmentId": "S-V22",
+            "beforeScore": 0.513,
+            "afterScore": 0.387,
+            "beforeClass": "watch",
+            "afterClass": "watch",
+            "drainageBefore": 0.5,
+            "drainageAfter": 0
+          }
+        ],
+        "routeOutcomeAfter": {
+          "outcome": "fastest_default",
+          "recommendedCandidateId": "rt-central",
+          "candidates": [
+            {
+              "id": "rt-central",
+              "exposure": 0.426,
+              "blocked": false
+            },
+            {
+              "id": "rt-hostel",
+              "exposure": 0.331,
+              "blocked": false
+            },
+            {
+              "id": "rt-library",
+              "exposure": 0.396,
+              "blocked": true
+            }
+          ]
+        },
+        "hasEstimatedBenefit": true,
+        "rank": 1
+      },
+      {
+        "runId": "run-0001-rt-hostel-pedestrian-west-gate-D-01",
+        "drainId": "D-01",
+        "drainLabel": "Canal Street culvert inlet",
+        "affectedSegmentIds": [
+          "S-H22",
+          "S-H23",
+          "S-V32"
+        ],
+        "routeExposureBefore": 0.331,
+        "routeExposureAfter": 0.331,
+        "exposureReduction": 0,
+        "segmentsLeavingHigh": 0,
+        "affectedRouteCount": 1,
+        "segmentChanges": [
+          {
+            "segmentId": "S-H22",
+            "beforeScore": 0.491,
+            "afterScore": 0.403,
+            "beforeClass": "watch",
+            "afterClass": "watch",
+            "drainageBefore": 0.35,
+            "drainageAfter": 0
+          },
+          {
+            "segmentId": "S-H23",
+            "beforeScore": 0.559,
+            "afterScore": 0.434,
+            "beforeClass": "watch",
+            "afterClass": "watch",
+            "drainageBefore": 0.5,
+            "drainageAfter": 0
+          },
+          {
+            "segmentId": "S-V32",
+            "beforeScore": 0.591,
+            "afterScore": 0.466,
+            "beforeClass": "watch",
+            "afterClass": "watch",
+            "drainageBefore": 0.5,
+            "drainageAfter": 0
+          }
+        ],
+        "routeOutcomeAfter": {
+          "outcome": "fastest_default",
+          "recommendedCandidateId": "rt-central",
+          "candidates": [
+            {
+              "id": "rt-central",
+              "exposure": 0.38,
+              "blocked": false
+            },
+            {
+              "id": "rt-hostel",
+              "exposure": 0.331,
+              "blocked": false
+            },
+            {
+              "id": "rt-library",
+              "exposure": 0.433,
+              "blocked": true
+            }
+          ]
+        },
+        "hasEstimatedBenefit": false,
+        "rank": 2
+      }
+    ],
+    "rankBasis": "segments_leaving_high",
+    "noEstimatedBenefit": false,
+    "baselineRouteOutcome": {
+      "outcome": "fastest_default",
+      "recommendedCandidateId": "rt-central"
+    },
+    "assumptions": {
+      "drainageReduction": 0.5,
+      "floor": 0,
+      "unchangedInputs": [
+        "R",
+        "T",
+        "O"
+      ],
+      "statements": [
+        "Clearing a modelled drain lowers the curated drainage-vulnerability input by 0.5 (floored at zero) on its listed segments only.",
+        "Rainfall, terrain and accepted report evidence are held at baseline values.",
+        "Drain locations are illustrative choke points, not a verified drainage network.",
+        "This is a comparative what-if estimate, not a physical flood simulation or a time to recovery."
+      ]
+    },
+    "createdAt": "2026-10-08T11:31:05Z",
+    "modelVersion": "pilot-heuristic-v1"
+  },
+  "snap-scn-0001|cmp-0001-west-gate-east-gate-pedestrian|rt-library": {
+    "comparisonId": "ivc-0001-rt-library-pedestrian-west-gate",
+    "baselineSnapshotId": "snap-scn-0001",
+    "routeComparisonId": "cmp-0001-west-gate-east-gate-pedestrian",
+    "selectedRouteId": "rt-library",
+    "selectedRouteBlocked": true,
+    "drainIds": [
+      "D-01",
+      "D-02"
+    ],
+    "options": [
+      {
+        "runId": "run-0001-rt-library-pedestrian-west-gate-D-02",
+        "drainId": "D-02",
+        "drainLabel": "Library Lane gully line",
+        "affectedSegmentIds": [
+          "S-H31",
+          "S-H32",
+          "S-V22"
+        ],
+        "routeExposureBefore": 0.433,
+        "routeExposureAfter": 0.396,
+        "exposureReduction": 0.037,
+        "segmentsLeavingHigh": 1,
+        "affectedRouteCount": 1,
+        "segmentChanges": [
+          {
+            "segmentId": "S-H31",
+            "beforeScore": 0.541,
+            "afterScore": 0.416,
+            "beforeClass": "watch",
+            "afterClass": "watch",
+            "drainageBefore": 0.55,
+            "drainageAfter": 0.05
+          },
+          {
+            "segmentId": "S-H32",
+            "beforeScore": 0.612,
+            "afterScore": 0.488,
+            "beforeClass": "high",
+            "afterClass": "watch",
+            "drainageBefore": 0.65,
+            "drainageAfter": 0.15
+          },
+          {
+            "segmentId": "S-V22",
+            "beforeScore": 0.513,
+            "afterScore": 0.387,
+            "beforeClass": "watch",
+            "afterClass": "watch",
+            "drainageBefore": 0.5,
+            "drainageAfter": 0
+          }
+        ],
+        "routeOutcomeAfter": {
+          "outcome": "fastest_default",
+          "recommendedCandidateId": "rt-central",
+          "candidates": [
+            {
+              "id": "rt-central",
+              "exposure": 0.426,
+              "blocked": false
+            },
+            {
+              "id": "rt-hostel",
+              "exposure": 0.331,
+              "blocked": false
+            },
+            {
+              "id": "rt-library",
+              "exposure": 0.396,
+              "blocked": true
+            }
+          ]
+        },
+        "hasEstimatedBenefit": true,
+        "rank": 1
+      },
+      {
+        "runId": "run-0001-rt-library-pedestrian-west-gate-D-01",
+        "drainId": "D-01",
+        "drainLabel": "Canal Street culvert inlet",
+        "affectedSegmentIds": [
+          "S-H22",
+          "S-H23",
+          "S-V32"
+        ],
+        "routeExposureBefore": 0.433,
+        "routeExposureAfter": 0.433,
+        "exposureReduction": 0,
+        "segmentsLeavingHigh": 0,
+        "affectedRouteCount": 1,
+        "segmentChanges": [
+          {
+            "segmentId": "S-H22",
+            "beforeScore": 0.491,
+            "afterScore": 0.403,
+            "beforeClass": "watch",
+            "afterClass": "watch",
+            "drainageBefore": 0.35,
+            "drainageAfter": 0
+          },
+          {
+            "segmentId": "S-H23",
+            "beforeScore": 0.559,
+            "afterScore": 0.434,
+            "beforeClass": "watch",
+            "afterClass": "watch",
+            "drainageBefore": 0.5,
+            "drainageAfter": 0
+          },
+          {
+            "segmentId": "S-V32",
+            "beforeScore": 0.591,
+            "afterScore": 0.466,
+            "beforeClass": "watch",
+            "afterClass": "watch",
+            "drainageBefore": 0.5,
+            "drainageAfter": 0
+          }
+        ],
+        "routeOutcomeAfter": {
+          "outcome": "fastest_default",
+          "recommendedCandidateId": "rt-central",
+          "candidates": [
+            {
+              "id": "rt-central",
+              "exposure": 0.38,
+              "blocked": false
+            },
+            {
+              "id": "rt-hostel",
+              "exposure": 0.331,
+              "blocked": false
+            },
+            {
+              "id": "rt-library",
+              "exposure": 0.433,
+              "blocked": true
+            }
+          ]
+        },
+        "hasEstimatedBenefit": false,
+        "rank": 2
+      }
+    ],
+    "rankBasis": "route_exposure_reduction",
+    "noEstimatedBenefit": false,
+    "baselineRouteOutcome": {
+      "outcome": "fastest_default",
+      "recommendedCandidateId": "rt-central"
+    },
+    "assumptions": {
+      "drainageReduction": 0.5,
+      "floor": 0,
+      "unchangedInputs": [
+        "R",
+        "T",
+        "O"
+      ],
+      "statements": [
+        "Clearing a modelled drain lowers the curated drainage-vulnerability input by 0.5 (floored at zero) on its listed segments only.",
+        "Rainfall, terrain and accepted report evidence are held at baseline values.",
+        "Drain locations are illustrative choke points, not a verified drainage network.",
+        "This is a comparative what-if estimate, not a physical flood simulation or a time to recovery."
+      ]
+    },
+    "createdAt": "2026-10-08T11:31:05Z",
+    "modelVersion": "pilot-heuristic-v1"
+  },
+  "snap-scn-0001|cmp-0001-east-gate-west-gate-pedestrian|rt-central": {
+    "comparisonId": "ivc-0001-rt-central-pedestrian-east-gate",
+    "baselineSnapshotId": "snap-scn-0001",
+    "routeComparisonId": "cmp-0001-east-gate-west-gate-pedestrian",
+    "selectedRouteId": "rt-central",
+    "selectedRouteBlocked": false,
+    "drainIds": [
+      "D-01",
+      "D-02"
+    ],
+    "options": [
+      {
+        "runId": "run-0001-rt-central-pedestrian-east-gate-D-01",
+        "drainId": "D-01",
+        "drainLabel": "Canal Street culvert inlet",
+        "affectedSegmentIds": [
+          "S-H22",
+          "S-H23",
+          "S-V32"
+        ],
+        "routeExposureBefore": 0.426,
+        "routeExposureAfter": 0.38,
+        "exposureReduction": 0.046,
+        "segmentsLeavingHigh": 0,
+        "affectedRouteCount": 1,
+        "segmentChanges": [
+          {
+            "segmentId": "S-H22",
+            "beforeScore": 0.491,
+            "afterScore": 0.403,
+            "beforeClass": "watch",
+            "afterClass": "watch",
+            "drainageBefore": 0.35,
+            "drainageAfter": 0
+          },
+          {
+            "segmentId": "S-H23",
+            "beforeScore": 0.559,
+            "afterScore": 0.434,
+            "beforeClass": "watch",
+            "afterClass": "watch",
+            "drainageBefore": 0.5,
+            "drainageAfter": 0
+          },
+          {
+            "segmentId": "S-V32",
+            "beforeScore": 0.591,
+            "afterScore": 0.466,
+            "beforeClass": "watch",
+            "afterClass": "watch",
+            "drainageBefore": 0.5,
+            "drainageAfter": 0
+          }
+        ],
+        "routeOutcomeAfter": {
+          "outcome": "fastest_default",
+          "recommendedCandidateId": "rt-central",
+          "candidates": [
+            {
+              "id": "rt-central",
+              "exposure": 0.38,
+              "blocked": false
+            },
+            {
+              "id": "rt-hostel",
+              "exposure": 0.331,
+              "blocked": false
+            },
+            {
+              "id": "rt-library",
+              "exposure": 0.433,
+              "blocked": true
+            }
+          ]
+        },
+        "hasEstimatedBenefit": true,
+        "rank": 1
+      },
+      {
+        "runId": "run-0001-rt-central-pedestrian-east-gate-D-02",
+        "drainId": "D-02",
+        "drainLabel": "Library Lane gully line",
+        "affectedSegmentIds": [
+          "S-H31",
+          "S-H32",
+          "S-V22"
+        ],
+        "routeExposureBefore": 0.426,
+        "routeExposureAfter": 0.426,
+        "exposureReduction": 0,
+        "segmentsLeavingHigh": 1,
+        "affectedRouteCount": 1,
+        "segmentChanges": [
+          {
+            "segmentId": "S-H31",
+            "beforeScore": 0.541,
+            "afterScore": 0.416,
+            "beforeClass": "watch",
+            "afterClass": "watch",
+            "drainageBefore": 0.55,
+            "drainageAfter": 0.05
+          },
+          {
+            "segmentId": "S-H32",
+            "beforeScore": 0.612,
+            "afterScore": 0.488,
+            "beforeClass": "high",
+            "afterClass": "watch",
+            "drainageBefore": 0.65,
+            "drainageAfter": 0.15
+          },
+          {
+            "segmentId": "S-V22",
+            "beforeScore": 0.513,
+            "afterScore": 0.387,
+            "beforeClass": "watch",
+            "afterClass": "watch",
+            "drainageBefore": 0.5,
+            "drainageAfter": 0
+          }
+        ],
+        "routeOutcomeAfter": {
+          "outcome": "fastest_default",
+          "recommendedCandidateId": "rt-central",
+          "candidates": [
+            {
+              "id": "rt-central",
+              "exposure": 0.426,
+              "blocked": false
+            },
+            {
+              "id": "rt-hostel",
+              "exposure": 0.331,
+              "blocked": false
+            },
+            {
+              "id": "rt-library",
+              "exposure": 0.396,
+              "blocked": true
+            }
+          ]
+        },
+        "hasEstimatedBenefit": true,
+        "rank": 2
+      }
+    ],
+    "rankBasis": "route_exposure_reduction",
+    "noEstimatedBenefit": false,
+    "baselineRouteOutcome": {
+      "outcome": "fastest_default",
+      "recommendedCandidateId": "rt-central"
+    },
+    "assumptions": {
+      "drainageReduction": 0.5,
+      "floor": 0,
+      "unchangedInputs": [
+        "R",
+        "T",
+        "O"
+      ],
+      "statements": [
+        "Clearing a modelled drain lowers the curated drainage-vulnerability input by 0.5 (floored at zero) on its listed segments only.",
+        "Rainfall, terrain and accepted report evidence are held at baseline values.",
+        "Drain locations are illustrative choke points, not a verified drainage network.",
+        "This is a comparative what-if estimate, not a physical flood simulation or a time to recovery."
+      ]
+    },
+    "createdAt": "2026-10-08T11:31:05Z",
+    "modelVersion": "pilot-heuristic-v1"
+  },
+  "snap-scn-0001|cmp-0001-east-gate-west-gate-pedestrian|rt-hostel": {
+    "comparisonId": "ivc-0001-rt-hostel-pedestrian-east-gate",
+    "baselineSnapshotId": "snap-scn-0001",
+    "routeComparisonId": "cmp-0001-east-gate-west-gate-pedestrian",
+    "selectedRouteId": "rt-hostel",
+    "selectedRouteBlocked": false,
+    "drainIds": [
+      "D-01",
+      "D-02"
+    ],
+    "options": [
+      {
+        "runId": "run-0001-rt-hostel-pedestrian-east-gate-D-02",
+        "drainId": "D-02",
+        "drainLabel": "Library Lane gully line",
+        "affectedSegmentIds": [
+          "S-H31",
+          "S-H32",
+          "S-V22"
+        ],
+        "routeExposureBefore": 0.331,
+        "routeExposureAfter": 0.331,
+        "exposureReduction": 0,
+        "segmentsLeavingHigh": 1,
+        "affectedRouteCount": 1,
+        "segmentChanges": [
+          {
+            "segmentId": "S-H31",
+            "beforeScore": 0.541,
+            "afterScore": 0.416,
+            "beforeClass": "watch",
+            "afterClass": "watch",
+            "drainageBefore": 0.55,
+            "drainageAfter": 0.05
+          },
+          {
+            "segmentId": "S-H32",
+            "beforeScore": 0.612,
+            "afterScore": 0.488,
+            "beforeClass": "high",
+            "afterClass": "watch",
+            "drainageBefore": 0.65,
+            "drainageAfter": 0.15
+          },
+          {
+            "segmentId": "S-V22",
+            "beforeScore": 0.513,
+            "afterScore": 0.387,
+            "beforeClass": "watch",
+            "afterClass": "watch",
+            "drainageBefore": 0.5,
+            "drainageAfter": 0
+          }
+        ],
+        "routeOutcomeAfter": {
+          "outcome": "fastest_default",
+          "recommendedCandidateId": "rt-central",
+          "candidates": [
+            {
+              "id": "rt-central",
+              "exposure": 0.426,
+              "blocked": false
+            },
+            {
+              "id": "rt-hostel",
+              "exposure": 0.331,
+              "blocked": false
+            },
+            {
+              "id": "rt-library",
+              "exposure": 0.396,
+              "blocked": true
+            }
+          ]
+        },
+        "hasEstimatedBenefit": true,
+        "rank": 1
+      },
+      {
+        "runId": "run-0001-rt-hostel-pedestrian-east-gate-D-01",
+        "drainId": "D-01",
+        "drainLabel": "Canal Street culvert inlet",
+        "affectedSegmentIds": [
+          "S-H22",
+          "S-H23",
+          "S-V32"
+        ],
+        "routeExposureBefore": 0.331,
+        "routeExposureAfter": 0.331,
+        "exposureReduction": 0,
+        "segmentsLeavingHigh": 0,
+        "affectedRouteCount": 1,
+        "segmentChanges": [
+          {
+            "segmentId": "S-H22",
+            "beforeScore": 0.491,
+            "afterScore": 0.403,
+            "beforeClass": "watch",
+            "afterClass": "watch",
+            "drainageBefore": 0.35,
+            "drainageAfter": 0
+          },
+          {
+            "segmentId": "S-H23",
+            "beforeScore": 0.559,
+            "afterScore": 0.434,
+            "beforeClass": "watch",
+            "afterClass": "watch",
+            "drainageBefore": 0.5,
+            "drainageAfter": 0
+          },
+          {
+            "segmentId": "S-V32",
+            "beforeScore": 0.591,
+            "afterScore": 0.466,
+            "beforeClass": "watch",
+            "afterClass": "watch",
+            "drainageBefore": 0.5,
+            "drainageAfter": 0
+          }
+        ],
+        "routeOutcomeAfter": {
+          "outcome": "fastest_default",
+          "recommendedCandidateId": "rt-central",
+          "candidates": [
+            {
+              "id": "rt-central",
+              "exposure": 0.38,
+              "blocked": false
+            },
+            {
+              "id": "rt-hostel",
+              "exposure": 0.331,
+              "blocked": false
+            },
+            {
+              "id": "rt-library",
+              "exposure": 0.433,
+              "blocked": true
+            }
+          ]
+        },
+        "hasEstimatedBenefit": false,
+        "rank": 2
+      }
+    ],
+    "rankBasis": "segments_leaving_high",
+    "noEstimatedBenefit": false,
+    "baselineRouteOutcome": {
+      "outcome": "fastest_default",
+      "recommendedCandidateId": "rt-central"
+    },
+    "assumptions": {
+      "drainageReduction": 0.5,
+      "floor": 0,
+      "unchangedInputs": [
+        "R",
+        "T",
+        "O"
+      ],
+      "statements": [
+        "Clearing a modelled drain lowers the curated drainage-vulnerability input by 0.5 (floored at zero) on its listed segments only.",
+        "Rainfall, terrain and accepted report evidence are held at baseline values.",
+        "Drain locations are illustrative choke points, not a verified drainage network.",
+        "This is a comparative what-if estimate, not a physical flood simulation or a time to recovery."
+      ]
+    },
+    "createdAt": "2026-10-08T11:31:05Z",
+    "modelVersion": "pilot-heuristic-v1"
+  },
+  "snap-scn-0001|cmp-0001-east-gate-west-gate-pedestrian|rt-library": {
+    "comparisonId": "ivc-0001-rt-library-pedestrian-east-gate",
+    "baselineSnapshotId": "snap-scn-0001",
+    "routeComparisonId": "cmp-0001-east-gate-west-gate-pedestrian",
+    "selectedRouteId": "rt-library",
+    "selectedRouteBlocked": true,
+    "drainIds": [
+      "D-01",
+      "D-02"
+    ],
+    "options": [
+      {
+        "runId": "run-0001-rt-library-pedestrian-east-gate-D-02",
+        "drainId": "D-02",
+        "drainLabel": "Library Lane gully line",
+        "affectedSegmentIds": [
+          "S-H31",
+          "S-H32",
+          "S-V22"
+        ],
+        "routeExposureBefore": 0.433,
+        "routeExposureAfter": 0.396,
+        "exposureReduction": 0.037,
+        "segmentsLeavingHigh": 1,
+        "affectedRouteCount": 1,
+        "segmentChanges": [
+          {
+            "segmentId": "S-H31",
+            "beforeScore": 0.541,
+            "afterScore": 0.416,
+            "beforeClass": "watch",
+            "afterClass": "watch",
+            "drainageBefore": 0.55,
+            "drainageAfter": 0.05
+          },
+          {
+            "segmentId": "S-H32",
+            "beforeScore": 0.612,
+            "afterScore": 0.488,
+            "beforeClass": "high",
+            "afterClass": "watch",
+            "drainageBefore": 0.65,
+            "drainageAfter": 0.15
+          },
+          {
+            "segmentId": "S-V22",
+            "beforeScore": 0.513,
+            "afterScore": 0.387,
+            "beforeClass": "watch",
+            "afterClass": "watch",
+            "drainageBefore": 0.5,
+            "drainageAfter": 0
+          }
+        ],
+        "routeOutcomeAfter": {
+          "outcome": "fastest_default",
+          "recommendedCandidateId": "rt-central",
+          "candidates": [
+            {
+              "id": "rt-central",
+              "exposure": 0.426,
+              "blocked": false
+            },
+            {
+              "id": "rt-hostel",
+              "exposure": 0.331,
+              "blocked": false
+            },
+            {
+              "id": "rt-library",
+              "exposure": 0.396,
+              "blocked": true
+            }
+          ]
+        },
+        "hasEstimatedBenefit": true,
+        "rank": 1
+      },
+      {
+        "runId": "run-0001-rt-library-pedestrian-east-gate-D-01",
+        "drainId": "D-01",
+        "drainLabel": "Canal Street culvert inlet",
+        "affectedSegmentIds": [
+          "S-H22",
+          "S-H23",
+          "S-V32"
+        ],
+        "routeExposureBefore": 0.433,
+        "routeExposureAfter": 0.433,
+        "exposureReduction": 0,
+        "segmentsLeavingHigh": 0,
+        "affectedRouteCount": 1,
+        "segmentChanges": [
+          {
+            "segmentId": "S-H22",
+            "beforeScore": 0.491,
+            "afterScore": 0.403,
+            "beforeClass": "watch",
+            "afterClass": "watch",
+            "drainageBefore": 0.35,
+            "drainageAfter": 0
+          },
+          {
+            "segmentId": "S-H23",
+            "beforeScore": 0.559,
+            "afterScore": 0.434,
+            "beforeClass": "watch",
+            "afterClass": "watch",
+            "drainageBefore": 0.5,
+            "drainageAfter": 0
+          },
+          {
+            "segmentId": "S-V32",
+            "beforeScore": 0.591,
+            "afterScore": 0.466,
+            "beforeClass": "watch",
+            "afterClass": "watch",
+            "drainageBefore": 0.5,
+            "drainageAfter": 0
+          }
+        ],
+        "routeOutcomeAfter": {
+          "outcome": "fastest_default",
+          "recommendedCandidateId": "rt-central",
+          "candidates": [
+            {
+              "id": "rt-central",
+              "exposure": 0.38,
+              "blocked": false
+            },
+            {
+              "id": "rt-hostel",
+              "exposure": 0.331,
+              "blocked": false
+            },
+            {
+              "id": "rt-library",
+              "exposure": 0.433,
+              "blocked": true
+            }
+          ]
+        },
+        "hasEstimatedBenefit": false,
+        "rank": 2
+      }
+    ],
+    "rankBasis": "route_exposure_reduction",
+    "noEstimatedBenefit": false,
+    "baselineRouteOutcome": {
+      "outcome": "fastest_default",
+      "recommendedCandidateId": "rt-central"
+    },
+    "assumptions": {
+      "drainageReduction": 0.5,
+      "floor": 0,
+      "unchangedInputs": [
+        "R",
+        "T",
+        "O"
+      ],
+      "statements": [
+        "Clearing a modelled drain lowers the curated drainage-vulnerability input by 0.5 (floored at zero) on its listed segments only.",
+        "Rainfall, terrain and accepted report evidence are held at baseline values.",
+        "Drain locations are illustrative choke points, not a verified drainage network.",
+        "This is a comparative what-if estimate, not a physical flood simulation or a time to recovery."
+      ]
+    },
+    "createdAt": "2026-10-08T11:31:05Z",
+    "modelVersion": "pilot-heuristic-v1"
+  },
+  "snap-scn-0001|cmp-0001-west-gate-east-gate-car|rt-central": {
+    "comparisonId": "ivc-0001-rt-central-car-west-gate",
+    "baselineSnapshotId": "snap-scn-0001",
+    "routeComparisonId": "cmp-0001-west-gate-east-gate-car",
+    "selectedRouteId": "rt-central",
+    "selectedRouteBlocked": false,
+    "drainIds": [
+      "D-01",
+      "D-02"
+    ],
+    "options": [
+      {
+        "runId": "run-0001-rt-central-car-west-gate-D-01",
+        "drainId": "D-01",
+        "drainLabel": "Canal Street culvert inlet",
+        "affectedSegmentIds": [
+          "S-H22",
+          "S-H23",
+          "S-V32"
+        ],
+        "routeExposureBefore": 0.426,
+        "routeExposureAfter": 0.38,
+        "exposureReduction": 0.046,
+        "segmentsLeavingHigh": 0,
+        "affectedRouteCount": 1,
+        "segmentChanges": [
+          {
+            "segmentId": "S-H22",
+            "beforeScore": 0.491,
+            "afterScore": 0.403,
+            "beforeClass": "watch",
+            "afterClass": "watch",
+            "drainageBefore": 0.35,
+            "drainageAfter": 0
+          },
+          {
+            "segmentId": "S-H23",
+            "beforeScore": 0.559,
+            "afterScore": 0.434,
+            "beforeClass": "watch",
+            "afterClass": "watch",
+            "drainageBefore": 0.5,
+            "drainageAfter": 0
+          },
+          {
+            "segmentId": "S-V32",
+            "beforeScore": 0.591,
+            "afterScore": 0.466,
+            "beforeClass": "watch",
+            "afterClass": "watch",
+            "drainageBefore": 0.5,
+            "drainageAfter": 0
+          }
+        ],
+        "routeOutcomeAfter": {
+          "outcome": "fastest_default",
+          "recommendedCandidateId": "rt-central",
+          "candidates": [
+            {
+              "id": "rt-central",
+              "exposure": 0.38,
+              "blocked": false
+            },
+            {
+              "id": "rt-hostel",
+              "exposure": 0.331,
+              "blocked": false
+            },
+            {
+              "id": "rt-library",
+              "exposure": 0.433,
+              "blocked": true
+            }
+          ]
+        },
+        "hasEstimatedBenefit": true,
+        "rank": 1
+      },
+      {
+        "runId": "run-0001-rt-central-car-west-gate-D-02",
+        "drainId": "D-02",
+        "drainLabel": "Library Lane gully line",
+        "affectedSegmentIds": [
+          "S-H31",
+          "S-H32",
+          "S-V22"
+        ],
+        "routeExposureBefore": 0.426,
+        "routeExposureAfter": 0.426,
+        "exposureReduction": 0,
+        "segmentsLeavingHigh": 1,
+        "affectedRouteCount": 1,
+        "segmentChanges": [
+          {
+            "segmentId": "S-H31",
+            "beforeScore": 0.541,
+            "afterScore": 0.416,
+            "beforeClass": "watch",
+            "afterClass": "watch",
+            "drainageBefore": 0.55,
+            "drainageAfter": 0.05
+          },
+          {
+            "segmentId": "S-H32",
+            "beforeScore": 0.612,
+            "afterScore": 0.488,
+            "beforeClass": "high",
+            "afterClass": "watch",
+            "drainageBefore": 0.65,
+            "drainageAfter": 0.15
+          },
+          {
+            "segmentId": "S-V22",
+            "beforeScore": 0.513,
+            "afterScore": 0.387,
+            "beforeClass": "watch",
+            "afterClass": "watch",
+            "drainageBefore": 0.5,
+            "drainageAfter": 0
+          }
+        ],
+        "routeOutcomeAfter": {
+          "outcome": "fastest_default",
+          "recommendedCandidateId": "rt-central",
+          "candidates": [
+            {
+              "id": "rt-central",
+              "exposure": 0.426,
+              "blocked": false
+            },
+            {
+              "id": "rt-hostel",
+              "exposure": 0.331,
+              "blocked": false
+            },
+            {
+              "id": "rt-library",
+              "exposure": 0.396,
+              "blocked": true
+            }
+          ]
+        },
+        "hasEstimatedBenefit": true,
+        "rank": 2
+      }
+    ],
+    "rankBasis": "route_exposure_reduction",
+    "noEstimatedBenefit": false,
+    "baselineRouteOutcome": {
+      "outcome": "fastest_default",
+      "recommendedCandidateId": "rt-central"
+    },
+    "assumptions": {
+      "drainageReduction": 0.5,
+      "floor": 0,
+      "unchangedInputs": [
+        "R",
+        "T",
+        "O"
+      ],
+      "statements": [
+        "Clearing a modelled drain lowers the curated drainage-vulnerability input by 0.5 (floored at zero) on its listed segments only.",
+        "Rainfall, terrain and accepted report evidence are held at baseline values.",
+        "Drain locations are illustrative choke points, not a verified drainage network.",
+        "This is a comparative what-if estimate, not a physical flood simulation or a time to recovery."
+      ]
+    },
+    "createdAt": "2026-10-08T11:31:05Z",
+    "modelVersion": "pilot-heuristic-v1"
+  },
+  "snap-scn-0001|cmp-0001-west-gate-east-gate-car|rt-hostel": {
+    "comparisonId": "ivc-0001-rt-hostel-car-west-gate",
+    "baselineSnapshotId": "snap-scn-0001",
+    "routeComparisonId": "cmp-0001-west-gate-east-gate-car",
+    "selectedRouteId": "rt-hostel",
+    "selectedRouteBlocked": false,
+    "drainIds": [
+      "D-01",
+      "D-02"
+    ],
+    "options": [
+      {
+        "runId": "run-0001-rt-hostel-car-west-gate-D-02",
+        "drainId": "D-02",
+        "drainLabel": "Library Lane gully line",
+        "affectedSegmentIds": [
+          "S-H31",
+          "S-H32",
+          "S-V22"
+        ],
+        "routeExposureBefore": 0.331,
+        "routeExposureAfter": 0.331,
+        "exposureReduction": 0,
+        "segmentsLeavingHigh": 1,
+        "affectedRouteCount": 1,
+        "segmentChanges": [
+          {
+            "segmentId": "S-H31",
+            "beforeScore": 0.541,
+            "afterScore": 0.416,
+            "beforeClass": "watch",
+            "afterClass": "watch",
+            "drainageBefore": 0.55,
+            "drainageAfter": 0.05
+          },
+          {
+            "segmentId": "S-H32",
+            "beforeScore": 0.612,
+            "afterScore": 0.488,
+            "beforeClass": "high",
+            "afterClass": "watch",
+            "drainageBefore": 0.65,
+            "drainageAfter": 0.15
+          },
+          {
+            "segmentId": "S-V22",
+            "beforeScore": 0.513,
+            "afterScore": 0.387,
+            "beforeClass": "watch",
+            "afterClass": "watch",
+            "drainageBefore": 0.5,
+            "drainageAfter": 0
+          }
+        ],
+        "routeOutcomeAfter": {
+          "outcome": "fastest_default",
+          "recommendedCandidateId": "rt-central",
+          "candidates": [
+            {
+              "id": "rt-central",
+              "exposure": 0.426,
+              "blocked": false
+            },
+            {
+              "id": "rt-hostel",
+              "exposure": 0.331,
+              "blocked": false
+            },
+            {
+              "id": "rt-library",
+              "exposure": 0.396,
+              "blocked": true
+            }
+          ]
+        },
+        "hasEstimatedBenefit": true,
+        "rank": 1
+      },
+      {
+        "runId": "run-0001-rt-hostel-car-west-gate-D-01",
+        "drainId": "D-01",
+        "drainLabel": "Canal Street culvert inlet",
+        "affectedSegmentIds": [
+          "S-H22",
+          "S-H23",
+          "S-V32"
+        ],
+        "routeExposureBefore": 0.331,
+        "routeExposureAfter": 0.331,
+        "exposureReduction": 0,
+        "segmentsLeavingHigh": 0,
+        "affectedRouteCount": 1,
+        "segmentChanges": [
+          {
+            "segmentId": "S-H22",
+            "beforeScore": 0.491,
+            "afterScore": 0.403,
+            "beforeClass": "watch",
+            "afterClass": "watch",
+            "drainageBefore": 0.35,
+            "drainageAfter": 0
+          },
+          {
+            "segmentId": "S-H23",
+            "beforeScore": 0.559,
+            "afterScore": 0.434,
+            "beforeClass": "watch",
+            "afterClass": "watch",
+            "drainageBefore": 0.5,
+            "drainageAfter": 0
+          },
+          {
+            "segmentId": "S-V32",
+            "beforeScore": 0.591,
+            "afterScore": 0.466,
+            "beforeClass": "watch",
+            "afterClass": "watch",
+            "drainageBefore": 0.5,
+            "drainageAfter": 0
+          }
+        ],
+        "routeOutcomeAfter": {
+          "outcome": "fastest_default",
+          "recommendedCandidateId": "rt-central",
+          "candidates": [
+            {
+              "id": "rt-central",
+              "exposure": 0.38,
+              "blocked": false
+            },
+            {
+              "id": "rt-hostel",
+              "exposure": 0.331,
+              "blocked": false
+            },
+            {
+              "id": "rt-library",
+              "exposure": 0.433,
+              "blocked": true
+            }
+          ]
+        },
+        "hasEstimatedBenefit": false,
+        "rank": 2
+      }
+    ],
+    "rankBasis": "segments_leaving_high",
+    "noEstimatedBenefit": false,
+    "baselineRouteOutcome": {
+      "outcome": "fastest_default",
+      "recommendedCandidateId": "rt-central"
+    },
+    "assumptions": {
+      "drainageReduction": 0.5,
+      "floor": 0,
+      "unchangedInputs": [
+        "R",
+        "T",
+        "O"
+      ],
+      "statements": [
+        "Clearing a modelled drain lowers the curated drainage-vulnerability input by 0.5 (floored at zero) on its listed segments only.",
+        "Rainfall, terrain and accepted report evidence are held at baseline values.",
+        "Drain locations are illustrative choke points, not a verified drainage network.",
+        "This is a comparative what-if estimate, not a physical flood simulation or a time to recovery."
+      ]
+    },
+    "createdAt": "2026-10-08T11:31:05Z",
+    "modelVersion": "pilot-heuristic-v1"
+  },
+  "snap-scn-0001|cmp-0001-west-gate-east-gate-car|rt-library": {
+    "comparisonId": "ivc-0001-rt-library-car-west-gate",
+    "baselineSnapshotId": "snap-scn-0001",
+    "routeComparisonId": "cmp-0001-west-gate-east-gate-car",
+    "selectedRouteId": "rt-library",
+    "selectedRouteBlocked": true,
+    "drainIds": [
+      "D-01",
+      "D-02"
+    ],
+    "options": [
+      {
+        "runId": "run-0001-rt-library-car-west-gate-D-02",
+        "drainId": "D-02",
+        "drainLabel": "Library Lane gully line",
+        "affectedSegmentIds": [
+          "S-H31",
+          "S-H32",
+          "S-V22"
+        ],
+        "routeExposureBefore": 0.433,
+        "routeExposureAfter": 0.396,
+        "exposureReduction": 0.037,
+        "segmentsLeavingHigh": 1,
+        "affectedRouteCount": 1,
+        "segmentChanges": [
+          {
+            "segmentId": "S-H31",
+            "beforeScore": 0.541,
+            "afterScore": 0.416,
+            "beforeClass": "watch",
+            "afterClass": "watch",
+            "drainageBefore": 0.55,
+            "drainageAfter": 0.05
+          },
+          {
+            "segmentId": "S-H32",
+            "beforeScore": 0.612,
+            "afterScore": 0.488,
+            "beforeClass": "high",
+            "afterClass": "watch",
+            "drainageBefore": 0.65,
+            "drainageAfter": 0.15
+          },
+          {
+            "segmentId": "S-V22",
+            "beforeScore": 0.513,
+            "afterScore": 0.387,
+            "beforeClass": "watch",
+            "afterClass": "watch",
+            "drainageBefore": 0.5,
+            "drainageAfter": 0
+          }
+        ],
+        "routeOutcomeAfter": {
+          "outcome": "fastest_default",
+          "recommendedCandidateId": "rt-central",
+          "candidates": [
+            {
+              "id": "rt-central",
+              "exposure": 0.426,
+              "blocked": false
+            },
+            {
+              "id": "rt-hostel",
+              "exposure": 0.331,
+              "blocked": false
+            },
+            {
+              "id": "rt-library",
+              "exposure": 0.396,
+              "blocked": true
+            }
+          ]
+        },
+        "hasEstimatedBenefit": true,
+        "rank": 1
+      },
+      {
+        "runId": "run-0001-rt-library-car-west-gate-D-01",
+        "drainId": "D-01",
+        "drainLabel": "Canal Street culvert inlet",
+        "affectedSegmentIds": [
+          "S-H22",
+          "S-H23",
+          "S-V32"
+        ],
+        "routeExposureBefore": 0.433,
+        "routeExposureAfter": 0.433,
+        "exposureReduction": 0,
+        "segmentsLeavingHigh": 0,
+        "affectedRouteCount": 1,
+        "segmentChanges": [
+          {
+            "segmentId": "S-H22",
+            "beforeScore": 0.491,
+            "afterScore": 0.403,
+            "beforeClass": "watch",
+            "afterClass": "watch",
+            "drainageBefore": 0.35,
+            "drainageAfter": 0
+          },
+          {
+            "segmentId": "S-H23",
+            "beforeScore": 0.559,
+            "afterScore": 0.434,
+            "beforeClass": "watch",
+            "afterClass": "watch",
+            "drainageBefore": 0.5,
+            "drainageAfter": 0
+          },
+          {
+            "segmentId": "S-V32",
+            "beforeScore": 0.591,
+            "afterScore": 0.466,
+            "beforeClass": "watch",
+            "afterClass": "watch",
+            "drainageBefore": 0.5,
+            "drainageAfter": 0
+          }
+        ],
+        "routeOutcomeAfter": {
+          "outcome": "fastest_default",
+          "recommendedCandidateId": "rt-central",
+          "candidates": [
+            {
+              "id": "rt-central",
+              "exposure": 0.38,
+              "blocked": false
+            },
+            {
+              "id": "rt-hostel",
+              "exposure": 0.331,
+              "blocked": false
+            },
+            {
+              "id": "rt-library",
+              "exposure": 0.433,
+              "blocked": true
+            }
+          ]
+        },
+        "hasEstimatedBenefit": false,
+        "rank": 2
+      }
+    ],
+    "rankBasis": "route_exposure_reduction",
+    "noEstimatedBenefit": false,
+    "baselineRouteOutcome": {
+      "outcome": "fastest_default",
+      "recommendedCandidateId": "rt-central"
+    },
+    "assumptions": {
+      "drainageReduction": 0.5,
+      "floor": 0,
+      "unchangedInputs": [
+        "R",
+        "T",
+        "O"
+      ],
+      "statements": [
+        "Clearing a modelled drain lowers the curated drainage-vulnerability input by 0.5 (floored at zero) on its listed segments only.",
+        "Rainfall, terrain and accepted report evidence are held at baseline values.",
+        "Drain locations are illustrative choke points, not a verified drainage network.",
+        "This is a comparative what-if estimate, not a physical flood simulation or a time to recovery."
+      ]
+    },
+    "createdAt": "2026-10-08T11:31:05Z",
+    "modelVersion": "pilot-heuristic-v1"
+  },
+  "snap-scn-0001|cmp-0001-east-gate-west-gate-car|rt-central": {
+    "comparisonId": "ivc-0001-rt-central-car-east-gate",
+    "baselineSnapshotId": "snap-scn-0001",
+    "routeComparisonId": "cmp-0001-east-gate-west-gate-car",
+    "selectedRouteId": "rt-central",
+    "selectedRouteBlocked": false,
+    "drainIds": [
+      "D-01",
+      "D-02"
+    ],
+    "options": [
+      {
+        "runId": "run-0001-rt-central-car-east-gate-D-01",
+        "drainId": "D-01",
+        "drainLabel": "Canal Street culvert inlet",
+        "affectedSegmentIds": [
+          "S-H22",
+          "S-H23",
+          "S-V32"
+        ],
+        "routeExposureBefore": 0.426,
+        "routeExposureAfter": 0.38,
+        "exposureReduction": 0.046,
+        "segmentsLeavingHigh": 0,
+        "affectedRouteCount": 1,
+        "segmentChanges": [
+          {
+            "segmentId": "S-H22",
+            "beforeScore": 0.491,
+            "afterScore": 0.403,
+            "beforeClass": "watch",
+            "afterClass": "watch",
+            "drainageBefore": 0.35,
+            "drainageAfter": 0
+          },
+          {
+            "segmentId": "S-H23",
+            "beforeScore": 0.559,
+            "afterScore": 0.434,
+            "beforeClass": "watch",
+            "afterClass": "watch",
+            "drainageBefore": 0.5,
+            "drainageAfter": 0
+          },
+          {
+            "segmentId": "S-V32",
+            "beforeScore": 0.591,
+            "afterScore": 0.466,
+            "beforeClass": "watch",
+            "afterClass": "watch",
+            "drainageBefore": 0.5,
+            "drainageAfter": 0
+          }
+        ],
+        "routeOutcomeAfter": {
+          "outcome": "fastest_default",
+          "recommendedCandidateId": "rt-central",
+          "candidates": [
+            {
+              "id": "rt-central",
+              "exposure": 0.38,
+              "blocked": false
+            },
+            {
+              "id": "rt-hostel",
+              "exposure": 0.331,
+              "blocked": false
+            },
+            {
+              "id": "rt-library",
+              "exposure": 0.433,
+              "blocked": true
+            }
+          ]
+        },
+        "hasEstimatedBenefit": true,
+        "rank": 1
+      },
+      {
+        "runId": "run-0001-rt-central-car-east-gate-D-02",
+        "drainId": "D-02",
+        "drainLabel": "Library Lane gully line",
+        "affectedSegmentIds": [
+          "S-H31",
+          "S-H32",
+          "S-V22"
+        ],
+        "routeExposureBefore": 0.426,
+        "routeExposureAfter": 0.426,
+        "exposureReduction": 0,
+        "segmentsLeavingHigh": 1,
+        "affectedRouteCount": 1,
+        "segmentChanges": [
+          {
+            "segmentId": "S-H31",
+            "beforeScore": 0.541,
+            "afterScore": 0.416,
+            "beforeClass": "watch",
+            "afterClass": "watch",
+            "drainageBefore": 0.55,
+            "drainageAfter": 0.05
+          },
+          {
+            "segmentId": "S-H32",
+            "beforeScore": 0.612,
+            "afterScore": 0.488,
+            "beforeClass": "high",
+            "afterClass": "watch",
+            "drainageBefore": 0.65,
+            "drainageAfter": 0.15
+          },
+          {
+            "segmentId": "S-V22",
+            "beforeScore": 0.513,
+            "afterScore": 0.387,
+            "beforeClass": "watch",
+            "afterClass": "watch",
+            "drainageBefore": 0.5,
+            "drainageAfter": 0
+          }
+        ],
+        "routeOutcomeAfter": {
+          "outcome": "fastest_default",
+          "recommendedCandidateId": "rt-central",
+          "candidates": [
+            {
+              "id": "rt-central",
+              "exposure": 0.426,
+              "blocked": false
+            },
+            {
+              "id": "rt-hostel",
+              "exposure": 0.331,
+              "blocked": false
+            },
+            {
+              "id": "rt-library",
+              "exposure": 0.396,
+              "blocked": true
+            }
+          ]
+        },
+        "hasEstimatedBenefit": true,
+        "rank": 2
+      }
+    ],
+    "rankBasis": "route_exposure_reduction",
+    "noEstimatedBenefit": false,
+    "baselineRouteOutcome": {
+      "outcome": "fastest_default",
+      "recommendedCandidateId": "rt-central"
+    },
+    "assumptions": {
+      "drainageReduction": 0.5,
+      "floor": 0,
+      "unchangedInputs": [
+        "R",
+        "T",
+        "O"
+      ],
+      "statements": [
+        "Clearing a modelled drain lowers the curated drainage-vulnerability input by 0.5 (floored at zero) on its listed segments only.",
+        "Rainfall, terrain and accepted report evidence are held at baseline values.",
+        "Drain locations are illustrative choke points, not a verified drainage network.",
+        "This is a comparative what-if estimate, not a physical flood simulation or a time to recovery."
+      ]
+    },
+    "createdAt": "2026-10-08T11:31:05Z",
+    "modelVersion": "pilot-heuristic-v1"
+  },
+  "snap-scn-0001|cmp-0001-east-gate-west-gate-car|rt-hostel": {
+    "comparisonId": "ivc-0001-rt-hostel-car-east-gate",
+    "baselineSnapshotId": "snap-scn-0001",
+    "routeComparisonId": "cmp-0001-east-gate-west-gate-car",
+    "selectedRouteId": "rt-hostel",
+    "selectedRouteBlocked": false,
+    "drainIds": [
+      "D-01",
+      "D-02"
+    ],
+    "options": [
+      {
+        "runId": "run-0001-rt-hostel-car-east-gate-D-02",
+        "drainId": "D-02",
+        "drainLabel": "Library Lane gully line",
+        "affectedSegmentIds": [
+          "S-H31",
+          "S-H32",
+          "S-V22"
+        ],
+        "routeExposureBefore": 0.331,
+        "routeExposureAfter": 0.331,
+        "exposureReduction": 0,
+        "segmentsLeavingHigh": 1,
+        "affectedRouteCount": 1,
+        "segmentChanges": [
+          {
+            "segmentId": "S-H31",
+            "beforeScore": 0.541,
+            "afterScore": 0.416,
+            "beforeClass": "watch",
+            "afterClass": "watch",
+            "drainageBefore": 0.55,
+            "drainageAfter": 0.05
+          },
+          {
+            "segmentId": "S-H32",
+            "beforeScore": 0.612,
+            "afterScore": 0.488,
+            "beforeClass": "high",
+            "afterClass": "watch",
+            "drainageBefore": 0.65,
+            "drainageAfter": 0.15
+          },
+          {
+            "segmentId": "S-V22",
+            "beforeScore": 0.513,
+            "afterScore": 0.387,
+            "beforeClass": "watch",
+            "afterClass": "watch",
+            "drainageBefore": 0.5,
+            "drainageAfter": 0
+          }
+        ],
+        "routeOutcomeAfter": {
+          "outcome": "fastest_default",
+          "recommendedCandidateId": "rt-central",
+          "candidates": [
+            {
+              "id": "rt-central",
+              "exposure": 0.426,
+              "blocked": false
+            },
+            {
+              "id": "rt-hostel",
+              "exposure": 0.331,
+              "blocked": false
+            },
+            {
+              "id": "rt-library",
+              "exposure": 0.396,
+              "blocked": true
+            }
+          ]
+        },
+        "hasEstimatedBenefit": true,
+        "rank": 1
+      },
+      {
+        "runId": "run-0001-rt-hostel-car-east-gate-D-01",
+        "drainId": "D-01",
+        "drainLabel": "Canal Street culvert inlet",
+        "affectedSegmentIds": [
+          "S-H22",
+          "S-H23",
+          "S-V32"
+        ],
+        "routeExposureBefore": 0.331,
+        "routeExposureAfter": 0.331,
+        "exposureReduction": 0,
+        "segmentsLeavingHigh": 0,
+        "affectedRouteCount": 1,
+        "segmentChanges": [
+          {
+            "segmentId": "S-H22",
+            "beforeScore": 0.491,
+            "afterScore": 0.403,
+            "beforeClass": "watch",
+            "afterClass": "watch",
+            "drainageBefore": 0.35,
+            "drainageAfter": 0
+          },
+          {
+            "segmentId": "S-H23",
+            "beforeScore": 0.559,
+            "afterScore": 0.434,
+            "beforeClass": "watch",
+            "afterClass": "watch",
+            "drainageBefore": 0.5,
+            "drainageAfter": 0
+          },
+          {
+            "segmentId": "S-V32",
+            "beforeScore": 0.591,
+            "afterScore": 0.466,
+            "beforeClass": "watch",
+            "afterClass": "watch",
+            "drainageBefore": 0.5,
+            "drainageAfter": 0
+          }
+        ],
+        "routeOutcomeAfter": {
+          "outcome": "fastest_default",
+          "recommendedCandidateId": "rt-central",
+          "candidates": [
+            {
+              "id": "rt-central",
+              "exposure": 0.38,
+              "blocked": false
+            },
+            {
+              "id": "rt-hostel",
+              "exposure": 0.331,
+              "blocked": false
+            },
+            {
+              "id": "rt-library",
+              "exposure": 0.433,
+              "blocked": true
+            }
+          ]
+        },
+        "hasEstimatedBenefit": false,
+        "rank": 2
+      }
+    ],
+    "rankBasis": "segments_leaving_high",
+    "noEstimatedBenefit": false,
+    "baselineRouteOutcome": {
+      "outcome": "fastest_default",
+      "recommendedCandidateId": "rt-central"
+    },
+    "assumptions": {
+      "drainageReduction": 0.5,
+      "floor": 0,
+      "unchangedInputs": [
+        "R",
+        "T",
+        "O"
+      ],
+      "statements": [
+        "Clearing a modelled drain lowers the curated drainage-vulnerability input by 0.5 (floored at zero) on its listed segments only.",
+        "Rainfall, terrain and accepted report evidence are held at baseline values.",
+        "Drain locations are illustrative choke points, not a verified drainage network.",
+        "This is a comparative what-if estimate, not a physical flood simulation or a time to recovery."
+      ]
+    },
+    "createdAt": "2026-10-08T11:31:05Z",
+    "modelVersion": "pilot-heuristic-v1"
+  },
+  "snap-scn-0001|cmp-0001-east-gate-west-gate-car|rt-library": {
+    "comparisonId": "ivc-0001-rt-library-car-east-gate",
+    "baselineSnapshotId": "snap-scn-0001",
+    "routeComparisonId": "cmp-0001-east-gate-west-gate-car",
+    "selectedRouteId": "rt-library",
+    "selectedRouteBlocked": true,
+    "drainIds": [
+      "D-01",
+      "D-02"
+    ],
+    "options": [
+      {
+        "runId": "run-0001-rt-library-car-east-gate-D-02",
+        "drainId": "D-02",
+        "drainLabel": "Library Lane gully line",
+        "affectedSegmentIds": [
+          "S-H31",
+          "S-H32",
+          "S-V22"
+        ],
+        "routeExposureBefore": 0.433,
+        "routeExposureAfter": 0.396,
+        "exposureReduction": 0.037,
+        "segmentsLeavingHigh": 1,
+        "affectedRouteCount": 1,
+        "segmentChanges": [
+          {
+            "segmentId": "S-H31",
+            "beforeScore": 0.541,
+            "afterScore": 0.416,
+            "beforeClass": "watch",
+            "afterClass": "watch",
+            "drainageBefore": 0.55,
+            "drainageAfter": 0.05
+          },
+          {
+            "segmentId": "S-H32",
+            "beforeScore": 0.612,
+            "afterScore": 0.488,
+            "beforeClass": "high",
+            "afterClass": "watch",
+            "drainageBefore": 0.65,
+            "drainageAfter": 0.15
+          },
+          {
+            "segmentId": "S-V22",
+            "beforeScore": 0.513,
+            "afterScore": 0.387,
+            "beforeClass": "watch",
+            "afterClass": "watch",
+            "drainageBefore": 0.5,
+            "drainageAfter": 0
+          }
+        ],
+        "routeOutcomeAfter": {
+          "outcome": "fastest_default",
+          "recommendedCandidateId": "rt-central",
+          "candidates": [
+            {
+              "id": "rt-central",
+              "exposure": 0.426,
+              "blocked": false
+            },
+            {
+              "id": "rt-hostel",
+              "exposure": 0.331,
+              "blocked": false
+            },
+            {
+              "id": "rt-library",
+              "exposure": 0.396,
+              "blocked": true
+            }
+          ]
+        },
+        "hasEstimatedBenefit": true,
+        "rank": 1
+      },
+      {
+        "runId": "run-0001-rt-library-car-east-gate-D-01",
+        "drainId": "D-01",
+        "drainLabel": "Canal Street culvert inlet",
+        "affectedSegmentIds": [
+          "S-H22",
+          "S-H23",
+          "S-V32"
+        ],
+        "routeExposureBefore": 0.433,
+        "routeExposureAfter": 0.433,
+        "exposureReduction": 0,
+        "segmentsLeavingHigh": 0,
+        "affectedRouteCount": 1,
+        "segmentChanges": [
+          {
+            "segmentId": "S-H22",
+            "beforeScore": 0.491,
+            "afterScore": 0.403,
+            "beforeClass": "watch",
+            "afterClass": "watch",
+            "drainageBefore": 0.35,
+            "drainageAfter": 0
+          },
+          {
+            "segmentId": "S-H23",
+            "beforeScore": 0.559,
+            "afterScore": 0.434,
+            "beforeClass": "watch",
+            "afterClass": "watch",
+            "drainageBefore": 0.5,
+            "drainageAfter": 0
+          },
+          {
+            "segmentId": "S-V32",
+            "beforeScore": 0.591,
+            "afterScore": 0.466,
+            "beforeClass": "watch",
+            "afterClass": "watch",
+            "drainageBefore": 0.5,
+            "drainageAfter": 0
+          }
+        ],
+        "routeOutcomeAfter": {
+          "outcome": "fastest_default",
+          "recommendedCandidateId": "rt-central",
+          "candidates": [
+            {
+              "id": "rt-central",
+              "exposure": 0.38,
+              "blocked": false
+            },
+            {
+              "id": "rt-hostel",
+              "exposure": 0.331,
+              "blocked": false
+            },
+            {
+              "id": "rt-library",
+              "exposure": 0.433,
+              "blocked": true
+            }
+          ]
+        },
+        "hasEstimatedBenefit": false,
+        "rank": 2
+      }
+    ],
+    "rankBasis": "route_exposure_reduction",
+    "noEstimatedBenefit": false,
+    "baselineRouteOutcome": {
+      "outcome": "fastest_default",
+      "recommendedCandidateId": "rt-central"
+    },
+    "assumptions": {
+      "drainageReduction": 0.5,
+      "floor": 0,
+      "unchangedInputs": [
+        "R",
+        "T",
+        "O"
+      ],
+      "statements": [
+        "Clearing a modelled drain lowers the curated drainage-vulnerability input by 0.5 (floored at zero) on its listed segments only.",
+        "Rainfall, terrain and accepted report evidence are held at baseline values.",
+        "Drain locations are illustrative choke points, not a verified drainage network.",
+        "This is a comparative what-if estimate, not a physical flood simulation or a time to recovery."
+      ]
+    },
+    "createdAt": "2026-10-08T11:31:05Z",
+    "modelVersion": "pilot-heuristic-v1"
+  },
+  "snap-scn-0002|cmp-0002-west-gate-east-gate-pedestrian|rt-central": {
+    "comparisonId": "ivc-0002-rt-central-pedestrian-west-gate",
+    "baselineSnapshotId": "snap-scn-0002",
+    "routeComparisonId": "cmp-0002-west-gate-east-gate-pedestrian",
+    "selectedRouteId": "rt-central",
+    "selectedRouteBlocked": false,
+    "drainIds": [
+      "D-01",
+      "D-02"
+    ],
+    "options": [
+      {
+        "runId": "run-0002-rt-central-pedestrian-west-gate-D-01",
+        "drainId": "D-01",
+        "drainLabel": "Canal Street culvert inlet",
+        "affectedSegmentIds": [
+          "S-H22",
+          "S-H23",
+          "S-V32"
+        ],
+        "routeExposureBefore": 0.446,
+        "routeExposureAfter": 0.405,
+        "exposureReduction": 0.041,
+        "segmentsLeavingHigh": 1,
+        "affectedRouteCount": 1,
+        "segmentChanges": [
+          {
+            "segmentId": "S-H22",
+            "beforeScore": 0.491,
+            "afterScore": 0.403,
+            "beforeClass": "watch",
+            "afterClass": "watch",
+            "drainageBefore": 0.35,
+            "drainageAfter": 0
+          },
+          {
+            "segmentId": "S-H23",
+            "beforeScore": 0.648,
+            "afterScore": 0.548,
+            "beforeClass": "high",
+            "afterClass": "watch",
+            "drainageBefore": 0.5,
+            "drainageAfter": 0
+          },
+          {
+            "segmentId": "S-V32",
+            "beforeScore": 0.591,
+            "afterScore": 0.466,
+            "beforeClass": "watch",
+            "afterClass": "watch",
+            "drainageBefore": 0.5,
+            "drainageAfter": 0
+          }
+        ],
+        "routeOutcomeAfter": {
+          "outcome": "fastest_default",
+          "recommendedCandidateId": "rt-central",
+          "candidates": [
+            {
+              "id": "rt-central",
+              "exposure": 0.405,
+              "blocked": false
+            },
+            {
+              "id": "rt-hostel",
+              "exposure": 0.331,
+              "blocked": false
+            },
+            {
+              "id": "rt-library",
+              "exposure": 0.433,
+              "blocked": true
+            }
+          ]
+        },
+        "hasEstimatedBenefit": true,
+        "rank": 1
+      },
+      {
+        "runId": "run-0002-rt-central-pedestrian-west-gate-D-02",
+        "drainId": "D-02",
+        "drainLabel": "Library Lane gully line",
+        "affectedSegmentIds": [
+          "S-H31",
+          "S-H32",
+          "S-V22"
+        ],
+        "routeExposureBefore": 0.446,
+        "routeExposureAfter": 0.446,
+        "exposureReduction": 0,
+        "segmentsLeavingHigh": 1,
+        "affectedRouteCount": 1,
+        "segmentChanges": [
+          {
+            "segmentId": "S-H31",
+            "beforeScore": 0.541,
+            "afterScore": 0.416,
+            "beforeClass": "watch",
+            "afterClass": "watch",
+            "drainageBefore": 0.55,
+            "drainageAfter": 0.05
+          },
+          {
+            "segmentId": "S-H32",
+            "beforeScore": 0.612,
+            "afterScore": 0.488,
+            "beforeClass": "high",
+            "afterClass": "watch",
+            "drainageBefore": 0.65,
+            "drainageAfter": 0.15
+          },
+          {
+            "segmentId": "S-V22",
+            "beforeScore": 0.513,
+            "afterScore": 0.387,
+            "beforeClass": "watch",
+            "afterClass": "watch",
+            "drainageBefore": 0.5,
+            "drainageAfter": 0
+          }
+        ],
+        "routeOutcomeAfter": {
+          "outcome": "lower_exposure_recommended",
+          "recommendedCandidateId": "rt-hostel",
+          "candidates": [
+            {
+              "id": "rt-central",
+              "exposure": 0.446,
+              "blocked": false
+            },
+            {
+              "id": "rt-hostel",
+              "exposure": 0.331,
+              "blocked": false
+            },
+            {
+              "id": "rt-library",
+              "exposure": 0.396,
+              "blocked": true
+            }
+          ]
+        },
+        "hasEstimatedBenefit": true,
+        "rank": 2
+      }
+    ],
+    "rankBasis": "route_exposure_reduction",
+    "noEstimatedBenefit": false,
+    "baselineRouteOutcome": {
+      "outcome": "lower_exposure_recommended",
+      "recommendedCandidateId": "rt-hostel"
+    },
+    "assumptions": {
+      "drainageReduction": 0.5,
+      "floor": 0,
+      "unchangedInputs": [
+        "R",
+        "T",
+        "O"
+      ],
+      "statements": [
+        "Clearing a modelled drain lowers the curated drainage-vulnerability input by 0.5 (floored at zero) on its listed segments only.",
+        "Rainfall, terrain and accepted report evidence are held at baseline values.",
+        "Drain locations are illustrative choke points, not a verified drainage network.",
+        "This is a comparative what-if estimate, not a physical flood simulation or a time to recovery."
+      ]
+    },
+    "createdAt": "2026-10-08T11:36:40Z",
+    "modelVersion": "pilot-heuristic-v1"
+  },
+  "snap-scn-0002|cmp-0002-west-gate-east-gate-pedestrian|rt-hostel": {
+    "comparisonId": "ivc-0002-rt-hostel-pedestrian-west-gate",
+    "baselineSnapshotId": "snap-scn-0002",
+    "routeComparisonId": "cmp-0002-west-gate-east-gate-pedestrian",
+    "selectedRouteId": "rt-hostel",
+    "selectedRouteBlocked": false,
+    "drainIds": [
+      "D-01",
+      "D-02"
+    ],
+    "options": [
+      {
+        "runId": "run-0002-rt-hostel-pedestrian-west-gate-D-01",
+        "drainId": "D-01",
+        "drainLabel": "Canal Street culvert inlet",
+        "affectedSegmentIds": [
+          "S-H22",
+          "S-H23",
+          "S-V32"
+        ],
+        "routeExposureBefore": 0.331,
+        "routeExposureAfter": 0.331,
+        "exposureReduction": 0,
+        "segmentsLeavingHigh": 1,
+        "affectedRouteCount": 1,
+        "segmentChanges": [
+          {
+            "segmentId": "S-H22",
+            "beforeScore": 0.491,
+            "afterScore": 0.403,
+            "beforeClass": "watch",
+            "afterClass": "watch",
+            "drainageBefore": 0.35,
+            "drainageAfter": 0
+          },
+          {
+            "segmentId": "S-H23",
+            "beforeScore": 0.648,
+            "afterScore": 0.548,
+            "beforeClass": "high",
+            "afterClass": "watch",
+            "drainageBefore": 0.5,
+            "drainageAfter": 0
+          },
+          {
+            "segmentId": "S-V32",
+            "beforeScore": 0.591,
+            "afterScore": 0.466,
+            "beforeClass": "watch",
+            "afterClass": "watch",
+            "drainageBefore": 0.5,
+            "drainageAfter": 0
+          }
+        ],
+        "routeOutcomeAfter": {
+          "outcome": "fastest_default",
+          "recommendedCandidateId": "rt-central",
+          "candidates": [
+            {
+              "id": "rt-central",
+              "exposure": 0.405,
+              "blocked": false
+            },
+            {
+              "id": "rt-hostel",
+              "exposure": 0.331,
+              "blocked": false
+            },
+            {
+              "id": "rt-library",
+              "exposure": 0.433,
+              "blocked": true
+            }
+          ]
+        },
+        "hasEstimatedBenefit": true,
+        "rank": 1
+      },
+      {
+        "runId": "run-0002-rt-hostel-pedestrian-west-gate-D-02",
+        "drainId": "D-02",
+        "drainLabel": "Library Lane gully line",
+        "affectedSegmentIds": [
+          "S-H31",
+          "S-H32",
+          "S-V22"
+        ],
+        "routeExposureBefore": 0.331,
+        "routeExposureAfter": 0.331,
+        "exposureReduction": 0,
+        "segmentsLeavingHigh": 1,
+        "affectedRouteCount": 1,
+        "segmentChanges": [
+          {
+            "segmentId": "S-H31",
+            "beforeScore": 0.541,
+            "afterScore": 0.416,
+            "beforeClass": "watch",
+            "afterClass": "watch",
+            "drainageBefore": 0.55,
+            "drainageAfter": 0.05
+          },
+          {
+            "segmentId": "S-H32",
+            "beforeScore": 0.612,
+            "afterScore": 0.488,
+            "beforeClass": "high",
+            "afterClass": "watch",
+            "drainageBefore": 0.65,
+            "drainageAfter": 0.15
+          },
+          {
+            "segmentId": "S-V22",
+            "beforeScore": 0.513,
+            "afterScore": 0.387,
+            "beforeClass": "watch",
+            "afterClass": "watch",
+            "drainageBefore": 0.5,
+            "drainageAfter": 0
+          }
+        ],
+        "routeOutcomeAfter": {
+          "outcome": "lower_exposure_recommended",
+          "recommendedCandidateId": "rt-hostel",
+          "candidates": [
+            {
+              "id": "rt-central",
+              "exposure": 0.446,
+              "blocked": false
+            },
+            {
+              "id": "rt-hostel",
+              "exposure": 0.331,
+              "blocked": false
+            },
+            {
+              "id": "rt-library",
+              "exposure": 0.396,
+              "blocked": true
+            }
+          ]
+        },
+        "hasEstimatedBenefit": true,
+        "rank": 2
+      }
+    ],
+    "rankBasis": "drain_id",
+    "noEstimatedBenefit": false,
+    "baselineRouteOutcome": {
+      "outcome": "lower_exposure_recommended",
+      "recommendedCandidateId": "rt-hostel"
+    },
+    "assumptions": {
+      "drainageReduction": 0.5,
+      "floor": 0,
+      "unchangedInputs": [
+        "R",
+        "T",
+        "O"
+      ],
+      "statements": [
+        "Clearing a modelled drain lowers the curated drainage-vulnerability input by 0.5 (floored at zero) on its listed segments only.",
+        "Rainfall, terrain and accepted report evidence are held at baseline values.",
+        "Drain locations are illustrative choke points, not a verified drainage network.",
+        "This is a comparative what-if estimate, not a physical flood simulation or a time to recovery."
+      ]
+    },
+    "createdAt": "2026-10-08T11:36:40Z",
+    "modelVersion": "pilot-heuristic-v1"
+  },
+  "snap-scn-0002|cmp-0002-west-gate-east-gate-pedestrian|rt-library": {
+    "comparisonId": "ivc-0002-rt-library-pedestrian-west-gate",
+    "baselineSnapshotId": "snap-scn-0002",
+    "routeComparisonId": "cmp-0002-west-gate-east-gate-pedestrian",
+    "selectedRouteId": "rt-library",
+    "selectedRouteBlocked": true,
+    "drainIds": [
+      "D-01",
+      "D-02"
+    ],
+    "options": [
+      {
+        "runId": "run-0002-rt-library-pedestrian-west-gate-D-02",
+        "drainId": "D-02",
+        "drainLabel": "Library Lane gully line",
+        "affectedSegmentIds": [
+          "S-H31",
+          "S-H32",
+          "S-V22"
+        ],
+        "routeExposureBefore": 0.433,
+        "routeExposureAfter": 0.396,
+        "exposureReduction": 0.037,
+        "segmentsLeavingHigh": 1,
+        "affectedRouteCount": 1,
+        "segmentChanges": [
+          {
+            "segmentId": "S-H31",
+            "beforeScore": 0.541,
+            "afterScore": 0.416,
+            "beforeClass": "watch",
+            "afterClass": "watch",
+            "drainageBefore": 0.55,
+            "drainageAfter": 0.05
+          },
+          {
+            "segmentId": "S-H32",
+            "beforeScore": 0.612,
+            "afterScore": 0.488,
+            "beforeClass": "high",
+            "afterClass": "watch",
+            "drainageBefore": 0.65,
+            "drainageAfter": 0.15
+          },
+          {
+            "segmentId": "S-V22",
+            "beforeScore": 0.513,
+            "afterScore": 0.387,
+            "beforeClass": "watch",
+            "afterClass": "watch",
+            "drainageBefore": 0.5,
+            "drainageAfter": 0
+          }
+        ],
+        "routeOutcomeAfter": {
+          "outcome": "lower_exposure_recommended",
+          "recommendedCandidateId": "rt-hostel",
+          "candidates": [
+            {
+              "id": "rt-central",
+              "exposure": 0.446,
+              "blocked": false
+            },
+            {
+              "id": "rt-hostel",
+              "exposure": 0.331,
+              "blocked": false
+            },
+            {
+              "id": "rt-library",
+              "exposure": 0.396,
+              "blocked": true
+            }
+          ]
+        },
+        "hasEstimatedBenefit": true,
+        "rank": 1
+      },
+      {
+        "runId": "run-0002-rt-library-pedestrian-west-gate-D-01",
+        "drainId": "D-01",
+        "drainLabel": "Canal Street culvert inlet",
+        "affectedSegmentIds": [
+          "S-H22",
+          "S-H23",
+          "S-V32"
+        ],
+        "routeExposureBefore": 0.433,
+        "routeExposureAfter": 0.433,
+        "exposureReduction": 0,
+        "segmentsLeavingHigh": 1,
+        "affectedRouteCount": 1,
+        "segmentChanges": [
+          {
+            "segmentId": "S-H22",
+            "beforeScore": 0.491,
+            "afterScore": 0.403,
+            "beforeClass": "watch",
+            "afterClass": "watch",
+            "drainageBefore": 0.35,
+            "drainageAfter": 0
+          },
+          {
+            "segmentId": "S-H23",
+            "beforeScore": 0.648,
+            "afterScore": 0.548,
+            "beforeClass": "high",
+            "afterClass": "watch",
+            "drainageBefore": 0.5,
+            "drainageAfter": 0
+          },
+          {
+            "segmentId": "S-V32",
+            "beforeScore": 0.591,
+            "afterScore": 0.466,
+            "beforeClass": "watch",
+            "afterClass": "watch",
+            "drainageBefore": 0.5,
+            "drainageAfter": 0
+          }
+        ],
+        "routeOutcomeAfter": {
+          "outcome": "fastest_default",
+          "recommendedCandidateId": "rt-central",
+          "candidates": [
+            {
+              "id": "rt-central",
+              "exposure": 0.405,
+              "blocked": false
+            },
+            {
+              "id": "rt-hostel",
+              "exposure": 0.331,
+              "blocked": false
+            },
+            {
+              "id": "rt-library",
+              "exposure": 0.433,
+              "blocked": true
+            }
+          ]
+        },
+        "hasEstimatedBenefit": true,
+        "rank": 2
+      }
+    ],
+    "rankBasis": "route_exposure_reduction",
+    "noEstimatedBenefit": false,
+    "baselineRouteOutcome": {
+      "outcome": "lower_exposure_recommended",
+      "recommendedCandidateId": "rt-hostel"
+    },
+    "assumptions": {
+      "drainageReduction": 0.5,
+      "floor": 0,
+      "unchangedInputs": [
+        "R",
+        "T",
+        "O"
+      ],
+      "statements": [
+        "Clearing a modelled drain lowers the curated drainage-vulnerability input by 0.5 (floored at zero) on its listed segments only.",
+        "Rainfall, terrain and accepted report evidence are held at baseline values.",
+        "Drain locations are illustrative choke points, not a verified drainage network.",
+        "This is a comparative what-if estimate, not a physical flood simulation or a time to recovery."
+      ]
+    },
+    "createdAt": "2026-10-08T11:36:40Z",
+    "modelVersion": "pilot-heuristic-v1"
+  },
+  "snap-scn-0002|cmp-0002-east-gate-west-gate-pedestrian|rt-central": {
+    "comparisonId": "ivc-0002-rt-central-pedestrian-east-gate",
+    "baselineSnapshotId": "snap-scn-0002",
+    "routeComparisonId": "cmp-0002-east-gate-west-gate-pedestrian",
+    "selectedRouteId": "rt-central",
+    "selectedRouteBlocked": false,
+    "drainIds": [
+      "D-01",
+      "D-02"
+    ],
+    "options": [
+      {
+        "runId": "run-0002-rt-central-pedestrian-east-gate-D-01",
+        "drainId": "D-01",
+        "drainLabel": "Canal Street culvert inlet",
+        "affectedSegmentIds": [
+          "S-H22",
+          "S-H23",
+          "S-V32"
+        ],
+        "routeExposureBefore": 0.446,
+        "routeExposureAfter": 0.405,
+        "exposureReduction": 0.041,
+        "segmentsLeavingHigh": 1,
+        "affectedRouteCount": 1,
+        "segmentChanges": [
+          {
+            "segmentId": "S-H22",
+            "beforeScore": 0.491,
+            "afterScore": 0.403,
+            "beforeClass": "watch",
+            "afterClass": "watch",
+            "drainageBefore": 0.35,
+            "drainageAfter": 0
+          },
+          {
+            "segmentId": "S-H23",
+            "beforeScore": 0.648,
+            "afterScore": 0.548,
+            "beforeClass": "high",
+            "afterClass": "watch",
+            "drainageBefore": 0.5,
+            "drainageAfter": 0
+          },
+          {
+            "segmentId": "S-V32",
+            "beforeScore": 0.591,
+            "afterScore": 0.466,
+            "beforeClass": "watch",
+            "afterClass": "watch",
+            "drainageBefore": 0.5,
+            "drainageAfter": 0
+          }
+        ],
+        "routeOutcomeAfter": {
+          "outcome": "fastest_default",
+          "recommendedCandidateId": "rt-central",
+          "candidates": [
+            {
+              "id": "rt-central",
+              "exposure": 0.405,
+              "blocked": false
+            },
+            {
+              "id": "rt-hostel",
+              "exposure": 0.331,
+              "blocked": false
+            },
+            {
+              "id": "rt-library",
+              "exposure": 0.433,
+              "blocked": true
+            }
+          ]
+        },
+        "hasEstimatedBenefit": true,
+        "rank": 1
+      },
+      {
+        "runId": "run-0002-rt-central-pedestrian-east-gate-D-02",
+        "drainId": "D-02",
+        "drainLabel": "Library Lane gully line",
+        "affectedSegmentIds": [
+          "S-H31",
+          "S-H32",
+          "S-V22"
+        ],
+        "routeExposureBefore": 0.446,
+        "routeExposureAfter": 0.446,
+        "exposureReduction": 0,
+        "segmentsLeavingHigh": 1,
+        "affectedRouteCount": 1,
+        "segmentChanges": [
+          {
+            "segmentId": "S-H31",
+            "beforeScore": 0.541,
+            "afterScore": 0.416,
+            "beforeClass": "watch",
+            "afterClass": "watch",
+            "drainageBefore": 0.55,
+            "drainageAfter": 0.05
+          },
+          {
+            "segmentId": "S-H32",
+            "beforeScore": 0.612,
+            "afterScore": 0.488,
+            "beforeClass": "high",
+            "afterClass": "watch",
+            "drainageBefore": 0.65,
+            "drainageAfter": 0.15
+          },
+          {
+            "segmentId": "S-V22",
+            "beforeScore": 0.513,
+            "afterScore": 0.387,
+            "beforeClass": "watch",
+            "afterClass": "watch",
+            "drainageBefore": 0.5,
+            "drainageAfter": 0
+          }
+        ],
+        "routeOutcomeAfter": {
+          "outcome": "lower_exposure_recommended",
+          "recommendedCandidateId": "rt-hostel",
+          "candidates": [
+            {
+              "id": "rt-central",
+              "exposure": 0.446,
+              "blocked": false
+            },
+            {
+              "id": "rt-hostel",
+              "exposure": 0.331,
+              "blocked": false
+            },
+            {
+              "id": "rt-library",
+              "exposure": 0.396,
+              "blocked": true
+            }
+          ]
+        },
+        "hasEstimatedBenefit": true,
+        "rank": 2
+      }
+    ],
+    "rankBasis": "route_exposure_reduction",
+    "noEstimatedBenefit": false,
+    "baselineRouteOutcome": {
+      "outcome": "lower_exposure_recommended",
+      "recommendedCandidateId": "rt-hostel"
+    },
+    "assumptions": {
+      "drainageReduction": 0.5,
+      "floor": 0,
+      "unchangedInputs": [
+        "R",
+        "T",
+        "O"
+      ],
+      "statements": [
+        "Clearing a modelled drain lowers the curated drainage-vulnerability input by 0.5 (floored at zero) on its listed segments only.",
+        "Rainfall, terrain and accepted report evidence are held at baseline values.",
+        "Drain locations are illustrative choke points, not a verified drainage network.",
+        "This is a comparative what-if estimate, not a physical flood simulation or a time to recovery."
+      ]
+    },
+    "createdAt": "2026-10-08T11:36:40Z",
+    "modelVersion": "pilot-heuristic-v1"
+  },
+  "snap-scn-0002|cmp-0002-east-gate-west-gate-pedestrian|rt-hostel": {
+    "comparisonId": "ivc-0002-rt-hostel-pedestrian-east-gate",
+    "baselineSnapshotId": "snap-scn-0002",
+    "routeComparisonId": "cmp-0002-east-gate-west-gate-pedestrian",
+    "selectedRouteId": "rt-hostel",
+    "selectedRouteBlocked": false,
+    "drainIds": [
+      "D-01",
+      "D-02"
+    ],
+    "options": [
+      {
+        "runId": "run-0002-rt-hostel-pedestrian-east-gate-D-01",
+        "drainId": "D-01",
+        "drainLabel": "Canal Street culvert inlet",
+        "affectedSegmentIds": [
+          "S-H22",
+          "S-H23",
+          "S-V32"
+        ],
+        "routeExposureBefore": 0.331,
+        "routeExposureAfter": 0.331,
+        "exposureReduction": 0,
+        "segmentsLeavingHigh": 1,
+        "affectedRouteCount": 1,
+        "segmentChanges": [
+          {
+            "segmentId": "S-H22",
+            "beforeScore": 0.491,
+            "afterScore": 0.403,
+            "beforeClass": "watch",
+            "afterClass": "watch",
+            "drainageBefore": 0.35,
+            "drainageAfter": 0
+          },
+          {
+            "segmentId": "S-H23",
+            "beforeScore": 0.648,
+            "afterScore": 0.548,
+            "beforeClass": "high",
+            "afterClass": "watch",
+            "drainageBefore": 0.5,
+            "drainageAfter": 0
+          },
+          {
+            "segmentId": "S-V32",
+            "beforeScore": 0.591,
+            "afterScore": 0.466,
+            "beforeClass": "watch",
+            "afterClass": "watch",
+            "drainageBefore": 0.5,
+            "drainageAfter": 0
+          }
+        ],
+        "routeOutcomeAfter": {
+          "outcome": "fastest_default",
+          "recommendedCandidateId": "rt-central",
+          "candidates": [
+            {
+              "id": "rt-central",
+              "exposure": 0.405,
+              "blocked": false
+            },
+            {
+              "id": "rt-hostel",
+              "exposure": 0.331,
+              "blocked": false
+            },
+            {
+              "id": "rt-library",
+              "exposure": 0.433,
+              "blocked": true
+            }
+          ]
+        },
+        "hasEstimatedBenefit": true,
+        "rank": 1
+      },
+      {
+        "runId": "run-0002-rt-hostel-pedestrian-east-gate-D-02",
+        "drainId": "D-02",
+        "drainLabel": "Library Lane gully line",
+        "affectedSegmentIds": [
+          "S-H31",
+          "S-H32",
+          "S-V22"
+        ],
+        "routeExposureBefore": 0.331,
+        "routeExposureAfter": 0.331,
+        "exposureReduction": 0,
+        "segmentsLeavingHigh": 1,
+        "affectedRouteCount": 1,
+        "segmentChanges": [
+          {
+            "segmentId": "S-H31",
+            "beforeScore": 0.541,
+            "afterScore": 0.416,
+            "beforeClass": "watch",
+            "afterClass": "watch",
+            "drainageBefore": 0.55,
+            "drainageAfter": 0.05
+          },
+          {
+            "segmentId": "S-H32",
+            "beforeScore": 0.612,
+            "afterScore": 0.488,
+            "beforeClass": "high",
+            "afterClass": "watch",
+            "drainageBefore": 0.65,
+            "drainageAfter": 0.15
+          },
+          {
+            "segmentId": "S-V22",
+            "beforeScore": 0.513,
+            "afterScore": 0.387,
+            "beforeClass": "watch",
+            "afterClass": "watch",
+            "drainageBefore": 0.5,
+            "drainageAfter": 0
+          }
+        ],
+        "routeOutcomeAfter": {
+          "outcome": "lower_exposure_recommended",
+          "recommendedCandidateId": "rt-hostel",
+          "candidates": [
+            {
+              "id": "rt-central",
+              "exposure": 0.446,
+              "blocked": false
+            },
+            {
+              "id": "rt-hostel",
+              "exposure": 0.331,
+              "blocked": false
+            },
+            {
+              "id": "rt-library",
+              "exposure": 0.396,
+              "blocked": true
+            }
+          ]
+        },
+        "hasEstimatedBenefit": true,
+        "rank": 2
+      }
+    ],
+    "rankBasis": "drain_id",
+    "noEstimatedBenefit": false,
+    "baselineRouteOutcome": {
+      "outcome": "lower_exposure_recommended",
+      "recommendedCandidateId": "rt-hostel"
+    },
+    "assumptions": {
+      "drainageReduction": 0.5,
+      "floor": 0,
+      "unchangedInputs": [
+        "R",
+        "T",
+        "O"
+      ],
+      "statements": [
+        "Clearing a modelled drain lowers the curated drainage-vulnerability input by 0.5 (floored at zero) on its listed segments only.",
+        "Rainfall, terrain and accepted report evidence are held at baseline values.",
+        "Drain locations are illustrative choke points, not a verified drainage network.",
+        "This is a comparative what-if estimate, not a physical flood simulation or a time to recovery."
+      ]
+    },
+    "createdAt": "2026-10-08T11:36:40Z",
+    "modelVersion": "pilot-heuristic-v1"
+  },
+  "snap-scn-0002|cmp-0002-east-gate-west-gate-pedestrian|rt-library": {
+    "comparisonId": "ivc-0002-rt-library-pedestrian-east-gate",
+    "baselineSnapshotId": "snap-scn-0002",
+    "routeComparisonId": "cmp-0002-east-gate-west-gate-pedestrian",
+    "selectedRouteId": "rt-library",
+    "selectedRouteBlocked": true,
+    "drainIds": [
+      "D-01",
+      "D-02"
+    ],
+    "options": [
+      {
+        "runId": "run-0002-rt-library-pedestrian-east-gate-D-02",
+        "drainId": "D-02",
+        "drainLabel": "Library Lane gully line",
+        "affectedSegmentIds": [
+          "S-H31",
+          "S-H32",
+          "S-V22"
+        ],
+        "routeExposureBefore": 0.433,
+        "routeExposureAfter": 0.396,
+        "exposureReduction": 0.037,
+        "segmentsLeavingHigh": 1,
+        "affectedRouteCount": 1,
+        "segmentChanges": [
+          {
+            "segmentId": "S-H31",
+            "beforeScore": 0.541,
+            "afterScore": 0.416,
+            "beforeClass": "watch",
+            "afterClass": "watch",
+            "drainageBefore": 0.55,
+            "drainageAfter": 0.05
+          },
+          {
+            "segmentId": "S-H32",
+            "beforeScore": 0.612,
+            "afterScore": 0.488,
+            "beforeClass": "high",
+            "afterClass": "watch",
+            "drainageBefore": 0.65,
+            "drainageAfter": 0.15
+          },
+          {
+            "segmentId": "S-V22",
+            "beforeScore": 0.513,
+            "afterScore": 0.387,
+            "beforeClass": "watch",
+            "afterClass": "watch",
+            "drainageBefore": 0.5,
+            "drainageAfter": 0
+          }
+        ],
+        "routeOutcomeAfter": {
+          "outcome": "lower_exposure_recommended",
+          "recommendedCandidateId": "rt-hostel",
+          "candidates": [
+            {
+              "id": "rt-central",
+              "exposure": 0.446,
+              "blocked": false
+            },
+            {
+              "id": "rt-hostel",
+              "exposure": 0.331,
+              "blocked": false
+            },
+            {
+              "id": "rt-library",
+              "exposure": 0.396,
+              "blocked": true
+            }
+          ]
+        },
+        "hasEstimatedBenefit": true,
+        "rank": 1
+      },
+      {
+        "runId": "run-0002-rt-library-pedestrian-east-gate-D-01",
+        "drainId": "D-01",
+        "drainLabel": "Canal Street culvert inlet",
+        "affectedSegmentIds": [
+          "S-H22",
+          "S-H23",
+          "S-V32"
+        ],
+        "routeExposureBefore": 0.433,
+        "routeExposureAfter": 0.433,
+        "exposureReduction": 0,
+        "segmentsLeavingHigh": 1,
+        "affectedRouteCount": 1,
+        "segmentChanges": [
+          {
+            "segmentId": "S-H22",
+            "beforeScore": 0.491,
+            "afterScore": 0.403,
+            "beforeClass": "watch",
+            "afterClass": "watch",
+            "drainageBefore": 0.35,
+            "drainageAfter": 0
+          },
+          {
+            "segmentId": "S-H23",
+            "beforeScore": 0.648,
+            "afterScore": 0.548,
+            "beforeClass": "high",
+            "afterClass": "watch",
+            "drainageBefore": 0.5,
+            "drainageAfter": 0
+          },
+          {
+            "segmentId": "S-V32",
+            "beforeScore": 0.591,
+            "afterScore": 0.466,
+            "beforeClass": "watch",
+            "afterClass": "watch",
+            "drainageBefore": 0.5,
+            "drainageAfter": 0
+          }
+        ],
+        "routeOutcomeAfter": {
+          "outcome": "fastest_default",
+          "recommendedCandidateId": "rt-central",
+          "candidates": [
+            {
+              "id": "rt-central",
+              "exposure": 0.405,
+              "blocked": false
+            },
+            {
+              "id": "rt-hostel",
+              "exposure": 0.331,
+              "blocked": false
+            },
+            {
+              "id": "rt-library",
+              "exposure": 0.433,
+              "blocked": true
+            }
+          ]
+        },
+        "hasEstimatedBenefit": true,
+        "rank": 2
+      }
+    ],
+    "rankBasis": "route_exposure_reduction",
+    "noEstimatedBenefit": false,
+    "baselineRouteOutcome": {
+      "outcome": "lower_exposure_recommended",
+      "recommendedCandidateId": "rt-hostel"
+    },
+    "assumptions": {
+      "drainageReduction": 0.5,
+      "floor": 0,
+      "unchangedInputs": [
+        "R",
+        "T",
+        "O"
+      ],
+      "statements": [
+        "Clearing a modelled drain lowers the curated drainage-vulnerability input by 0.5 (floored at zero) on its listed segments only.",
+        "Rainfall, terrain and accepted report evidence are held at baseline values.",
+        "Drain locations are illustrative choke points, not a verified drainage network.",
+        "This is a comparative what-if estimate, not a physical flood simulation or a time to recovery."
+      ]
+    },
+    "createdAt": "2026-10-08T11:36:40Z",
+    "modelVersion": "pilot-heuristic-v1"
+  },
+  "snap-scn-0002|cmp-0002-west-gate-east-gate-car|rt-central": {
+    "comparisonId": "ivc-0002-rt-central-car-west-gate",
+    "baselineSnapshotId": "snap-scn-0002",
+    "routeComparisonId": "cmp-0002-west-gate-east-gate-car",
+    "selectedRouteId": "rt-central",
+    "selectedRouteBlocked": false,
+    "drainIds": [
+      "D-01",
+      "D-02"
+    ],
+    "options": [
+      {
+        "runId": "run-0002-rt-central-car-west-gate-D-01",
+        "drainId": "D-01",
+        "drainLabel": "Canal Street culvert inlet",
+        "affectedSegmentIds": [
+          "S-H22",
+          "S-H23",
+          "S-V32"
+        ],
+        "routeExposureBefore": 0.446,
+        "routeExposureAfter": 0.405,
+        "exposureReduction": 0.041,
+        "segmentsLeavingHigh": 1,
+        "affectedRouteCount": 1,
+        "segmentChanges": [
+          {
+            "segmentId": "S-H22",
+            "beforeScore": 0.491,
+            "afterScore": 0.403,
+            "beforeClass": "watch",
+            "afterClass": "watch",
+            "drainageBefore": 0.35,
+            "drainageAfter": 0
+          },
+          {
+            "segmentId": "S-H23",
+            "beforeScore": 0.648,
+            "afterScore": 0.548,
+            "beforeClass": "high",
+            "afterClass": "watch",
+            "drainageBefore": 0.5,
+            "drainageAfter": 0
+          },
+          {
+            "segmentId": "S-V32",
+            "beforeScore": 0.591,
+            "afterScore": 0.466,
+            "beforeClass": "watch",
+            "afterClass": "watch",
+            "drainageBefore": 0.5,
+            "drainageAfter": 0
+          }
+        ],
+        "routeOutcomeAfter": {
+          "outcome": "fastest_default",
+          "recommendedCandidateId": "rt-central",
+          "candidates": [
+            {
+              "id": "rt-central",
+              "exposure": 0.405,
+              "blocked": false
+            },
+            {
+              "id": "rt-hostel",
+              "exposure": 0.331,
+              "blocked": false
+            },
+            {
+              "id": "rt-library",
+              "exposure": 0.433,
+              "blocked": true
+            }
+          ]
+        },
+        "hasEstimatedBenefit": true,
+        "rank": 1
+      },
+      {
+        "runId": "run-0002-rt-central-car-west-gate-D-02",
+        "drainId": "D-02",
+        "drainLabel": "Library Lane gully line",
+        "affectedSegmentIds": [
+          "S-H31",
+          "S-H32",
+          "S-V22"
+        ],
+        "routeExposureBefore": 0.446,
+        "routeExposureAfter": 0.446,
+        "exposureReduction": 0,
+        "segmentsLeavingHigh": 1,
+        "affectedRouteCount": 1,
+        "segmentChanges": [
+          {
+            "segmentId": "S-H31",
+            "beforeScore": 0.541,
+            "afterScore": 0.416,
+            "beforeClass": "watch",
+            "afterClass": "watch",
+            "drainageBefore": 0.55,
+            "drainageAfter": 0.05
+          },
+          {
+            "segmentId": "S-H32",
+            "beforeScore": 0.612,
+            "afterScore": 0.488,
+            "beforeClass": "high",
+            "afterClass": "watch",
+            "drainageBefore": 0.65,
+            "drainageAfter": 0.15
+          },
+          {
+            "segmentId": "S-V22",
+            "beforeScore": 0.513,
+            "afterScore": 0.387,
+            "beforeClass": "watch",
+            "afterClass": "watch",
+            "drainageBefore": 0.5,
+            "drainageAfter": 0
+          }
+        ],
+        "routeOutcomeAfter": {
+          "outcome": "lower_exposure_recommended",
+          "recommendedCandidateId": "rt-hostel",
+          "candidates": [
+            {
+              "id": "rt-central",
+              "exposure": 0.446,
+              "blocked": false
+            },
+            {
+              "id": "rt-hostel",
+              "exposure": 0.331,
+              "blocked": false
+            },
+            {
+              "id": "rt-library",
+              "exposure": 0.396,
+              "blocked": true
+            }
+          ]
+        },
+        "hasEstimatedBenefit": true,
+        "rank": 2
+      }
+    ],
+    "rankBasis": "route_exposure_reduction",
+    "noEstimatedBenefit": false,
+    "baselineRouteOutcome": {
+      "outcome": "lower_exposure_recommended",
+      "recommendedCandidateId": "rt-hostel"
+    },
+    "assumptions": {
+      "drainageReduction": 0.5,
+      "floor": 0,
+      "unchangedInputs": [
+        "R",
+        "T",
+        "O"
+      ],
+      "statements": [
+        "Clearing a modelled drain lowers the curated drainage-vulnerability input by 0.5 (floored at zero) on its listed segments only.",
+        "Rainfall, terrain and accepted report evidence are held at baseline values.",
+        "Drain locations are illustrative choke points, not a verified drainage network.",
+        "This is a comparative what-if estimate, not a physical flood simulation or a time to recovery."
+      ]
+    },
+    "createdAt": "2026-10-08T11:36:40Z",
+    "modelVersion": "pilot-heuristic-v1"
+  },
+  "snap-scn-0002|cmp-0002-west-gate-east-gate-car|rt-hostel": {
+    "comparisonId": "ivc-0002-rt-hostel-car-west-gate",
+    "baselineSnapshotId": "snap-scn-0002",
+    "routeComparisonId": "cmp-0002-west-gate-east-gate-car",
+    "selectedRouteId": "rt-hostel",
+    "selectedRouteBlocked": false,
+    "drainIds": [
+      "D-01",
+      "D-02"
+    ],
+    "options": [
+      {
+        "runId": "run-0002-rt-hostel-car-west-gate-D-01",
+        "drainId": "D-01",
+        "drainLabel": "Canal Street culvert inlet",
+        "affectedSegmentIds": [
+          "S-H22",
+          "S-H23",
+          "S-V32"
+        ],
+        "routeExposureBefore": 0.331,
+        "routeExposureAfter": 0.331,
+        "exposureReduction": 0,
+        "segmentsLeavingHigh": 1,
+        "affectedRouteCount": 1,
+        "segmentChanges": [
+          {
+            "segmentId": "S-H22",
+            "beforeScore": 0.491,
+            "afterScore": 0.403,
+            "beforeClass": "watch",
+            "afterClass": "watch",
+            "drainageBefore": 0.35,
+            "drainageAfter": 0
+          },
+          {
+            "segmentId": "S-H23",
+            "beforeScore": 0.648,
+            "afterScore": 0.548,
+            "beforeClass": "high",
+            "afterClass": "watch",
+            "drainageBefore": 0.5,
+            "drainageAfter": 0
+          },
+          {
+            "segmentId": "S-V32",
+            "beforeScore": 0.591,
+            "afterScore": 0.466,
+            "beforeClass": "watch",
+            "afterClass": "watch",
+            "drainageBefore": 0.5,
+            "drainageAfter": 0
+          }
+        ],
+        "routeOutcomeAfter": {
+          "outcome": "fastest_default",
+          "recommendedCandidateId": "rt-central",
+          "candidates": [
+            {
+              "id": "rt-central",
+              "exposure": 0.405,
+              "blocked": false
+            },
+            {
+              "id": "rt-hostel",
+              "exposure": 0.331,
+              "blocked": false
+            },
+            {
+              "id": "rt-library",
+              "exposure": 0.433,
+              "blocked": true
+            }
+          ]
+        },
+        "hasEstimatedBenefit": true,
+        "rank": 1
+      },
+      {
+        "runId": "run-0002-rt-hostel-car-west-gate-D-02",
+        "drainId": "D-02",
+        "drainLabel": "Library Lane gully line",
+        "affectedSegmentIds": [
+          "S-H31",
+          "S-H32",
+          "S-V22"
+        ],
+        "routeExposureBefore": 0.331,
+        "routeExposureAfter": 0.331,
+        "exposureReduction": 0,
+        "segmentsLeavingHigh": 1,
+        "affectedRouteCount": 1,
+        "segmentChanges": [
+          {
+            "segmentId": "S-H31",
+            "beforeScore": 0.541,
+            "afterScore": 0.416,
+            "beforeClass": "watch",
+            "afterClass": "watch",
+            "drainageBefore": 0.55,
+            "drainageAfter": 0.05
+          },
+          {
+            "segmentId": "S-H32",
+            "beforeScore": 0.612,
+            "afterScore": 0.488,
+            "beforeClass": "high",
+            "afterClass": "watch",
+            "drainageBefore": 0.65,
+            "drainageAfter": 0.15
+          },
+          {
+            "segmentId": "S-V22",
+            "beforeScore": 0.513,
+            "afterScore": 0.387,
+            "beforeClass": "watch",
+            "afterClass": "watch",
+            "drainageBefore": 0.5,
+            "drainageAfter": 0
+          }
+        ],
+        "routeOutcomeAfter": {
+          "outcome": "lower_exposure_recommended",
+          "recommendedCandidateId": "rt-hostel",
+          "candidates": [
+            {
+              "id": "rt-central",
+              "exposure": 0.446,
+              "blocked": false
+            },
+            {
+              "id": "rt-hostel",
+              "exposure": 0.331,
+              "blocked": false
+            },
+            {
+              "id": "rt-library",
+              "exposure": 0.396,
+              "blocked": true
+            }
+          ]
+        },
+        "hasEstimatedBenefit": true,
+        "rank": 2
+      }
+    ],
+    "rankBasis": "drain_id",
+    "noEstimatedBenefit": false,
+    "baselineRouteOutcome": {
+      "outcome": "lower_exposure_recommended",
+      "recommendedCandidateId": "rt-hostel"
+    },
+    "assumptions": {
+      "drainageReduction": 0.5,
+      "floor": 0,
+      "unchangedInputs": [
+        "R",
+        "T",
+        "O"
+      ],
+      "statements": [
+        "Clearing a modelled drain lowers the curated drainage-vulnerability input by 0.5 (floored at zero) on its listed segments only.",
+        "Rainfall, terrain and accepted report evidence are held at baseline values.",
+        "Drain locations are illustrative choke points, not a verified drainage network.",
+        "This is a comparative what-if estimate, not a physical flood simulation or a time to recovery."
+      ]
+    },
+    "createdAt": "2026-10-08T11:36:40Z",
+    "modelVersion": "pilot-heuristic-v1"
+  },
+  "snap-scn-0002|cmp-0002-west-gate-east-gate-car|rt-library": {
+    "comparisonId": "ivc-0002-rt-library-car-west-gate",
+    "baselineSnapshotId": "snap-scn-0002",
+    "routeComparisonId": "cmp-0002-west-gate-east-gate-car",
+    "selectedRouteId": "rt-library",
+    "selectedRouteBlocked": true,
+    "drainIds": [
+      "D-01",
+      "D-02"
+    ],
+    "options": [
+      {
+        "runId": "run-0002-rt-library-car-west-gate-D-02",
+        "drainId": "D-02",
+        "drainLabel": "Library Lane gully line",
+        "affectedSegmentIds": [
+          "S-H31",
+          "S-H32",
+          "S-V22"
+        ],
+        "routeExposureBefore": 0.433,
+        "routeExposureAfter": 0.396,
+        "exposureReduction": 0.037,
+        "segmentsLeavingHigh": 1,
+        "affectedRouteCount": 1,
+        "segmentChanges": [
+          {
+            "segmentId": "S-H31",
+            "beforeScore": 0.541,
+            "afterScore": 0.416,
+            "beforeClass": "watch",
+            "afterClass": "watch",
+            "drainageBefore": 0.55,
+            "drainageAfter": 0.05
+          },
+          {
+            "segmentId": "S-H32",
+            "beforeScore": 0.612,
+            "afterScore": 0.488,
+            "beforeClass": "high",
+            "afterClass": "watch",
+            "drainageBefore": 0.65,
+            "drainageAfter": 0.15
+          },
+          {
+            "segmentId": "S-V22",
+            "beforeScore": 0.513,
+            "afterScore": 0.387,
+            "beforeClass": "watch",
+            "afterClass": "watch",
+            "drainageBefore": 0.5,
+            "drainageAfter": 0
+          }
+        ],
+        "routeOutcomeAfter": {
+          "outcome": "lower_exposure_recommended",
+          "recommendedCandidateId": "rt-hostel",
+          "candidates": [
+            {
+              "id": "rt-central",
+              "exposure": 0.446,
+              "blocked": false
+            },
+            {
+              "id": "rt-hostel",
+              "exposure": 0.331,
+              "blocked": false
+            },
+            {
+              "id": "rt-library",
+              "exposure": 0.396,
+              "blocked": true
+            }
+          ]
+        },
+        "hasEstimatedBenefit": true,
+        "rank": 1
+      },
+      {
+        "runId": "run-0002-rt-library-car-west-gate-D-01",
+        "drainId": "D-01",
+        "drainLabel": "Canal Street culvert inlet",
+        "affectedSegmentIds": [
+          "S-H22",
+          "S-H23",
+          "S-V32"
+        ],
+        "routeExposureBefore": 0.433,
+        "routeExposureAfter": 0.433,
+        "exposureReduction": 0,
+        "segmentsLeavingHigh": 1,
+        "affectedRouteCount": 1,
+        "segmentChanges": [
+          {
+            "segmentId": "S-H22",
+            "beforeScore": 0.491,
+            "afterScore": 0.403,
+            "beforeClass": "watch",
+            "afterClass": "watch",
+            "drainageBefore": 0.35,
+            "drainageAfter": 0
+          },
+          {
+            "segmentId": "S-H23",
+            "beforeScore": 0.648,
+            "afterScore": 0.548,
+            "beforeClass": "high",
+            "afterClass": "watch",
+            "drainageBefore": 0.5,
+            "drainageAfter": 0
+          },
+          {
+            "segmentId": "S-V32",
+            "beforeScore": 0.591,
+            "afterScore": 0.466,
+            "beforeClass": "watch",
+            "afterClass": "watch",
+            "drainageBefore": 0.5,
+            "drainageAfter": 0
+          }
+        ],
+        "routeOutcomeAfter": {
+          "outcome": "fastest_default",
+          "recommendedCandidateId": "rt-central",
+          "candidates": [
+            {
+              "id": "rt-central",
+              "exposure": 0.405,
+              "blocked": false
+            },
+            {
+              "id": "rt-hostel",
+              "exposure": 0.331,
+              "blocked": false
+            },
+            {
+              "id": "rt-library",
+              "exposure": 0.433,
+              "blocked": true
+            }
+          ]
+        },
+        "hasEstimatedBenefit": true,
+        "rank": 2
+      }
+    ],
+    "rankBasis": "route_exposure_reduction",
+    "noEstimatedBenefit": false,
+    "baselineRouteOutcome": {
+      "outcome": "lower_exposure_recommended",
+      "recommendedCandidateId": "rt-hostel"
+    },
+    "assumptions": {
+      "drainageReduction": 0.5,
+      "floor": 0,
+      "unchangedInputs": [
+        "R",
+        "T",
+        "O"
+      ],
+      "statements": [
+        "Clearing a modelled drain lowers the curated drainage-vulnerability input by 0.5 (floored at zero) on its listed segments only.",
+        "Rainfall, terrain and accepted report evidence are held at baseline values.",
+        "Drain locations are illustrative choke points, not a verified drainage network.",
+        "This is a comparative what-if estimate, not a physical flood simulation or a time to recovery."
+      ]
+    },
+    "createdAt": "2026-10-08T11:36:40Z",
+    "modelVersion": "pilot-heuristic-v1"
+  },
+  "snap-scn-0002|cmp-0002-east-gate-west-gate-car|rt-central": {
+    "comparisonId": "ivc-0002-rt-central-car-east-gate",
+    "baselineSnapshotId": "snap-scn-0002",
+    "routeComparisonId": "cmp-0002-east-gate-west-gate-car",
+    "selectedRouteId": "rt-central",
+    "selectedRouteBlocked": false,
+    "drainIds": [
+      "D-01",
+      "D-02"
+    ],
+    "options": [
+      {
+        "runId": "run-0002-rt-central-car-east-gate-D-01",
+        "drainId": "D-01",
+        "drainLabel": "Canal Street culvert inlet",
+        "affectedSegmentIds": [
+          "S-H22",
+          "S-H23",
+          "S-V32"
+        ],
+        "routeExposureBefore": 0.446,
+        "routeExposureAfter": 0.405,
+        "exposureReduction": 0.041,
+        "segmentsLeavingHigh": 1,
+        "affectedRouteCount": 1,
+        "segmentChanges": [
+          {
+            "segmentId": "S-H22",
+            "beforeScore": 0.491,
+            "afterScore": 0.403,
+            "beforeClass": "watch",
+            "afterClass": "watch",
+            "drainageBefore": 0.35,
+            "drainageAfter": 0
+          },
+          {
+            "segmentId": "S-H23",
+            "beforeScore": 0.648,
+            "afterScore": 0.548,
+            "beforeClass": "high",
+            "afterClass": "watch",
+            "drainageBefore": 0.5,
+            "drainageAfter": 0
+          },
+          {
+            "segmentId": "S-V32",
+            "beforeScore": 0.591,
+            "afterScore": 0.466,
+            "beforeClass": "watch",
+            "afterClass": "watch",
+            "drainageBefore": 0.5,
+            "drainageAfter": 0
+          }
+        ],
+        "routeOutcomeAfter": {
+          "outcome": "fastest_default",
+          "recommendedCandidateId": "rt-central",
+          "candidates": [
+            {
+              "id": "rt-central",
+              "exposure": 0.405,
+              "blocked": false
+            },
+            {
+              "id": "rt-hostel",
+              "exposure": 0.331,
+              "blocked": false
+            },
+            {
+              "id": "rt-library",
+              "exposure": 0.433,
+              "blocked": true
+            }
+          ]
+        },
+        "hasEstimatedBenefit": true,
+        "rank": 1
+      },
+      {
+        "runId": "run-0002-rt-central-car-east-gate-D-02",
+        "drainId": "D-02",
+        "drainLabel": "Library Lane gully line",
+        "affectedSegmentIds": [
+          "S-H31",
+          "S-H32",
+          "S-V22"
+        ],
+        "routeExposureBefore": 0.446,
+        "routeExposureAfter": 0.446,
+        "exposureReduction": 0,
+        "segmentsLeavingHigh": 1,
+        "affectedRouteCount": 1,
+        "segmentChanges": [
+          {
+            "segmentId": "S-H31",
+            "beforeScore": 0.541,
+            "afterScore": 0.416,
+            "beforeClass": "watch",
+            "afterClass": "watch",
+            "drainageBefore": 0.55,
+            "drainageAfter": 0.05
+          },
+          {
+            "segmentId": "S-H32",
+            "beforeScore": 0.612,
+            "afterScore": 0.488,
+            "beforeClass": "high",
+            "afterClass": "watch",
+            "drainageBefore": 0.65,
+            "drainageAfter": 0.15
+          },
+          {
+            "segmentId": "S-V22",
+            "beforeScore": 0.513,
+            "afterScore": 0.387,
+            "beforeClass": "watch",
+            "afterClass": "watch",
+            "drainageBefore": 0.5,
+            "drainageAfter": 0
+          }
+        ],
+        "routeOutcomeAfter": {
+          "outcome": "lower_exposure_recommended",
+          "recommendedCandidateId": "rt-hostel",
+          "candidates": [
+            {
+              "id": "rt-central",
+              "exposure": 0.446,
+              "blocked": false
+            },
+            {
+              "id": "rt-hostel",
+              "exposure": 0.331,
+              "blocked": false
+            },
+            {
+              "id": "rt-library",
+              "exposure": 0.396,
+              "blocked": true
+            }
+          ]
+        },
+        "hasEstimatedBenefit": true,
+        "rank": 2
+      }
+    ],
+    "rankBasis": "route_exposure_reduction",
+    "noEstimatedBenefit": false,
+    "baselineRouteOutcome": {
+      "outcome": "lower_exposure_recommended",
+      "recommendedCandidateId": "rt-hostel"
+    },
+    "assumptions": {
+      "drainageReduction": 0.5,
+      "floor": 0,
+      "unchangedInputs": [
+        "R",
+        "T",
+        "O"
+      ],
+      "statements": [
+        "Clearing a modelled drain lowers the curated drainage-vulnerability input by 0.5 (floored at zero) on its listed segments only.",
+        "Rainfall, terrain and accepted report evidence are held at baseline values.",
+        "Drain locations are illustrative choke points, not a verified drainage network.",
+        "This is a comparative what-if estimate, not a physical flood simulation or a time to recovery."
+      ]
+    },
+    "createdAt": "2026-10-08T11:36:40Z",
+    "modelVersion": "pilot-heuristic-v1"
+  },
+  "snap-scn-0002|cmp-0002-east-gate-west-gate-car|rt-hostel": {
+    "comparisonId": "ivc-0002-rt-hostel-car-east-gate",
+    "baselineSnapshotId": "snap-scn-0002",
+    "routeComparisonId": "cmp-0002-east-gate-west-gate-car",
+    "selectedRouteId": "rt-hostel",
+    "selectedRouteBlocked": false,
+    "drainIds": [
+      "D-01",
+      "D-02"
+    ],
+    "options": [
+      {
+        "runId": "run-0002-rt-hostel-car-east-gate-D-01",
+        "drainId": "D-01",
+        "drainLabel": "Canal Street culvert inlet",
+        "affectedSegmentIds": [
+          "S-H22",
+          "S-H23",
+          "S-V32"
+        ],
+        "routeExposureBefore": 0.331,
+        "routeExposureAfter": 0.331,
+        "exposureReduction": 0,
+        "segmentsLeavingHigh": 1,
+        "affectedRouteCount": 1,
+        "segmentChanges": [
+          {
+            "segmentId": "S-H22",
+            "beforeScore": 0.491,
+            "afterScore": 0.403,
+            "beforeClass": "watch",
+            "afterClass": "watch",
+            "drainageBefore": 0.35,
+            "drainageAfter": 0
+          },
+          {
+            "segmentId": "S-H23",
+            "beforeScore": 0.648,
+            "afterScore": 0.548,
+            "beforeClass": "high",
+            "afterClass": "watch",
+            "drainageBefore": 0.5,
+            "drainageAfter": 0
+          },
+          {
+            "segmentId": "S-V32",
+            "beforeScore": 0.591,
+            "afterScore": 0.466,
+            "beforeClass": "watch",
+            "afterClass": "watch",
+            "drainageBefore": 0.5,
+            "drainageAfter": 0
+          }
+        ],
+        "routeOutcomeAfter": {
+          "outcome": "fastest_default",
+          "recommendedCandidateId": "rt-central",
+          "candidates": [
+            {
+              "id": "rt-central",
+              "exposure": 0.405,
+              "blocked": false
+            },
+            {
+              "id": "rt-hostel",
+              "exposure": 0.331,
+              "blocked": false
+            },
+            {
+              "id": "rt-library",
+              "exposure": 0.433,
+              "blocked": true
+            }
+          ]
+        },
+        "hasEstimatedBenefit": true,
+        "rank": 1
+      },
+      {
+        "runId": "run-0002-rt-hostel-car-east-gate-D-02",
+        "drainId": "D-02",
+        "drainLabel": "Library Lane gully line",
+        "affectedSegmentIds": [
+          "S-H31",
+          "S-H32",
+          "S-V22"
+        ],
+        "routeExposureBefore": 0.331,
+        "routeExposureAfter": 0.331,
+        "exposureReduction": 0,
+        "segmentsLeavingHigh": 1,
+        "affectedRouteCount": 1,
+        "segmentChanges": [
+          {
+            "segmentId": "S-H31",
+            "beforeScore": 0.541,
+            "afterScore": 0.416,
+            "beforeClass": "watch",
+            "afterClass": "watch",
+            "drainageBefore": 0.55,
+            "drainageAfter": 0.05
+          },
+          {
+            "segmentId": "S-H32",
+            "beforeScore": 0.612,
+            "afterScore": 0.488,
+            "beforeClass": "high",
+            "afterClass": "watch",
+            "drainageBefore": 0.65,
+            "drainageAfter": 0.15
+          },
+          {
+            "segmentId": "S-V22",
+            "beforeScore": 0.513,
+            "afterScore": 0.387,
+            "beforeClass": "watch",
+            "afterClass": "watch",
+            "drainageBefore": 0.5,
+            "drainageAfter": 0
+          }
+        ],
+        "routeOutcomeAfter": {
+          "outcome": "lower_exposure_recommended",
+          "recommendedCandidateId": "rt-hostel",
+          "candidates": [
+            {
+              "id": "rt-central",
+              "exposure": 0.446,
+              "blocked": false
+            },
+            {
+              "id": "rt-hostel",
+              "exposure": 0.331,
+              "blocked": false
+            },
+            {
+              "id": "rt-library",
+              "exposure": 0.396,
+              "blocked": true
+            }
+          ]
+        },
+        "hasEstimatedBenefit": true,
+        "rank": 2
+      }
+    ],
+    "rankBasis": "drain_id",
+    "noEstimatedBenefit": false,
+    "baselineRouteOutcome": {
+      "outcome": "lower_exposure_recommended",
+      "recommendedCandidateId": "rt-hostel"
+    },
+    "assumptions": {
+      "drainageReduction": 0.5,
+      "floor": 0,
+      "unchangedInputs": [
+        "R",
+        "T",
+        "O"
+      ],
+      "statements": [
+        "Clearing a modelled drain lowers the curated drainage-vulnerability input by 0.5 (floored at zero) on its listed segments only.",
+        "Rainfall, terrain and accepted report evidence are held at baseline values.",
+        "Drain locations are illustrative choke points, not a verified drainage network.",
+        "This is a comparative what-if estimate, not a physical flood simulation or a time to recovery."
+      ]
+    },
+    "createdAt": "2026-10-08T11:36:40Z",
+    "modelVersion": "pilot-heuristic-v1"
+  },
+  "snap-scn-0002|cmp-0002-east-gate-west-gate-car|rt-library": {
+    "comparisonId": "ivc-0002-rt-library-car-east-gate",
+    "baselineSnapshotId": "snap-scn-0002",
+    "routeComparisonId": "cmp-0002-east-gate-west-gate-car",
+    "selectedRouteId": "rt-library",
+    "selectedRouteBlocked": true,
+    "drainIds": [
+      "D-01",
+      "D-02"
+    ],
+    "options": [
+      {
+        "runId": "run-0002-rt-library-car-east-gate-D-02",
+        "drainId": "D-02",
+        "drainLabel": "Library Lane gully line",
+        "affectedSegmentIds": [
+          "S-H31",
+          "S-H32",
+          "S-V22"
+        ],
+        "routeExposureBefore": 0.433,
+        "routeExposureAfter": 0.396,
+        "exposureReduction": 0.037,
+        "segmentsLeavingHigh": 1,
+        "affectedRouteCount": 1,
+        "segmentChanges": [
+          {
+            "segmentId": "S-H31",
+            "beforeScore": 0.541,
+            "afterScore": 0.416,
+            "beforeClass": "watch",
+            "afterClass": "watch",
+            "drainageBefore": 0.55,
+            "drainageAfter": 0.05
+          },
+          {
+            "segmentId": "S-H32",
+            "beforeScore": 0.612,
+            "afterScore": 0.488,
+            "beforeClass": "high",
+            "afterClass": "watch",
+            "drainageBefore": 0.65,
+            "drainageAfter": 0.15
+          },
+          {
+            "segmentId": "S-V22",
+            "beforeScore": 0.513,
+            "afterScore": 0.387,
+            "beforeClass": "watch",
+            "afterClass": "watch",
+            "drainageBefore": 0.5,
+            "drainageAfter": 0
+          }
+        ],
+        "routeOutcomeAfter": {
+          "outcome": "lower_exposure_recommended",
+          "recommendedCandidateId": "rt-hostel",
+          "candidates": [
+            {
+              "id": "rt-central",
+              "exposure": 0.446,
+              "blocked": false
+            },
+            {
+              "id": "rt-hostel",
+              "exposure": 0.331,
+              "blocked": false
+            },
+            {
+              "id": "rt-library",
+              "exposure": 0.396,
+              "blocked": true
+            }
+          ]
+        },
+        "hasEstimatedBenefit": true,
+        "rank": 1
+      },
+      {
+        "runId": "run-0002-rt-library-car-east-gate-D-01",
+        "drainId": "D-01",
+        "drainLabel": "Canal Street culvert inlet",
+        "affectedSegmentIds": [
+          "S-H22",
+          "S-H23",
+          "S-V32"
+        ],
+        "routeExposureBefore": 0.433,
+        "routeExposureAfter": 0.433,
+        "exposureReduction": 0,
+        "segmentsLeavingHigh": 1,
+        "affectedRouteCount": 1,
+        "segmentChanges": [
+          {
+            "segmentId": "S-H22",
+            "beforeScore": 0.491,
+            "afterScore": 0.403,
+            "beforeClass": "watch",
+            "afterClass": "watch",
+            "drainageBefore": 0.35,
+            "drainageAfter": 0
+          },
+          {
+            "segmentId": "S-H23",
+            "beforeScore": 0.648,
+            "afterScore": 0.548,
+            "beforeClass": "high",
+            "afterClass": "watch",
+            "drainageBefore": 0.5,
+            "drainageAfter": 0
+          },
+          {
+            "segmentId": "S-V32",
+            "beforeScore": 0.591,
+            "afterScore": 0.466,
+            "beforeClass": "watch",
+            "afterClass": "watch",
+            "drainageBefore": 0.5,
+            "drainageAfter": 0
+          }
+        ],
+        "routeOutcomeAfter": {
+          "outcome": "fastest_default",
+          "recommendedCandidateId": "rt-central",
+          "candidates": [
+            {
+              "id": "rt-central",
+              "exposure": 0.405,
+              "blocked": false
+            },
+            {
+              "id": "rt-hostel",
+              "exposure": 0.331,
+              "blocked": false
+            },
+            {
+              "id": "rt-library",
+              "exposure": 0.433,
+              "blocked": true
+            }
+          ]
+        },
+        "hasEstimatedBenefit": true,
+        "rank": 2
+      }
+    ],
+    "rankBasis": "route_exposure_reduction",
+    "noEstimatedBenefit": false,
+    "baselineRouteOutcome": {
+      "outcome": "lower_exposure_recommended",
+      "recommendedCandidateId": "rt-hostel"
+    },
+    "assumptions": {
+      "drainageReduction": 0.5,
+      "floor": 0,
+      "unchangedInputs": [
+        "R",
+        "T",
+        "O"
+      ],
+      "statements": [
+        "Clearing a modelled drain lowers the curated drainage-vulnerability input by 0.5 (floored at zero) on its listed segments only.",
+        "Rainfall, terrain and accepted report evidence are held at baseline values.",
+        "Drain locations are illustrative choke points, not a verified drainage network.",
+        "This is a comparative what-if estimate, not a physical flood simulation or a time to recovery."
+      ]
+    },
+    "createdAt": "2026-10-08T11:36:40Z",
+    "modelVersion": "pilot-heuristic-v1"
+  }
+}

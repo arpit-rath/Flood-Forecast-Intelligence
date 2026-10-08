@@ -1,0 +1,1634 @@
+{
+  "snap-scn-0001|west-gate|east-gate|pedestrian": {
+    "comparisonId": "cmp-0001-west-gate-east-gate-pedestrian",
+    "snapshotId": "snap-scn-0001",
+    "origin": "west-gate",
+    "destination": "east-gate",
+    "travelMode": "pedestrian",
+    "status": "ok",
+    "outcome": "fastest_default",
+    "recommendedCandidateId": "rt-central",
+    "fastestCandidateId": "rt-central",
+    "exposureThreshold": 0.1,
+    "candidates": [
+      {
+        "id": "rt-central",
+        "label": "Via Central Avenue",
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              77.11273,
+              28.75054
+            ],
+            [
+              77.11447,
+              28.7506
+            ],
+            [
+              77.11586,
+              28.75066
+            ],
+            [
+              77.1176,
+              28.75072
+            ],
+            [
+              77.11934,
+              28.75048
+            ],
+            [
+              77.12073,
+              28.75054
+            ]
+          ]
+        },
+        "distanceM": 784,
+        "travelMinutes": 9.8,
+        "segmentIds": [
+          "S-H20",
+          "S-H21",
+          "S-H22",
+          "S-H23",
+          "S-H24"
+        ],
+        "exposure": 0.426,
+        "maxClass": "watch",
+        "unknownShare": 0,
+        "flaggedSegmentIds": [
+          "S-H21",
+          "S-H22",
+          "S-H23"
+        ],
+        "blocked": false,
+        "blockedSegmentIds": [],
+        "unassessed": false,
+        "unmatchedShare": 0,
+        "isFastest": true
+      },
+      {
+        "id": "rt-hostel",
+        "label": "Via Hostel Road",
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              77.11273,
+              28.75054
+            ],
+            [
+              77.11287,
+              28.75196
+            ],
+            [
+              77.11426,
+              28.75202
+            ],
+            [
+              77.116,
+              28.75178
+            ],
+            [
+              77.11774,
+              28.75184
+            ],
+            [
+              77.11913,
+              28.7519
+            ],
+            [
+              77.12087,
+              28.75196
+            ],
+            [
+              77.12073,
+              28.75054
+            ]
+          ]
+        },
+        "distanceM": 1100,
+        "travelMinutes": 13.8,
+        "segmentIds": [
+          "S-V01",
+          "S-H10",
+          "S-H11",
+          "S-H12",
+          "S-H13",
+          "S-H14",
+          "S-V51"
+        ],
+        "exposure": 0.331,
+        "maxClass": "low",
+        "unknownShare": 0.144,
+        "flaggedSegmentIds": [],
+        "blocked": false,
+        "blockedSegmentIds": [],
+        "unassessed": false,
+        "unmatchedShare": 0,
+        "isFastest": false
+      },
+      {
+        "id": "rt-library",
+        "label": "Via Library Lane",
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              77.11273,
+              28.75054
+            ],
+            [
+              77.11294,
+              28.74942
+            ],
+            [
+              77.11433,
+              28.74918
+            ],
+            [
+              77.11607,
+              28.74924
+            ],
+            [
+              77.11746,
+              28.7493
+            ],
+            [
+              77.1192,
+              28.74936
+            ],
+            [
+              77.12094,
+              28.74942
+            ],
+            [
+              77.12073,
+              28.75054
+            ]
+          ]
+        },
+        "distanceM": 1036,
+        "travelMinutes": 13,
+        "segmentIds": [
+          "S-V02",
+          "S-H30",
+          "S-H31",
+          "S-H32",
+          "S-H33",
+          "S-H34",
+          "S-V52"
+        ],
+        "exposure": 0.433,
+        "maxClass": "high",
+        "unknownShare": 0,
+        "flaggedSegmentIds": [
+          "S-H31",
+          "S-H32",
+          "S-H33"
+        ],
+        "blocked": true,
+        "blockedSegmentIds": [
+          "S-H33"
+        ],
+        "unassessed": false,
+        "unmatchedShare": 0,
+        "isFastest": false
+      }
+    ],
+    "computedAt": "2026-10-08T11:31:05Z",
+    "provenance": {
+      "provider": "pilot_replay",
+      "label": "Pilot replay route (deterministic fixture, not a live provider route)",
+      "snapshotId": "snap-scn-0001",
+      "modelVersion": "pilot-heuristic-v1"
+    }
+  },
+  "snap-scn-0001|east-gate|west-gate|pedestrian": {
+    "comparisonId": "cmp-0001-east-gate-west-gate-pedestrian",
+    "snapshotId": "snap-scn-0001",
+    "origin": "east-gate",
+    "destination": "west-gate",
+    "travelMode": "pedestrian",
+    "status": "ok",
+    "outcome": "fastest_default",
+    "recommendedCandidateId": "rt-central",
+    "fastestCandidateId": "rt-central",
+    "exposureThreshold": 0.1,
+    "candidates": [
+      {
+        "id": "rt-central",
+        "label": "Via Central Avenue",
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              77.12073,
+              28.75054
+            ],
+            [
+              77.11934,
+              28.75048
+            ],
+            [
+              77.1176,
+              28.75072
+            ],
+            [
+              77.11586,
+              28.75066
+            ],
+            [
+              77.11447,
+              28.7506
+            ],
+            [
+              77.11273,
+              28.75054
+            ]
+          ]
+        },
+        "distanceM": 784,
+        "travelMinutes": 9.8,
+        "segmentIds": [
+          "S-H24",
+          "S-H23",
+          "S-H22",
+          "S-H21",
+          "S-H20"
+        ],
+        "exposure": 0.426,
+        "maxClass": "watch",
+        "unknownShare": 0,
+        "flaggedSegmentIds": [
+          "S-H23",
+          "S-H22",
+          "S-H21"
+        ],
+        "blocked": false,
+        "blockedSegmentIds": [],
+        "unassessed": false,
+        "unmatchedShare": 0,
+        "isFastest": true
+      },
+      {
+        "id": "rt-hostel",
+        "label": "Via Hostel Road",
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              77.12073,
+              28.75054
+            ],
+            [
+              77.12087,
+              28.75196
+            ],
+            [
+              77.11913,
+              28.7519
+            ],
+            [
+              77.11774,
+              28.75184
+            ],
+            [
+              77.116,
+              28.75178
+            ],
+            [
+              77.11426,
+              28.75202
+            ],
+            [
+              77.11287,
+              28.75196
+            ],
+            [
+              77.11273,
+              28.75054
+            ]
+          ]
+        },
+        "distanceM": 1100,
+        "travelMinutes": 13.8,
+        "segmentIds": [
+          "S-V51",
+          "S-H14",
+          "S-H13",
+          "S-H12",
+          "S-H11",
+          "S-H10",
+          "S-V01"
+        ],
+        "exposure": 0.331,
+        "maxClass": "low",
+        "unknownShare": 0.144,
+        "flaggedSegmentIds": [],
+        "blocked": false,
+        "blockedSegmentIds": [],
+        "unassessed": false,
+        "unmatchedShare": 0,
+        "isFastest": false
+      },
+      {
+        "id": "rt-library",
+        "label": "Via Library Lane",
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              77.12073,
+              28.75054
+            ],
+            [
+              77.12094,
+              28.74942
+            ],
+            [
+              77.1192,
+              28.74936
+            ],
+            [
+              77.11746,
+              28.7493
+            ],
+            [
+              77.11607,
+              28.74924
+            ],
+            [
+              77.11433,
+              28.74918
+            ],
+            [
+              77.11294,
+              28.74942
+            ],
+            [
+              77.11273,
+              28.75054
+            ]
+          ]
+        },
+        "distanceM": 1036,
+        "travelMinutes": 13,
+        "segmentIds": [
+          "S-V52",
+          "S-H34",
+          "S-H33",
+          "S-H32",
+          "S-H31",
+          "S-H30",
+          "S-V02"
+        ],
+        "exposure": 0.433,
+        "maxClass": "high",
+        "unknownShare": 0,
+        "flaggedSegmentIds": [
+          "S-H33",
+          "S-H32",
+          "S-H31"
+        ],
+        "blocked": true,
+        "blockedSegmentIds": [
+          "S-H33"
+        ],
+        "unassessed": false,
+        "unmatchedShare": 0,
+        "isFastest": false
+      }
+    ],
+    "computedAt": "2026-10-08T11:31:05Z",
+    "provenance": {
+      "provider": "pilot_replay",
+      "label": "Pilot replay route (deterministic fixture, not a live provider route)",
+      "snapshotId": "snap-scn-0001",
+      "modelVersion": "pilot-heuristic-v1"
+    }
+  },
+  "snap-scn-0001|west-gate|east-gate|car": {
+    "comparisonId": "cmp-0001-west-gate-east-gate-car",
+    "snapshotId": "snap-scn-0001",
+    "origin": "west-gate",
+    "destination": "east-gate",
+    "travelMode": "car",
+    "status": "ok",
+    "outcome": "fastest_default",
+    "recommendedCandidateId": "rt-central",
+    "fastestCandidateId": "rt-central",
+    "exposureThreshold": 0.1,
+    "candidates": [
+      {
+        "id": "rt-central",
+        "label": "Via Central Avenue",
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              77.11273,
+              28.75054
+            ],
+            [
+              77.11447,
+              28.7506
+            ],
+            [
+              77.11586,
+              28.75066
+            ],
+            [
+              77.1176,
+              28.75072
+            ],
+            [
+              77.11934,
+              28.75048
+            ],
+            [
+              77.12073,
+              28.75054
+            ]
+          ]
+        },
+        "distanceM": 784,
+        "travelMinutes": 2.6,
+        "segmentIds": [
+          "S-H20",
+          "S-H21",
+          "S-H22",
+          "S-H23",
+          "S-H24"
+        ],
+        "exposure": 0.426,
+        "maxClass": "watch",
+        "unknownShare": 0,
+        "flaggedSegmentIds": [
+          "S-H21",
+          "S-H22",
+          "S-H23"
+        ],
+        "blocked": false,
+        "blockedSegmentIds": [],
+        "unassessed": false,
+        "unmatchedShare": 0,
+        "isFastest": true
+      },
+      {
+        "id": "rt-hostel",
+        "label": "Via Hostel Road",
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              77.11273,
+              28.75054
+            ],
+            [
+              77.11287,
+              28.75196
+            ],
+            [
+              77.11426,
+              28.75202
+            ],
+            [
+              77.116,
+              28.75178
+            ],
+            [
+              77.11774,
+              28.75184
+            ],
+            [
+              77.11913,
+              28.7519
+            ],
+            [
+              77.12087,
+              28.75196
+            ],
+            [
+              77.12073,
+              28.75054
+            ]
+          ]
+        },
+        "distanceM": 1100,
+        "travelMinutes": 3.7,
+        "segmentIds": [
+          "S-V01",
+          "S-H10",
+          "S-H11",
+          "S-H12",
+          "S-H13",
+          "S-H14",
+          "S-V51"
+        ],
+        "exposure": 0.331,
+        "maxClass": "low",
+        "unknownShare": 0.144,
+        "flaggedSegmentIds": [],
+        "blocked": false,
+        "blockedSegmentIds": [],
+        "unassessed": false,
+        "unmatchedShare": 0,
+        "isFastest": false
+      },
+      {
+        "id": "rt-library",
+        "label": "Via Library Lane",
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              77.11273,
+              28.75054
+            ],
+            [
+              77.11294,
+              28.74942
+            ],
+            [
+              77.11433,
+              28.74918
+            ],
+            [
+              77.11607,
+              28.74924
+            ],
+            [
+              77.11746,
+              28.7493
+            ],
+            [
+              77.1192,
+              28.74936
+            ],
+            [
+              77.12094,
+              28.74942
+            ],
+            [
+              77.12073,
+              28.75054
+            ]
+          ]
+        },
+        "distanceM": 1036,
+        "travelMinutes": 3.5,
+        "segmentIds": [
+          "S-V02",
+          "S-H30",
+          "S-H31",
+          "S-H32",
+          "S-H33",
+          "S-H34",
+          "S-V52"
+        ],
+        "exposure": 0.433,
+        "maxClass": "high",
+        "unknownShare": 0,
+        "flaggedSegmentIds": [
+          "S-H31",
+          "S-H32",
+          "S-H33"
+        ],
+        "blocked": true,
+        "blockedSegmentIds": [
+          "S-H33"
+        ],
+        "unassessed": false,
+        "unmatchedShare": 0,
+        "isFastest": false
+      }
+    ],
+    "computedAt": "2026-10-08T11:31:05Z",
+    "provenance": {
+      "provider": "pilot_replay",
+      "label": "Pilot replay route (deterministic fixture, not a live provider route)",
+      "snapshotId": "snap-scn-0001",
+      "modelVersion": "pilot-heuristic-v1"
+    }
+  },
+  "snap-scn-0001|east-gate|west-gate|car": {
+    "comparisonId": "cmp-0001-east-gate-west-gate-car",
+    "snapshotId": "snap-scn-0001",
+    "origin": "east-gate",
+    "destination": "west-gate",
+    "travelMode": "car",
+    "status": "ok",
+    "outcome": "fastest_default",
+    "recommendedCandidateId": "rt-central",
+    "fastestCandidateId": "rt-central",
+    "exposureThreshold": 0.1,
+    "candidates": [
+      {
+        "id": "rt-central",
+        "label": "Via Central Avenue",
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              77.12073,
+              28.75054
+            ],
+            [
+              77.11934,
+              28.75048
+            ],
+            [
+              77.1176,
+              28.75072
+            ],
+            [
+              77.11586,
+              28.75066
+            ],
+            [
+              77.11447,
+              28.7506
+            ],
+            [
+              77.11273,
+              28.75054
+            ]
+          ]
+        },
+        "distanceM": 784,
+        "travelMinutes": 2.6,
+        "segmentIds": [
+          "S-H24",
+          "S-H23",
+          "S-H22",
+          "S-H21",
+          "S-H20"
+        ],
+        "exposure": 0.426,
+        "maxClass": "watch",
+        "unknownShare": 0,
+        "flaggedSegmentIds": [
+          "S-H23",
+          "S-H22",
+          "S-H21"
+        ],
+        "blocked": false,
+        "blockedSegmentIds": [],
+        "unassessed": false,
+        "unmatchedShare": 0,
+        "isFastest": true
+      },
+      {
+        "id": "rt-hostel",
+        "label": "Via Hostel Road",
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              77.12073,
+              28.75054
+            ],
+            [
+              77.12087,
+              28.75196
+            ],
+            [
+              77.11913,
+              28.7519
+            ],
+            [
+              77.11774,
+              28.75184
+            ],
+            [
+              77.116,
+              28.75178
+            ],
+            [
+              77.11426,
+              28.75202
+            ],
+            [
+              77.11287,
+              28.75196
+            ],
+            [
+              77.11273,
+              28.75054
+            ]
+          ]
+        },
+        "distanceM": 1100,
+        "travelMinutes": 3.7,
+        "segmentIds": [
+          "S-V51",
+          "S-H14",
+          "S-H13",
+          "S-H12",
+          "S-H11",
+          "S-H10",
+          "S-V01"
+        ],
+        "exposure": 0.331,
+        "maxClass": "low",
+        "unknownShare": 0.144,
+        "flaggedSegmentIds": [],
+        "blocked": false,
+        "blockedSegmentIds": [],
+        "unassessed": false,
+        "unmatchedShare": 0,
+        "isFastest": false
+      },
+      {
+        "id": "rt-library",
+        "label": "Via Library Lane",
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              77.12073,
+              28.75054
+            ],
+            [
+              77.12094,
+              28.74942
+            ],
+            [
+              77.1192,
+              28.74936
+            ],
+            [
+              77.11746,
+              28.7493
+            ],
+            [
+              77.11607,
+              28.74924
+            ],
+            [
+              77.11433,
+              28.74918
+            ],
+            [
+              77.11294,
+              28.74942
+            ],
+            [
+              77.11273,
+              28.75054
+            ]
+          ]
+        },
+        "distanceM": 1036,
+        "travelMinutes": 3.5,
+        "segmentIds": [
+          "S-V52",
+          "S-H34",
+          "S-H33",
+          "S-H32",
+          "S-H31",
+          "S-H30",
+          "S-V02"
+        ],
+        "exposure": 0.433,
+        "maxClass": "high",
+        "unknownShare": 0,
+        "flaggedSegmentIds": [
+          "S-H33",
+          "S-H32",
+          "S-H31"
+        ],
+        "blocked": true,
+        "blockedSegmentIds": [
+          "S-H33"
+        ],
+        "unassessed": false,
+        "unmatchedShare": 0,
+        "isFastest": false
+      }
+    ],
+    "computedAt": "2026-10-08T11:31:05Z",
+    "provenance": {
+      "provider": "pilot_replay",
+      "label": "Pilot replay route (deterministic fixture, not a live provider route)",
+      "snapshotId": "snap-scn-0001",
+      "modelVersion": "pilot-heuristic-v1"
+    }
+  },
+  "snap-scn-0002|west-gate|east-gate|pedestrian": {
+    "comparisonId": "cmp-0002-west-gate-east-gate-pedestrian",
+    "snapshotId": "snap-scn-0002",
+    "origin": "west-gate",
+    "destination": "east-gate",
+    "travelMode": "pedestrian",
+    "status": "ok",
+    "outcome": "lower_exposure_recommended",
+    "recommendedCandidateId": "rt-hostel",
+    "fastestCandidateId": "rt-central",
+    "exposureThreshold": 0.1,
+    "candidates": [
+      {
+        "id": "rt-central",
+        "label": "Via Central Avenue",
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              77.11273,
+              28.75054
+            ],
+            [
+              77.11447,
+              28.7506
+            ],
+            [
+              77.11586,
+              28.75066
+            ],
+            [
+              77.1176,
+              28.75072
+            ],
+            [
+              77.11934,
+              28.75048
+            ],
+            [
+              77.12073,
+              28.75054
+            ]
+          ]
+        },
+        "distanceM": 784,
+        "travelMinutes": 9.8,
+        "segmentIds": [
+          "S-H20",
+          "S-H21",
+          "S-H22",
+          "S-H23",
+          "S-H24"
+        ],
+        "exposure": 0.446,
+        "maxClass": "high",
+        "unknownShare": 0,
+        "flaggedSegmentIds": [
+          "S-H21",
+          "S-H22",
+          "S-H23"
+        ],
+        "blocked": false,
+        "blockedSegmentIds": [],
+        "unassessed": false,
+        "unmatchedShare": 0,
+        "isFastest": true
+      },
+      {
+        "id": "rt-hostel",
+        "label": "Via Hostel Road",
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              77.11273,
+              28.75054
+            ],
+            [
+              77.11287,
+              28.75196
+            ],
+            [
+              77.11426,
+              28.75202
+            ],
+            [
+              77.116,
+              28.75178
+            ],
+            [
+              77.11774,
+              28.75184
+            ],
+            [
+              77.11913,
+              28.7519
+            ],
+            [
+              77.12087,
+              28.75196
+            ],
+            [
+              77.12073,
+              28.75054
+            ]
+          ]
+        },
+        "distanceM": 1100,
+        "travelMinutes": 13.8,
+        "segmentIds": [
+          "S-V01",
+          "S-H10",
+          "S-H11",
+          "S-H12",
+          "S-H13",
+          "S-H14",
+          "S-V51"
+        ],
+        "exposure": 0.331,
+        "maxClass": "low",
+        "unknownShare": 0.144,
+        "flaggedSegmentIds": [],
+        "blocked": false,
+        "blockedSegmentIds": [],
+        "unassessed": false,
+        "unmatchedShare": 0,
+        "isFastest": false
+      },
+      {
+        "id": "rt-library",
+        "label": "Via Library Lane",
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              77.11273,
+              28.75054
+            ],
+            [
+              77.11294,
+              28.74942
+            ],
+            [
+              77.11433,
+              28.74918
+            ],
+            [
+              77.11607,
+              28.74924
+            ],
+            [
+              77.11746,
+              28.7493
+            ],
+            [
+              77.1192,
+              28.74936
+            ],
+            [
+              77.12094,
+              28.74942
+            ],
+            [
+              77.12073,
+              28.75054
+            ]
+          ]
+        },
+        "distanceM": 1036,
+        "travelMinutes": 13,
+        "segmentIds": [
+          "S-V02",
+          "S-H30",
+          "S-H31",
+          "S-H32",
+          "S-H33",
+          "S-H34",
+          "S-V52"
+        ],
+        "exposure": 0.433,
+        "maxClass": "high",
+        "unknownShare": 0,
+        "flaggedSegmentIds": [
+          "S-H31",
+          "S-H32",
+          "S-H33"
+        ],
+        "blocked": true,
+        "blockedSegmentIds": [
+          "S-H33"
+        ],
+        "unassessed": false,
+        "unmatchedShare": 0,
+        "isFastest": false
+      }
+    ],
+    "computedAt": "2026-10-08T11:36:40Z",
+    "provenance": {
+      "provider": "pilot_replay",
+      "label": "Pilot replay route (deterministic fixture, not a live provider route)",
+      "snapshotId": "snap-scn-0002",
+      "modelVersion": "pilot-heuristic-v1"
+    }
+  },
+  "snap-scn-0002|east-gate|west-gate|pedestrian": {
+    "comparisonId": "cmp-0002-east-gate-west-gate-pedestrian",
+    "snapshotId": "snap-scn-0002",
+    "origin": "east-gate",
+    "destination": "west-gate",
+    "travelMode": "pedestrian",
+    "status": "ok",
+    "outcome": "lower_exposure_recommended",
+    "recommendedCandidateId": "rt-hostel",
+    "fastestCandidateId": "rt-central",
+    "exposureThreshold": 0.1,
+    "candidates": [
+      {
+        "id": "rt-central",
+        "label": "Via Central Avenue",
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              77.12073,
+              28.75054
+            ],
+            [
+              77.11934,
+              28.75048
+            ],
+            [
+              77.1176,
+              28.75072
+            ],
+            [
+              77.11586,
+              28.75066
+            ],
+            [
+              77.11447,
+              28.7506
+            ],
+            [
+              77.11273,
+              28.75054
+            ]
+          ]
+        },
+        "distanceM": 784,
+        "travelMinutes": 9.8,
+        "segmentIds": [
+          "S-H24",
+          "S-H23",
+          "S-H22",
+          "S-H21",
+          "S-H20"
+        ],
+        "exposure": 0.446,
+        "maxClass": "high",
+        "unknownShare": 0,
+        "flaggedSegmentIds": [
+          "S-H23",
+          "S-H22",
+          "S-H21"
+        ],
+        "blocked": false,
+        "blockedSegmentIds": [],
+        "unassessed": false,
+        "unmatchedShare": 0,
+        "isFastest": true
+      },
+      {
+        "id": "rt-hostel",
+        "label": "Via Hostel Road",
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              77.12073,
+              28.75054
+            ],
+            [
+              77.12087,
+              28.75196
+            ],
+            [
+              77.11913,
+              28.7519
+            ],
+            [
+              77.11774,
+              28.75184
+            ],
+            [
+              77.116,
+              28.75178
+            ],
+            [
+              77.11426,
+              28.75202
+            ],
+            [
+              77.11287,
+              28.75196
+            ],
+            [
+              77.11273,
+              28.75054
+            ]
+          ]
+        },
+        "distanceM": 1100,
+        "travelMinutes": 13.8,
+        "segmentIds": [
+          "S-V51",
+          "S-H14",
+          "S-H13",
+          "S-H12",
+          "S-H11",
+          "S-H10",
+          "S-V01"
+        ],
+        "exposure": 0.331,
+        "maxClass": "low",
+        "unknownShare": 0.144,
+        "flaggedSegmentIds": [],
+        "blocked": false,
+        "blockedSegmentIds": [],
+        "unassessed": false,
+        "unmatchedShare": 0,
+        "isFastest": false
+      },
+      {
+        "id": "rt-library",
+        "label": "Via Library Lane",
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              77.12073,
+              28.75054
+            ],
+            [
+              77.12094,
+              28.74942
+            ],
+            [
+              77.1192,
+              28.74936
+            ],
+            [
+              77.11746,
+              28.7493
+            ],
+            [
+              77.11607,
+              28.74924
+            ],
+            [
+              77.11433,
+              28.74918
+            ],
+            [
+              77.11294,
+              28.74942
+            ],
+            [
+              77.11273,
+              28.75054
+            ]
+          ]
+        },
+        "distanceM": 1036,
+        "travelMinutes": 13,
+        "segmentIds": [
+          "S-V52",
+          "S-H34",
+          "S-H33",
+          "S-H32",
+          "S-H31",
+          "S-H30",
+          "S-V02"
+        ],
+        "exposure": 0.433,
+        "maxClass": "high",
+        "unknownShare": 0,
+        "flaggedSegmentIds": [
+          "S-H33",
+          "S-H32",
+          "S-H31"
+        ],
+        "blocked": true,
+        "blockedSegmentIds": [
+          "S-H33"
+        ],
+        "unassessed": false,
+        "unmatchedShare": 0,
+        "isFastest": false
+      }
+    ],
+    "computedAt": "2026-10-08T11:36:40Z",
+    "provenance": {
+      "provider": "pilot_replay",
+      "label": "Pilot replay route (deterministic fixture, not a live provider route)",
+      "snapshotId": "snap-scn-0002",
+      "modelVersion": "pilot-heuristic-v1"
+    }
+  },
+  "snap-scn-0002|west-gate|east-gate|car": {
+    "comparisonId": "cmp-0002-west-gate-east-gate-car",
+    "snapshotId": "snap-scn-0002",
+    "origin": "west-gate",
+    "destination": "east-gate",
+    "travelMode": "car",
+    "status": "ok",
+    "outcome": "lower_exposure_recommended",
+    "recommendedCandidateId": "rt-hostel",
+    "fastestCandidateId": "rt-central",
+    "exposureThreshold": 0.1,
+    "candidates": [
+      {
+        "id": "rt-central",
+        "label": "Via Central Avenue",
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              77.11273,
+              28.75054
+            ],
+            [
+              77.11447,
+              28.7506
+            ],
+            [
+              77.11586,
+              28.75066
+            ],
+            [
+              77.1176,
+              28.75072
+            ],
+            [
+              77.11934,
+              28.75048
+            ],
+            [
+              77.12073,
+              28.75054
+            ]
+          ]
+        },
+        "distanceM": 784,
+        "travelMinutes": 2.6,
+        "segmentIds": [
+          "S-H20",
+          "S-H21",
+          "S-H22",
+          "S-H23",
+          "S-H24"
+        ],
+        "exposure": 0.446,
+        "maxClass": "high",
+        "unknownShare": 0,
+        "flaggedSegmentIds": [
+          "S-H21",
+          "S-H22",
+          "S-H23"
+        ],
+        "blocked": false,
+        "blockedSegmentIds": [],
+        "unassessed": false,
+        "unmatchedShare": 0,
+        "isFastest": true
+      },
+      {
+        "id": "rt-hostel",
+        "label": "Via Hostel Road",
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              77.11273,
+              28.75054
+            ],
+            [
+              77.11287,
+              28.75196
+            ],
+            [
+              77.11426,
+              28.75202
+            ],
+            [
+              77.116,
+              28.75178
+            ],
+            [
+              77.11774,
+              28.75184
+            ],
+            [
+              77.11913,
+              28.7519
+            ],
+            [
+              77.12087,
+              28.75196
+            ],
+            [
+              77.12073,
+              28.75054
+            ]
+          ]
+        },
+        "distanceM": 1100,
+        "travelMinutes": 3.7,
+        "segmentIds": [
+          "S-V01",
+          "S-H10",
+          "S-H11",
+          "S-H12",
+          "S-H13",
+          "S-H14",
+          "S-V51"
+        ],
+        "exposure": 0.331,
+        "maxClass": "low",
+        "unknownShare": 0.144,
+        "flaggedSegmentIds": [],
+        "blocked": false,
+        "blockedSegmentIds": [],
+        "unassessed": false,
+        "unmatchedShare": 0,
+        "isFastest": false
+      },
+      {
+        "id": "rt-library",
+        "label": "Via Library Lane",
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              77.11273,
+              28.75054
+            ],
+            [
+              77.11294,
+              28.74942
+            ],
+            [
+              77.11433,
+              28.74918
+            ],
+            [
+              77.11607,
+              28.74924
+            ],
+            [
+              77.11746,
+              28.7493
+            ],
+            [
+              77.1192,
+              28.74936
+            ],
+            [
+              77.12094,
+              28.74942
+            ],
+            [
+              77.12073,
+              28.75054
+            ]
+          ]
+        },
+        "distanceM": 1036,
+        "travelMinutes": 3.5,
+        "segmentIds": [
+          "S-V02",
+          "S-H30",
+          "S-H31",
+          "S-H32",
+          "S-H33",
+          "S-H34",
+          "S-V52"
+        ],
+        "exposure": 0.433,
+        "maxClass": "high",
+        "unknownShare": 0,
+        "flaggedSegmentIds": [
+          "S-H31",
+          "S-H32",
+          "S-H33"
+        ],
+        "blocked": true,
+        "blockedSegmentIds": [
+          "S-H33"
+        ],
+        "unassessed": false,
+        "unmatchedShare": 0,
+        "isFastest": false
+      }
+    ],
+    "computedAt": "2026-10-08T11:36:40Z",
+    "provenance": {
+      "provider": "pilot_replay",
+      "label": "Pilot replay route (deterministic fixture, not a live provider route)",
+      "snapshotId": "snap-scn-0002",
+      "modelVersion": "pilot-heuristic-v1"
+    }
+  },
+  "snap-scn-0002|east-gate|west-gate|car": {
+    "comparisonId": "cmp-0002-east-gate-west-gate-car",
+    "snapshotId": "snap-scn-0002",
+    "origin": "east-gate",
+    "destination": "west-gate",
+    "travelMode": "car",
+    "status": "ok",
+    "outcome": "lower_exposure_recommended",
+    "recommendedCandidateId": "rt-hostel",
+    "fastestCandidateId": "rt-central",
+    "exposureThreshold": 0.1,
+    "candidates": [
+      {
+        "id": "rt-central",
+        "label": "Via Central Avenue",
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              77.12073,
+              28.75054
+            ],
+            [
+              77.11934,
+              28.75048
+            ],
+            [
+              77.1176,
+              28.75072
+            ],
+            [
+              77.11586,
+              28.75066
+            ],
+            [
+              77.11447,
+              28.7506
+            ],
+            [
+              77.11273,
+              28.75054
+            ]
+          ]
+        },
+        "distanceM": 784,
+        "travelMinutes": 2.6,
+        "segmentIds": [
+          "S-H24",
+          "S-H23",
+          "S-H22",
+          "S-H21",
+          "S-H20"
+        ],
+        "exposure": 0.446,
+        "maxClass": "high",
+        "unknownShare": 0,
+        "flaggedSegmentIds": [
+          "S-H23",
+          "S-H22",
+          "S-H21"
+        ],
+        "blocked": false,
+        "blockedSegmentIds": [],
+        "unassessed": false,
+        "unmatchedShare": 0,
+        "isFastest": true
+      },
+      {
+        "id": "rt-hostel",
+        "label": "Via Hostel Road",
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              77.12073,
+              28.75054
+            ],
+            [
+              77.12087,
+              28.75196
+            ],
+            [
+              77.11913,
+              28.7519
+            ],
+            [
+              77.11774,
+              28.75184
+            ],
+            [
+              77.116,
+              28.75178
+            ],
+            [
+              77.11426,
+              28.75202
+            ],
+            [
+              77.11287,
+              28.75196
+            ],
+            [
+              77.11273,
+              28.75054
+            ]
+          ]
+        },
+        "distanceM": 1100,
+        "travelMinutes": 3.7,
+        "segmentIds": [
+          "S-V51",
+          "S-H14",
+          "S-H13",
+          "S-H12",
+          "S-H11",
+          "S-H10",
+          "S-V01"
+        ],
+        "exposure": 0.331,
+        "maxClass": "low",
+        "unknownShare": 0.144,
+        "flaggedSegmentIds": [],
+        "blocked": false,
+        "blockedSegmentIds": [],
+        "unassessed": false,
+        "unmatchedShare": 0,
+        "isFastest": false
+      },
+      {
+        "id": "rt-library",
+        "label": "Via Library Lane",
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              77.12073,
+              28.75054
+            ],
+            [
+              77.12094,
+              28.74942
+            ],
+            [
+              77.1192,
+              28.74936
+            ],
+            [
+              77.11746,
+              28.7493
+            ],
+            [
+              77.11607,
+              28.74924
+            ],
+            [
+              77.11433,
+              28.74918
+            ],
+            [
+              77.11294,
+              28.74942
+            ],
+            [
+              77.11273,
+              28.75054
+            ]
+          ]
+        },
+        "distanceM": 1036,
+        "travelMinutes": 3.5,
+        "segmentIds": [
+          "S-V52",
+          "S-H34",
+          "S-H33",
+          "S-H32",
+          "S-H31",
+          "S-H30",
+          "S-V02"
+        ],
+        "exposure": 0.433,
+        "maxClass": "high",
+        "unknownShare": 0,
+        "flaggedSegmentIds": [
+          "S-H33",
+          "S-H32",
+          "S-H31"
+        ],
+        "blocked": true,
+        "blockedSegmentIds": [
+          "S-H33"
+        ],
+        "unassessed": false,
+        "unmatchedShare": 0,
+        "isFastest": false
+      }
+    ],
+    "computedAt": "2026-10-08T11:36:40Z",
+    "provenance": {
+      "provider": "pilot_replay",
+      "label": "Pilot replay route (deterministic fixture, not a live provider route)",
+      "snapshotId": "snap-scn-0002",
+      "modelVersion": "pilot-heuristic-v1"
+    }
+  }
+}

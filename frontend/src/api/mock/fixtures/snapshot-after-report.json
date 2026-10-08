@@ -1,0 +1,1939 @@
+{
+  "snapshotId": "snap-scn-0002",
+  "mode": "scenario",
+  "computedAt": "2026-10-08T11:36:40Z",
+  "modelVersion": "pilot-heuristic-v1",
+  "bundleVersion": "dtu-pilot-fixture-2026-10-08",
+  "stale": false,
+  "weather": {
+    "mode": "scenario",
+    "precipitationMmH": 20,
+    "validAt": "2026-10-08T11:30:00Z",
+    "fetchedAt": "2026-10-08T11:30:00Z",
+    "provider": "Versioned scenario file",
+    "scenarioId": "scn-dtu-20mmh-v1",
+    "scenarioLabel": "Scenario: 20 mm/h rainfall",
+    "stale": false
+  },
+  "thresholds": {
+    "watch": 0.35,
+    "high": 0.6,
+    "lowConfidenceCoverage": 0.8
+  },
+  "acceptedReportIds": [
+    "RPT-0001"
+  ],
+  "segments": [
+    {
+      "segmentId": "S-H00",
+      "score": 0.392,
+      "class": "watch",
+      "coverage": 0.6,
+      "lowConfidence": true,
+      "lowConfidenceReasons": [
+        "coverage_below_threshold"
+      ],
+      "features": {
+        "R": {
+          "value": 0.6,
+          "weight": 0.35,
+          "source": "Scenario rainfall (scn-dtu-20mmh-v1)",
+          "observedAt": "2026-10-08T11:30:00Z"
+        },
+        "T": {
+          "value": 0.1,
+          "weight": 0.25,
+          "source": "Copernicus DEM relative low-point prior (fixture)",
+          "observedAt": null
+        },
+        "D": {
+          "value": null,
+          "weight": 0.2,
+          "source": null,
+          "observedAt": null
+        },
+        "O": {
+          "value": null,
+          "weight": 0.2,
+          "source": null,
+          "observedAt": null
+        }
+      },
+      "missing": [
+        "D",
+        "O"
+      ],
+      "evidenceIds": [],
+      "closure": null,
+      "computedAt": "2026-10-08T11:36:40Z",
+      "modelVersion": "pilot-heuristic-v1"
+    },
+    {
+      "segmentId": "S-H01",
+      "score": 0.392,
+      "class": "watch",
+      "coverage": 0.6,
+      "lowConfidence": true,
+      "lowConfidenceReasons": [
+        "coverage_below_threshold"
+      ],
+      "features": {
+        "R": {
+          "value": 0.6,
+          "weight": 0.35,
+          "source": "Scenario rainfall (scn-dtu-20mmh-v1)",
+          "observedAt": "2026-10-08T11:30:00Z"
+        },
+        "T": {
+          "value": 0.1,
+          "weight": 0.25,
+          "source": "Copernicus DEM relative low-point prior (fixture)",
+          "observedAt": null
+        },
+        "D": {
+          "value": null,
+          "weight": 0.2,
+          "source": null,
+          "observedAt": null
+        },
+        "O": {
+          "value": null,
+          "weight": 0.2,
+          "source": null,
+          "observedAt": null
+        }
+      },
+      "missing": [
+        "D",
+        "O"
+      ],
+      "evidenceIds": [],
+      "closure": null,
+      "computedAt": "2026-10-08T11:36:40Z",
+      "modelVersion": "pilot-heuristic-v1"
+    },
+    {
+      "segmentId": "S-H02",
+      "score": 0.331,
+      "class": "low",
+      "coverage": 0.8,
+      "lowConfidence": false,
+      "lowConfidenceReasons": [],
+      "features": {
+        "R": {
+          "value": 0.6,
+          "weight": 0.35,
+          "source": "Scenario rainfall (scn-dtu-20mmh-v1)",
+          "observedAt": "2026-10-08T11:30:00Z"
+        },
+        "T": {
+          "value": 0.1,
+          "weight": 0.25,
+          "source": "Copernicus DEM relative low-point prior (fixture)",
+          "observedAt": null
+        },
+        "D": {
+          "value": 0.15,
+          "weight": 0.2,
+          "source": "Curated drainage vulnerability (pilot assumption)",
+          "observedAt": null
+        },
+        "O": {
+          "value": null,
+          "weight": 0.2,
+          "source": null,
+          "observedAt": null
+        }
+      },
+      "missing": [
+        "O"
+      ],
+      "evidenceIds": [],
+      "closure": null,
+      "computedAt": "2026-10-08T11:36:40Z",
+      "modelVersion": "pilot-heuristic-v1"
+    },
+    {
+      "segmentId": "S-H03",
+      "score": 0.331,
+      "class": "low",
+      "coverage": 0.8,
+      "lowConfidence": false,
+      "lowConfidenceReasons": [],
+      "features": {
+        "R": {
+          "value": 0.6,
+          "weight": 0.35,
+          "source": "Scenario rainfall (scn-dtu-20mmh-v1)",
+          "observedAt": "2026-10-08T11:30:00Z"
+        },
+        "T": {
+          "value": 0.1,
+          "weight": 0.25,
+          "source": "Copernicus DEM relative low-point prior (fixture)",
+          "observedAt": null
+        },
+        "D": {
+          "value": 0.15,
+          "weight": 0.2,
+          "source": "Curated drainage vulnerability (pilot assumption)",
+          "observedAt": null
+        },
+        "O": {
+          "value": null,
+          "weight": 0.2,
+          "source": null,
+          "observedAt": null
+        }
+      },
+      "missing": [
+        "O"
+      ],
+      "evidenceIds": [],
+      "closure": null,
+      "computedAt": "2026-10-08T11:36:40Z",
+      "modelVersion": "pilot-heuristic-v1"
+    },
+    {
+      "segmentId": "S-H04",
+      "score": null,
+      "class": "unknown",
+      "coverage": 0.35,
+      "lowConfidence": false,
+      "lowConfidenceReasons": [],
+      "features": {
+        "R": {
+          "value": 0.6,
+          "weight": 0.35,
+          "source": "Scenario rainfall (scn-dtu-20mmh-v1)",
+          "observedAt": "2026-10-08T11:30:00Z"
+        },
+        "T": {
+          "value": null,
+          "weight": 0.25,
+          "source": null,
+          "observedAt": null
+        },
+        "D": {
+          "value": null,
+          "weight": 0.2,
+          "source": null,
+          "observedAt": null
+        },
+        "O": {
+          "value": null,
+          "weight": 0.2,
+          "source": null,
+          "observedAt": null
+        }
+      },
+      "missing": [
+        "T",
+        "D",
+        "O"
+      ],
+      "evidenceIds": [],
+      "closure": null,
+      "computedAt": "2026-10-08T11:36:40Z",
+      "modelVersion": "pilot-heuristic-v1"
+    },
+    {
+      "segmentId": "S-H10",
+      "score": 0.331,
+      "class": "low",
+      "coverage": 0.8,
+      "lowConfidence": false,
+      "lowConfidenceReasons": [],
+      "features": {
+        "R": {
+          "value": 0.6,
+          "weight": 0.35,
+          "source": "Scenario rainfall (scn-dtu-20mmh-v1)",
+          "observedAt": "2026-10-08T11:30:00Z"
+        },
+        "T": {
+          "value": 0.1,
+          "weight": 0.25,
+          "source": "Copernicus DEM relative low-point prior (fixture)",
+          "observedAt": null
+        },
+        "D": {
+          "value": 0.15,
+          "weight": 0.2,
+          "source": "Curated drainage vulnerability (pilot assumption)",
+          "observedAt": null
+        },
+        "O": {
+          "value": null,
+          "weight": 0.2,
+          "source": null,
+          "observedAt": null
+        }
+      },
+      "missing": [
+        "O"
+      ],
+      "evidenceIds": [],
+      "closure": null,
+      "computedAt": "2026-10-08T11:36:40Z",
+      "modelVersion": "pilot-heuristic-v1"
+    },
+    {
+      "segmentId": "S-H11",
+      "score": 0.331,
+      "class": "low",
+      "coverage": 0.8,
+      "lowConfidence": false,
+      "lowConfidenceReasons": [],
+      "features": {
+        "R": {
+          "value": 0.6,
+          "weight": 0.35,
+          "source": "Scenario rainfall (scn-dtu-20mmh-v1)",
+          "observedAt": "2026-10-08T11:30:00Z"
+        },
+        "T": {
+          "value": 0.1,
+          "weight": 0.25,
+          "source": "Copernicus DEM relative low-point prior (fixture)",
+          "observedAt": null
+        },
+        "D": {
+          "value": 0.15,
+          "weight": 0.2,
+          "source": "Curated drainage vulnerability (pilot assumption)",
+          "observedAt": null
+        },
+        "O": {
+          "value": null,
+          "weight": 0.2,
+          "source": null,
+          "observedAt": null
+        }
+      },
+      "missing": [
+        "O"
+      ],
+      "evidenceIds": [],
+      "closure": null,
+      "computedAt": "2026-10-08T11:36:40Z",
+      "modelVersion": "pilot-heuristic-v1"
+    },
+    {
+      "segmentId": "S-H12",
+      "score": 0.331,
+      "class": "low",
+      "coverage": 0.8,
+      "lowConfidence": false,
+      "lowConfidenceReasons": [],
+      "features": {
+        "R": {
+          "value": 0.6,
+          "weight": 0.35,
+          "source": "Scenario rainfall (scn-dtu-20mmh-v1)",
+          "observedAt": "2026-10-08T11:30:00Z"
+        },
+        "T": {
+          "value": 0.1,
+          "weight": 0.25,
+          "source": "Copernicus DEM relative low-point prior (fixture)",
+          "observedAt": null
+        },
+        "D": {
+          "value": 0.15,
+          "weight": 0.2,
+          "source": "Curated drainage vulnerability (pilot assumption)",
+          "observedAt": null
+        },
+        "O": {
+          "value": null,
+          "weight": 0.2,
+          "source": null,
+          "observedAt": null
+        }
+      },
+      "missing": [
+        "O"
+      ],
+      "evidenceIds": [
+        "RPT-0002"
+      ],
+      "closure": null,
+      "computedAt": "2026-10-08T11:36:40Z",
+      "modelVersion": "pilot-heuristic-v1"
+    },
+    {
+      "segmentId": "S-H13",
+      "score": 0.331,
+      "class": "low",
+      "coverage": 0.8,
+      "lowConfidence": false,
+      "lowConfidenceReasons": [],
+      "features": {
+        "R": {
+          "value": 0.6,
+          "weight": 0.35,
+          "source": "Scenario rainfall (scn-dtu-20mmh-v1)",
+          "observedAt": "2026-10-08T11:30:00Z"
+        },
+        "T": {
+          "value": 0.1,
+          "weight": 0.25,
+          "source": "Copernicus DEM relative low-point prior (fixture)",
+          "observedAt": null
+        },
+        "D": {
+          "value": 0.15,
+          "weight": 0.2,
+          "source": "Curated drainage vulnerability (pilot assumption)",
+          "observedAt": null
+        },
+        "O": {
+          "value": null,
+          "weight": 0.2,
+          "source": null,
+          "observedAt": null
+        }
+      },
+      "missing": [
+        "O"
+      ],
+      "evidenceIds": [],
+      "closure": null,
+      "computedAt": "2026-10-08T11:36:40Z",
+      "modelVersion": "pilot-heuristic-v1"
+    },
+    {
+      "segmentId": "S-H14",
+      "score": 0.331,
+      "class": "low",
+      "coverage": 0.8,
+      "lowConfidence": false,
+      "lowConfidenceReasons": [],
+      "features": {
+        "R": {
+          "value": 0.6,
+          "weight": 0.35,
+          "source": "Scenario rainfall (scn-dtu-20mmh-v1)",
+          "observedAt": "2026-10-08T11:30:00Z"
+        },
+        "T": {
+          "value": 0.1,
+          "weight": 0.25,
+          "source": "Copernicus DEM relative low-point prior (fixture)",
+          "observedAt": null
+        },
+        "D": {
+          "value": 0.15,
+          "weight": 0.2,
+          "source": "Curated drainage vulnerability (pilot assumption)",
+          "observedAt": null
+        },
+        "O": {
+          "value": null,
+          "weight": 0.2,
+          "source": null,
+          "observedAt": null
+        }
+      },
+      "missing": [
+        "O"
+      ],
+      "evidenceIds": [],
+      "closure": null,
+      "computedAt": "2026-10-08T11:36:40Z",
+      "modelVersion": "pilot-heuristic-v1"
+    },
+    {
+      "segmentId": "S-H20",
+      "score": 0.331,
+      "class": "low",
+      "coverage": 0.8,
+      "lowConfidence": false,
+      "lowConfidenceReasons": [],
+      "features": {
+        "R": {
+          "value": 0.6,
+          "weight": 0.35,
+          "source": "Scenario rainfall (scn-dtu-20mmh-v1)",
+          "observedAt": "2026-10-08T11:30:00Z"
+        },
+        "T": {
+          "value": 0.1,
+          "weight": 0.25,
+          "source": "Copernicus DEM relative low-point prior (fixture)",
+          "observedAt": null
+        },
+        "D": {
+          "value": 0.15,
+          "weight": 0.2,
+          "source": "Curated drainage vulnerability (pilot assumption)",
+          "observedAt": null
+        },
+        "O": {
+          "value": null,
+          "weight": 0.2,
+          "source": null,
+          "observedAt": null
+        }
+      },
+      "missing": [
+        "O"
+      ],
+      "evidenceIds": [],
+      "closure": null,
+      "computedAt": "2026-10-08T11:36:40Z",
+      "modelVersion": "pilot-heuristic-v1"
+    },
+    {
+      "segmentId": "S-H21",
+      "score": 0.391,
+      "class": "watch",
+      "coverage": 0.8,
+      "lowConfidence": false,
+      "lowConfidenceReasons": [],
+      "features": {
+        "R": {
+          "value": 0.6,
+          "weight": 0.35,
+          "source": "Scenario rainfall (scn-dtu-20mmh-v1)",
+          "observedAt": "2026-10-08T11:30:00Z"
+        },
+        "T": {
+          "value": 0.25,
+          "weight": 0.25,
+          "source": "Copernicus DEM relative low-point prior (fixture)",
+          "observedAt": null
+        },
+        "D": {
+          "value": 0.2,
+          "weight": 0.2,
+          "source": "Curated drainage vulnerability (pilot assumption)",
+          "observedAt": null
+        },
+        "O": {
+          "value": null,
+          "weight": 0.2,
+          "source": null,
+          "observedAt": null
+        }
+      },
+      "missing": [
+        "O"
+      ],
+      "evidenceIds": [],
+      "closure": null,
+      "computedAt": "2026-10-08T11:36:40Z",
+      "modelVersion": "pilot-heuristic-v1"
+    },
+    {
+      "segmentId": "S-H22",
+      "score": 0.491,
+      "class": "watch",
+      "coverage": 0.8,
+      "lowConfidence": false,
+      "lowConfidenceReasons": [],
+      "features": {
+        "R": {
+          "value": 0.6,
+          "weight": 0.35,
+          "source": "Scenario rainfall (scn-dtu-20mmh-v1)",
+          "observedAt": "2026-10-08T11:30:00Z"
+        },
+        "T": {
+          "value": 0.45,
+          "weight": 0.25,
+          "source": "Copernicus DEM relative low-point prior (fixture)",
+          "observedAt": null
+        },
+        "D": {
+          "value": 0.35,
+          "weight": 0.2,
+          "source": "Curated drainage vulnerability (pilot assumption)",
+          "observedAt": null
+        },
+        "O": {
+          "value": null,
+          "weight": 0.2,
+          "source": null,
+          "observedAt": null
+        }
+      },
+      "missing": [
+        "O"
+      ],
+      "evidenceIds": [],
+      "closure": null,
+      "computedAt": "2026-10-08T11:36:40Z",
+      "modelVersion": "pilot-heuristic-v1"
+    },
+    {
+      "segmentId": "S-H23",
+      "score": 0.648,
+      "class": "high",
+      "coverage": 1,
+      "lowConfidence": false,
+      "lowConfidenceReasons": [],
+      "features": {
+        "R": {
+          "value": 0.6,
+          "weight": 0.35,
+          "source": "Scenario rainfall (scn-dtu-20mmh-v1)",
+          "observedAt": "2026-10-08T11:30:00Z"
+        },
+        "T": {
+          "value": 0.55,
+          "weight": 0.25,
+          "source": "Copernicus DEM relative low-point prior (fixture)",
+          "observedAt": null
+        },
+        "D": {
+          "value": 0.5,
+          "weight": 0.2,
+          "source": "Curated drainage vulnerability (pilot assumption)",
+          "observedAt": null
+        },
+        "O": {
+          "value": 1,
+          "weight": 0.2,
+          "source": "Accepted photo reports",
+          "observedAt": "2026-10-08T11:24:00Z"
+        }
+      },
+      "missing": [],
+      "evidenceIds": [
+        "RPT-0001",
+        "RPT-0003"
+      ],
+      "closure": null,
+      "computedAt": "2026-10-08T11:36:40Z",
+      "modelVersion": "pilot-heuristic-v1"
+    },
+    {
+      "segmentId": "S-H24",
+      "score": 0.331,
+      "class": "low",
+      "coverage": 0.8,
+      "lowConfidence": false,
+      "lowConfidenceReasons": [],
+      "features": {
+        "R": {
+          "value": 0.6,
+          "weight": 0.35,
+          "source": "Scenario rainfall (scn-dtu-20mmh-v1)",
+          "observedAt": "2026-10-08T11:30:00Z"
+        },
+        "T": {
+          "value": 0.1,
+          "weight": 0.25,
+          "source": "Copernicus DEM relative low-point prior (fixture)",
+          "observedAt": null
+        },
+        "D": {
+          "value": 0.15,
+          "weight": 0.2,
+          "source": "Curated drainage vulnerability (pilot assumption)",
+          "observedAt": null
+        },
+        "O": {
+          "value": null,
+          "weight": 0.2,
+          "source": null,
+          "observedAt": null
+        }
+      },
+      "missing": [
+        "O"
+      ],
+      "evidenceIds": [],
+      "closure": null,
+      "computedAt": "2026-10-08T11:36:40Z",
+      "modelVersion": "pilot-heuristic-v1"
+    },
+    {
+      "segmentId": "S-H30",
+      "score": 0.331,
+      "class": "low",
+      "coverage": 0.8,
+      "lowConfidence": false,
+      "lowConfidenceReasons": [],
+      "features": {
+        "R": {
+          "value": 0.6,
+          "weight": 0.35,
+          "source": "Scenario rainfall (scn-dtu-20mmh-v1)",
+          "observedAt": "2026-10-08T11:30:00Z"
+        },
+        "T": {
+          "value": 0.1,
+          "weight": 0.25,
+          "source": "Copernicus DEM relative low-point prior (fixture)",
+          "observedAt": null
+        },
+        "D": {
+          "value": 0.15,
+          "weight": 0.2,
+          "source": "Curated drainage vulnerability (pilot assumption)",
+          "observedAt": null
+        },
+        "O": {
+          "value": null,
+          "weight": 0.2,
+          "source": null,
+          "observedAt": null
+        }
+      },
+      "missing": [
+        "O"
+      ],
+      "evidenceIds": [],
+      "closure": null,
+      "computedAt": "2026-10-08T11:36:40Z",
+      "modelVersion": "pilot-heuristic-v1"
+    },
+    {
+      "segmentId": "S-H31",
+      "score": 0.541,
+      "class": "watch",
+      "coverage": 0.8,
+      "lowConfidence": false,
+      "lowConfidenceReasons": [],
+      "features": {
+        "R": {
+          "value": 0.6,
+          "weight": 0.35,
+          "source": "Scenario rainfall (scn-dtu-20mmh-v1)",
+          "observedAt": "2026-10-08T11:30:00Z"
+        },
+        "T": {
+          "value": 0.45,
+          "weight": 0.25,
+          "source": "Copernicus DEM relative low-point prior (fixture)",
+          "observedAt": null
+        },
+        "D": {
+          "value": 0.55,
+          "weight": 0.2,
+          "source": "Curated drainage vulnerability (pilot assumption)",
+          "observedAt": null
+        },
+        "O": {
+          "value": null,
+          "weight": 0.2,
+          "source": null,
+          "observedAt": null
+        }
+      },
+      "missing": [
+        "O"
+      ],
+      "evidenceIds": [],
+      "closure": null,
+      "computedAt": "2026-10-08T11:36:40Z",
+      "modelVersion": "pilot-heuristic-v1"
+    },
+    {
+      "segmentId": "S-H32",
+      "score": 0.612,
+      "class": "high",
+      "coverage": 0.8,
+      "lowConfidence": false,
+      "lowConfidenceReasons": [],
+      "features": {
+        "R": {
+          "value": 0.6,
+          "weight": 0.35,
+          "source": "Scenario rainfall (scn-dtu-20mmh-v1)",
+          "observedAt": "2026-10-08T11:30:00Z"
+        },
+        "T": {
+          "value": 0.6,
+          "weight": 0.25,
+          "source": "Copernicus DEM relative low-point prior (fixture)",
+          "observedAt": null
+        },
+        "D": {
+          "value": 0.65,
+          "weight": 0.2,
+          "source": "Curated drainage vulnerability (pilot assumption)",
+          "observedAt": null
+        },
+        "O": {
+          "value": null,
+          "weight": 0.2,
+          "source": null,
+          "observedAt": null
+        }
+      },
+      "missing": [
+        "O"
+      ],
+      "evidenceIds": [],
+      "closure": null,
+      "computedAt": "2026-10-08T11:36:40Z",
+      "modelVersion": "pilot-heuristic-v1"
+    },
+    {
+      "segmentId": "S-H33",
+      "score": 0.519,
+      "class": "watch",
+      "coverage": 0.8,
+      "lowConfidence": false,
+      "lowConfidenceReasons": [],
+      "features": {
+        "R": {
+          "value": 0.6,
+          "weight": 0.35,
+          "source": "Scenario rainfall (scn-dtu-20mmh-v1)",
+          "observedAt": "2026-10-08T11:30:00Z"
+        },
+        "T": {
+          "value": 0.5,
+          "weight": 0.25,
+          "source": "Copernicus DEM relative low-point prior (fixture)",
+          "observedAt": null
+        },
+        "D": {
+          "value": 0.4,
+          "weight": 0.2,
+          "source": "Curated drainage vulnerability (pilot assumption)",
+          "observedAt": null
+        },
+        "O": {
+          "value": null,
+          "weight": 0.2,
+          "source": null,
+          "observedAt": null
+        }
+      },
+      "missing": [
+        "O"
+      ],
+      "evidenceIds": [],
+      "closure": {
+        "segmentId": "S-H33",
+        "status": "confirmed",
+        "reason": "Construction works blocking the carriageway (fixture)",
+        "setBy": "Responder (demo account)",
+        "setAt": "2026-10-08T09:15:00Z",
+        "expiresAt": "2026-10-08T18:00:00Z"
+      },
+      "computedAt": "2026-10-08T11:36:40Z",
+      "modelVersion": "pilot-heuristic-v1"
+    },
+    {
+      "segmentId": "S-H34",
+      "score": 0.331,
+      "class": "low",
+      "coverage": 0.8,
+      "lowConfidence": false,
+      "lowConfidenceReasons": [],
+      "features": {
+        "R": {
+          "value": 0.6,
+          "weight": 0.35,
+          "source": "Scenario rainfall (scn-dtu-20mmh-v1)",
+          "observedAt": "2026-10-08T11:30:00Z"
+        },
+        "T": {
+          "value": 0.1,
+          "weight": 0.25,
+          "source": "Copernicus DEM relative low-point prior (fixture)",
+          "observedAt": null
+        },
+        "D": {
+          "value": 0.15,
+          "weight": 0.2,
+          "source": "Curated drainage vulnerability (pilot assumption)",
+          "observedAt": null
+        },
+        "O": {
+          "value": null,
+          "weight": 0.2,
+          "source": null,
+          "observedAt": null
+        }
+      },
+      "missing": [
+        "O"
+      ],
+      "evidenceIds": [],
+      "closure": null,
+      "computedAt": "2026-10-08T11:36:40Z",
+      "modelVersion": "pilot-heuristic-v1"
+    },
+    {
+      "segmentId": "S-H40",
+      "score": 0.331,
+      "class": "low",
+      "coverage": 0.8,
+      "lowConfidence": false,
+      "lowConfidenceReasons": [],
+      "features": {
+        "R": {
+          "value": 0.6,
+          "weight": 0.35,
+          "source": "Scenario rainfall (scn-dtu-20mmh-v1)",
+          "observedAt": "2026-10-08T11:30:00Z"
+        },
+        "T": {
+          "value": 0.1,
+          "weight": 0.25,
+          "source": "Copernicus DEM relative low-point prior (fixture)",
+          "observedAt": null
+        },
+        "D": {
+          "value": 0.15,
+          "weight": 0.2,
+          "source": "Curated drainage vulnerability (pilot assumption)",
+          "observedAt": null
+        },
+        "O": {
+          "value": null,
+          "weight": 0.2,
+          "source": null,
+          "observedAt": null
+        }
+      },
+      "missing": [
+        "O"
+      ],
+      "evidenceIds": [],
+      "closure": null,
+      "computedAt": "2026-10-08T11:36:40Z",
+      "modelVersion": "pilot-heuristic-v1"
+    },
+    {
+      "segmentId": "S-H41",
+      "score": 0.331,
+      "class": "low",
+      "coverage": 0.8,
+      "lowConfidence": false,
+      "lowConfidenceReasons": [],
+      "features": {
+        "R": {
+          "value": 0.6,
+          "weight": 0.35,
+          "source": "Scenario rainfall (scn-dtu-20mmh-v1)",
+          "observedAt": "2026-10-08T11:30:00Z"
+        },
+        "T": {
+          "value": 0.1,
+          "weight": 0.25,
+          "source": "Copernicus DEM relative low-point prior (fixture)",
+          "observedAt": null
+        },
+        "D": {
+          "value": 0.15,
+          "weight": 0.2,
+          "source": "Curated drainage vulnerability (pilot assumption)",
+          "observedAt": null
+        },
+        "O": {
+          "value": null,
+          "weight": 0.2,
+          "source": null,
+          "observedAt": null
+        }
+      },
+      "missing": [
+        "O"
+      ],
+      "evidenceIds": [],
+      "closure": null,
+      "computedAt": "2026-10-08T11:36:40Z",
+      "modelVersion": "pilot-heuristic-v1"
+    },
+    {
+      "segmentId": "S-H42",
+      "score": 0.331,
+      "class": "low",
+      "coverage": 0.8,
+      "lowConfidence": false,
+      "lowConfidenceReasons": [],
+      "features": {
+        "R": {
+          "value": 0.6,
+          "weight": 0.35,
+          "source": "Scenario rainfall (scn-dtu-20mmh-v1)",
+          "observedAt": "2026-10-08T11:30:00Z"
+        },
+        "T": {
+          "value": 0.1,
+          "weight": 0.25,
+          "source": "Copernicus DEM relative low-point prior (fixture)",
+          "observedAt": null
+        },
+        "D": {
+          "value": 0.15,
+          "weight": 0.2,
+          "source": "Curated drainage vulnerability (pilot assumption)",
+          "observedAt": null
+        },
+        "O": {
+          "value": null,
+          "weight": 0.2,
+          "source": null,
+          "observedAt": null
+        }
+      },
+      "missing": [
+        "O"
+      ],
+      "evidenceIds": [],
+      "closure": null,
+      "computedAt": "2026-10-08T11:36:40Z",
+      "modelVersion": "pilot-heuristic-v1"
+    },
+    {
+      "segmentId": "S-H43",
+      "score": 0.331,
+      "class": "low",
+      "coverage": 0.8,
+      "lowConfidence": false,
+      "lowConfidenceReasons": [],
+      "features": {
+        "R": {
+          "value": 0.6,
+          "weight": 0.35,
+          "source": "Scenario rainfall (scn-dtu-20mmh-v1)",
+          "observedAt": "2026-10-08T11:30:00Z"
+        },
+        "T": {
+          "value": 0.1,
+          "weight": 0.25,
+          "source": "Copernicus DEM relative low-point prior (fixture)",
+          "observedAt": null
+        },
+        "D": {
+          "value": 0.15,
+          "weight": 0.2,
+          "source": "Curated drainage vulnerability (pilot assumption)",
+          "observedAt": null
+        },
+        "O": {
+          "value": null,
+          "weight": 0.2,
+          "source": null,
+          "observedAt": null
+        }
+      },
+      "missing": [
+        "O"
+      ],
+      "evidenceIds": [],
+      "closure": null,
+      "computedAt": "2026-10-08T11:36:40Z",
+      "modelVersion": "pilot-heuristic-v1"
+    },
+    {
+      "segmentId": "S-H44",
+      "score": 0.331,
+      "class": "low",
+      "coverage": 0.8,
+      "lowConfidence": false,
+      "lowConfidenceReasons": [],
+      "features": {
+        "R": {
+          "value": 0.6,
+          "weight": 0.35,
+          "source": "Scenario rainfall (scn-dtu-20mmh-v1)",
+          "observedAt": "2026-10-08T11:30:00Z"
+        },
+        "T": {
+          "value": 0.1,
+          "weight": 0.25,
+          "source": "Copernicus DEM relative low-point prior (fixture)",
+          "observedAt": null
+        },
+        "D": {
+          "value": 0.15,
+          "weight": 0.2,
+          "source": "Curated drainage vulnerability (pilot assumption)",
+          "observedAt": null
+        },
+        "O": {
+          "value": null,
+          "weight": 0.2,
+          "source": null,
+          "observedAt": null
+        }
+      },
+      "missing": [
+        "O"
+      ],
+      "evidenceIds": [],
+      "closure": null,
+      "computedAt": "2026-10-08T11:36:40Z",
+      "modelVersion": "pilot-heuristic-v1"
+    },
+    {
+      "segmentId": "S-V00",
+      "score": 0.392,
+      "class": "watch",
+      "coverage": 0.6,
+      "lowConfidence": true,
+      "lowConfidenceReasons": [
+        "coverage_below_threshold"
+      ],
+      "features": {
+        "R": {
+          "value": 0.6,
+          "weight": 0.35,
+          "source": "Scenario rainfall (scn-dtu-20mmh-v1)",
+          "observedAt": "2026-10-08T11:30:00Z"
+        },
+        "T": {
+          "value": 0.1,
+          "weight": 0.25,
+          "source": "Copernicus DEM relative low-point prior (fixture)",
+          "observedAt": null
+        },
+        "D": {
+          "value": null,
+          "weight": 0.2,
+          "source": null,
+          "observedAt": null
+        },
+        "O": {
+          "value": null,
+          "weight": 0.2,
+          "source": null,
+          "observedAt": null
+        }
+      },
+      "missing": [
+        "D",
+        "O"
+      ],
+      "evidenceIds": [],
+      "closure": null,
+      "computedAt": "2026-10-08T11:36:40Z",
+      "modelVersion": "pilot-heuristic-v1"
+    },
+    {
+      "segmentId": "S-V01",
+      "score": 0.331,
+      "class": "low",
+      "coverage": 0.8,
+      "lowConfidence": false,
+      "lowConfidenceReasons": [],
+      "features": {
+        "R": {
+          "value": 0.6,
+          "weight": 0.35,
+          "source": "Scenario rainfall (scn-dtu-20mmh-v1)",
+          "observedAt": "2026-10-08T11:30:00Z"
+        },
+        "T": {
+          "value": 0.1,
+          "weight": 0.25,
+          "source": "Copernicus DEM relative low-point prior (fixture)",
+          "observedAt": null
+        },
+        "D": {
+          "value": 0.15,
+          "weight": 0.2,
+          "source": "Curated drainage vulnerability (pilot assumption)",
+          "observedAt": null
+        },
+        "O": {
+          "value": null,
+          "weight": 0.2,
+          "source": null,
+          "observedAt": null
+        }
+      },
+      "missing": [
+        "O"
+      ],
+      "evidenceIds": [],
+      "closure": null,
+      "computedAt": "2026-10-08T11:36:40Z",
+      "modelVersion": "pilot-heuristic-v1"
+    },
+    {
+      "segmentId": "S-V02",
+      "score": 0.331,
+      "class": "low",
+      "coverage": 0.8,
+      "lowConfidence": false,
+      "lowConfidenceReasons": [],
+      "features": {
+        "R": {
+          "value": 0.6,
+          "weight": 0.35,
+          "source": "Scenario rainfall (scn-dtu-20mmh-v1)",
+          "observedAt": "2026-10-08T11:30:00Z"
+        },
+        "T": {
+          "value": 0.1,
+          "weight": 0.25,
+          "source": "Copernicus DEM relative low-point prior (fixture)",
+          "observedAt": null
+        },
+        "D": {
+          "value": 0.15,
+          "weight": 0.2,
+          "source": "Curated drainage vulnerability (pilot assumption)",
+          "observedAt": null
+        },
+        "O": {
+          "value": null,
+          "weight": 0.2,
+          "source": null,
+          "observedAt": null
+        }
+      },
+      "missing": [
+        "O"
+      ],
+      "evidenceIds": [],
+      "closure": null,
+      "computedAt": "2026-10-08T11:36:40Z",
+      "modelVersion": "pilot-heuristic-v1"
+    },
+    {
+      "segmentId": "S-V03",
+      "score": 0.331,
+      "class": "low",
+      "coverage": 0.8,
+      "lowConfidence": false,
+      "lowConfidenceReasons": [],
+      "features": {
+        "R": {
+          "value": 0.6,
+          "weight": 0.35,
+          "source": "Scenario rainfall (scn-dtu-20mmh-v1)",
+          "observedAt": "2026-10-08T11:30:00Z"
+        },
+        "T": {
+          "value": 0.1,
+          "weight": 0.25,
+          "source": "Copernicus DEM relative low-point prior (fixture)",
+          "observedAt": null
+        },
+        "D": {
+          "value": 0.15,
+          "weight": 0.2,
+          "source": "Curated drainage vulnerability (pilot assumption)",
+          "observedAt": null
+        },
+        "O": {
+          "value": null,
+          "weight": 0.2,
+          "source": null,
+          "observedAt": null
+        }
+      },
+      "missing": [
+        "O"
+      ],
+      "evidenceIds": [],
+      "closure": null,
+      "computedAt": "2026-10-08T11:36:40Z",
+      "modelVersion": "pilot-heuristic-v1"
+    },
+    {
+      "segmentId": "S-V11",
+      "score": 0.331,
+      "class": "low",
+      "coverage": 0.8,
+      "lowConfidence": false,
+      "lowConfidenceReasons": [],
+      "features": {
+        "R": {
+          "value": 0.6,
+          "weight": 0.35,
+          "source": "Scenario rainfall (scn-dtu-20mmh-v1)",
+          "observedAt": "2026-10-08T11:30:00Z"
+        },
+        "T": {
+          "value": 0.1,
+          "weight": 0.25,
+          "source": "Copernicus DEM relative low-point prior (fixture)",
+          "observedAt": null
+        },
+        "D": {
+          "value": 0.15,
+          "weight": 0.2,
+          "source": "Curated drainage vulnerability (pilot assumption)",
+          "observedAt": null
+        },
+        "O": {
+          "value": null,
+          "weight": 0.2,
+          "source": null,
+          "observedAt": null
+        }
+      },
+      "missing": [
+        "O"
+      ],
+      "evidenceIds": [],
+      "closure": null,
+      "computedAt": "2026-10-08T11:36:40Z",
+      "modelVersion": "pilot-heuristic-v1"
+    },
+    {
+      "segmentId": "S-V12",
+      "score": 0.331,
+      "class": "low",
+      "coverage": 0.8,
+      "lowConfidence": false,
+      "lowConfidenceReasons": [],
+      "features": {
+        "R": {
+          "value": 0.6,
+          "weight": 0.35,
+          "source": "Scenario rainfall (scn-dtu-20mmh-v1)",
+          "observedAt": "2026-10-08T11:30:00Z"
+        },
+        "T": {
+          "value": 0.1,
+          "weight": 0.25,
+          "source": "Copernicus DEM relative low-point prior (fixture)",
+          "observedAt": null
+        },
+        "D": {
+          "value": 0.15,
+          "weight": 0.2,
+          "source": "Curated drainage vulnerability (pilot assumption)",
+          "observedAt": null
+        },
+        "O": {
+          "value": null,
+          "weight": 0.2,
+          "source": null,
+          "observedAt": null
+        }
+      },
+      "missing": [
+        "O"
+      ],
+      "evidenceIds": [],
+      "closure": null,
+      "computedAt": "2026-10-08T11:36:40Z",
+      "modelVersion": "pilot-heuristic-v1"
+    },
+    {
+      "segmentId": "S-V20",
+      "score": 0.331,
+      "class": "low",
+      "coverage": 0.8,
+      "lowConfidence": false,
+      "lowConfidenceReasons": [],
+      "features": {
+        "R": {
+          "value": 0.6,
+          "weight": 0.35,
+          "source": "Scenario rainfall (scn-dtu-20mmh-v1)",
+          "observedAt": "2026-10-08T11:30:00Z"
+        },
+        "T": {
+          "value": 0.1,
+          "weight": 0.25,
+          "source": "Copernicus DEM relative low-point prior (fixture)",
+          "observedAt": null
+        },
+        "D": {
+          "value": 0.15,
+          "weight": 0.2,
+          "source": "Curated drainage vulnerability (pilot assumption)",
+          "observedAt": null
+        },
+        "O": {
+          "value": null,
+          "weight": 0.2,
+          "source": null,
+          "observedAt": null
+        }
+      },
+      "missing": [
+        "O"
+      ],
+      "evidenceIds": [],
+      "closure": null,
+      "computedAt": "2026-10-08T11:36:40Z",
+      "modelVersion": "pilot-heuristic-v1"
+    },
+    {
+      "segmentId": "S-V21",
+      "score": 0.331,
+      "class": "low",
+      "coverage": 0.8,
+      "lowConfidence": false,
+      "lowConfidenceReasons": [],
+      "features": {
+        "R": {
+          "value": 0.6,
+          "weight": 0.35,
+          "source": "Scenario rainfall (scn-dtu-20mmh-v1)",
+          "observedAt": "2026-10-08T11:30:00Z"
+        },
+        "T": {
+          "value": 0.1,
+          "weight": 0.25,
+          "source": "Copernicus DEM relative low-point prior (fixture)",
+          "observedAt": null
+        },
+        "D": {
+          "value": 0.15,
+          "weight": 0.2,
+          "source": "Curated drainage vulnerability (pilot assumption)",
+          "observedAt": null
+        },
+        "O": {
+          "value": null,
+          "weight": 0.2,
+          "source": null,
+          "observedAt": null
+        }
+      },
+      "missing": [
+        "O"
+      ],
+      "evidenceIds": [],
+      "closure": null,
+      "computedAt": "2026-10-08T11:36:40Z",
+      "modelVersion": "pilot-heuristic-v1"
+    },
+    {
+      "segmentId": "S-V22",
+      "score": 0.513,
+      "class": "watch",
+      "coverage": 0.8,
+      "lowConfidence": false,
+      "lowConfidenceReasons": [],
+      "features": {
+        "R": {
+          "value": 0.6,
+          "weight": 0.35,
+          "source": "Scenario rainfall (scn-dtu-20mmh-v1)",
+          "observedAt": "2026-10-08T11:30:00Z"
+        },
+        "T": {
+          "value": 0.4,
+          "weight": 0.25,
+          "source": "Copernicus DEM relative low-point prior (fixture)",
+          "observedAt": null
+        },
+        "D": {
+          "value": 0.5,
+          "weight": 0.2,
+          "source": "Curated drainage vulnerability (pilot assumption)",
+          "observedAt": null
+        },
+        "O": {
+          "value": null,
+          "weight": 0.2,
+          "source": null,
+          "observedAt": null
+        }
+      },
+      "missing": [
+        "O"
+      ],
+      "evidenceIds": [],
+      "closure": null,
+      "computedAt": "2026-10-08T11:36:40Z",
+      "modelVersion": "pilot-heuristic-v1"
+    },
+    {
+      "segmentId": "S-V23",
+      "score": 0.331,
+      "class": "low",
+      "coverage": 0.8,
+      "lowConfidence": false,
+      "lowConfidenceReasons": [],
+      "features": {
+        "R": {
+          "value": 0.6,
+          "weight": 0.35,
+          "source": "Scenario rainfall (scn-dtu-20mmh-v1)",
+          "observedAt": "2026-10-08T11:30:00Z"
+        },
+        "T": {
+          "value": 0.1,
+          "weight": 0.25,
+          "source": "Copernicus DEM relative low-point prior (fixture)",
+          "observedAt": null
+        },
+        "D": {
+          "value": 0.15,
+          "weight": 0.2,
+          "source": "Curated drainage vulnerability (pilot assumption)",
+          "observedAt": null
+        },
+        "O": {
+          "value": null,
+          "weight": 0.2,
+          "source": null,
+          "observedAt": null
+        }
+      },
+      "missing": [
+        "O"
+      ],
+      "evidenceIds": [],
+      "closure": null,
+      "computedAt": "2026-10-08T11:36:40Z",
+      "modelVersion": "pilot-heuristic-v1"
+    },
+    {
+      "segmentId": "S-V30",
+      "score": 0.331,
+      "class": "low",
+      "coverage": 0.8,
+      "lowConfidence": false,
+      "lowConfidenceReasons": [],
+      "features": {
+        "R": {
+          "value": 0.6,
+          "weight": 0.35,
+          "source": "Scenario rainfall (scn-dtu-20mmh-v1)",
+          "observedAt": "2026-10-08T11:30:00Z"
+        },
+        "T": {
+          "value": 0.1,
+          "weight": 0.25,
+          "source": "Copernicus DEM relative low-point prior (fixture)",
+          "observedAt": null
+        },
+        "D": {
+          "value": 0.15,
+          "weight": 0.2,
+          "source": "Curated drainage vulnerability (pilot assumption)",
+          "observedAt": null
+        },
+        "O": {
+          "value": null,
+          "weight": 0.2,
+          "source": null,
+          "observedAt": null
+        }
+      },
+      "missing": [
+        "O"
+      ],
+      "evidenceIds": [],
+      "closure": null,
+      "computedAt": "2026-10-08T11:36:40Z",
+      "modelVersion": "pilot-heuristic-v1"
+    },
+    {
+      "segmentId": "S-V31",
+      "score": 0.462,
+      "class": "watch",
+      "coverage": 0.8,
+      "lowConfidence": false,
+      "lowConfidenceReasons": [],
+      "features": {
+        "R": {
+          "value": 0.6,
+          "weight": 0.35,
+          "source": "Scenario rainfall (scn-dtu-20mmh-v1)",
+          "observedAt": "2026-10-08T11:30:00Z"
+        },
+        "T": {
+          "value": 0.4,
+          "weight": 0.25,
+          "source": "Copernicus DEM relative low-point prior (fixture)",
+          "observedAt": null
+        },
+        "D": {
+          "value": 0.3,
+          "weight": 0.2,
+          "source": "Curated drainage vulnerability (pilot assumption)",
+          "observedAt": null
+        },
+        "O": {
+          "value": null,
+          "weight": 0.2,
+          "source": null,
+          "observedAt": null
+        }
+      },
+      "missing": [
+        "O"
+      ],
+      "evidenceIds": [],
+      "closure": null,
+      "computedAt": "2026-10-08T11:36:40Z",
+      "modelVersion": "pilot-heuristic-v1"
+    },
+    {
+      "segmentId": "S-V32",
+      "score": 0.591,
+      "class": "watch",
+      "coverage": 0.8,
+      "lowConfidence": false,
+      "lowConfidenceReasons": [],
+      "features": {
+        "R": {
+          "value": 0.6,
+          "weight": 0.35,
+          "source": "Scenario rainfall (scn-dtu-20mmh-v1)",
+          "observedAt": "2026-10-08T11:30:00Z"
+        },
+        "T": {
+          "value": 0.65,
+          "weight": 0.25,
+          "source": "Copernicus DEM relative low-point prior (fixture)",
+          "observedAt": null
+        },
+        "D": {
+          "value": 0.5,
+          "weight": 0.2,
+          "source": "Curated drainage vulnerability (pilot assumption)",
+          "observedAt": null
+        },
+        "O": {
+          "value": null,
+          "weight": 0.2,
+          "source": null,
+          "observedAt": null
+        }
+      },
+      "missing": [
+        "O"
+      ],
+      "evidenceIds": [],
+      "closure": null,
+      "computedAt": "2026-10-08T11:36:40Z",
+      "modelVersion": "pilot-heuristic-v1"
+    },
+    {
+      "segmentId": "S-V33",
+      "score": 0.331,
+      "class": "low",
+      "coverage": 0.8,
+      "lowConfidence": false,
+      "lowConfidenceReasons": [],
+      "features": {
+        "R": {
+          "value": 0.6,
+          "weight": 0.35,
+          "source": "Scenario rainfall (scn-dtu-20mmh-v1)",
+          "observedAt": "2026-10-08T11:30:00Z"
+        },
+        "T": {
+          "value": 0.1,
+          "weight": 0.25,
+          "source": "Copernicus DEM relative low-point prior (fixture)",
+          "observedAt": null
+        },
+        "D": {
+          "value": 0.15,
+          "weight": 0.2,
+          "source": "Curated drainage vulnerability (pilot assumption)",
+          "observedAt": null
+        },
+        "O": {
+          "value": null,
+          "weight": 0.2,
+          "source": null,
+          "observedAt": null
+        }
+      },
+      "missing": [
+        "O"
+      ],
+      "evidenceIds": [],
+      "closure": null,
+      "computedAt": "2026-10-08T11:36:40Z",
+      "modelVersion": "pilot-heuristic-v1"
+    },
+    {
+      "segmentId": "S-V40",
+      "score": 0.331,
+      "class": "low",
+      "coverage": 0.8,
+      "lowConfidence": false,
+      "lowConfidenceReasons": [],
+      "features": {
+        "R": {
+          "value": 0.6,
+          "weight": 0.35,
+          "source": "Scenario rainfall (scn-dtu-20mmh-v1)",
+          "observedAt": "2026-10-08T11:30:00Z"
+        },
+        "T": {
+          "value": 0.1,
+          "weight": 0.25,
+          "source": "Copernicus DEM relative low-point prior (fixture)",
+          "observedAt": null
+        },
+        "D": {
+          "value": 0.15,
+          "weight": 0.2,
+          "source": "Curated drainage vulnerability (pilot assumption)",
+          "observedAt": null
+        },
+        "O": {
+          "value": null,
+          "weight": 0.2,
+          "source": null,
+          "observedAt": null
+        }
+      },
+      "missing": [
+        "O"
+      ],
+      "evidenceIds": [],
+      "closure": null,
+      "computedAt": "2026-10-08T11:36:40Z",
+      "modelVersion": "pilot-heuristic-v1"
+    },
+    {
+      "segmentId": "S-V41",
+      "score": 0.331,
+      "class": "low",
+      "coverage": 0.8,
+      "lowConfidence": false,
+      "lowConfidenceReasons": [],
+      "features": {
+        "R": {
+          "value": 0.6,
+          "weight": 0.35,
+          "source": "Scenario rainfall (scn-dtu-20mmh-v1)",
+          "observedAt": "2026-10-08T11:30:00Z"
+        },
+        "T": {
+          "value": 0.1,
+          "weight": 0.25,
+          "source": "Copernicus DEM relative low-point prior (fixture)",
+          "observedAt": null
+        },
+        "D": {
+          "value": 0.15,
+          "weight": 0.2,
+          "source": "Curated drainage vulnerability (pilot assumption)",
+          "observedAt": null
+        },
+        "O": {
+          "value": null,
+          "weight": 0.2,
+          "source": null,
+          "observedAt": null
+        }
+      },
+      "missing": [
+        "O"
+      ],
+      "evidenceIds": [],
+      "closure": null,
+      "computedAt": "2026-10-08T11:36:40Z",
+      "modelVersion": "pilot-heuristic-v1"
+    },
+    {
+      "segmentId": "S-V42",
+      "score": 0.331,
+      "class": "low",
+      "coverage": 0.8,
+      "lowConfidence": false,
+      "lowConfidenceReasons": [],
+      "features": {
+        "R": {
+          "value": 0.6,
+          "weight": 0.35,
+          "source": "Scenario rainfall (scn-dtu-20mmh-v1)",
+          "observedAt": "2026-10-08T11:30:00Z"
+        },
+        "T": {
+          "value": 0.1,
+          "weight": 0.25,
+          "source": "Copernicus DEM relative low-point prior (fixture)",
+          "observedAt": null
+        },
+        "D": {
+          "value": 0.15,
+          "weight": 0.2,
+          "source": "Curated drainage vulnerability (pilot assumption)",
+          "observedAt": null
+        },
+        "O": {
+          "value": null,
+          "weight": 0.2,
+          "source": null,
+          "observedAt": null
+        }
+      },
+      "missing": [
+        "O"
+      ],
+      "evidenceIds": [],
+      "closure": null,
+      "computedAt": "2026-10-08T11:36:40Z",
+      "modelVersion": "pilot-heuristic-v1"
+    },
+    {
+      "segmentId": "S-V50",
+      "score": 0.331,
+      "class": "low",
+      "coverage": 0.8,
+      "lowConfidence": false,
+      "lowConfidenceReasons": [],
+      "features": {
+        "R": {
+          "value": 0.6,
+          "weight": 0.35,
+          "source": "Scenario rainfall (scn-dtu-20mmh-v1)",
+          "observedAt": "2026-10-08T11:30:00Z"
+        },
+        "T": {
+          "value": 0.1,
+          "weight": 0.25,
+          "source": "Copernicus DEM relative low-point prior (fixture)",
+          "observedAt": null
+        },
+        "D": {
+          "value": 0.15,
+          "weight": 0.2,
+          "source": "Curated drainage vulnerability (pilot assumption)",
+          "observedAt": null
+        },
+        "O": {
+          "value": null,
+          "weight": 0.2,
+          "source": null,
+          "observedAt": null
+        }
+      },
+      "missing": [
+        "O"
+      ],
+      "evidenceIds": [],
+      "closure": null,
+      "computedAt": "2026-10-08T11:36:40Z",
+      "modelVersion": "pilot-heuristic-v1"
+    },
+    {
+      "segmentId": "S-V51",
+      "score": null,
+      "class": "unknown",
+      "coverage": 0.35,
+      "lowConfidence": false,
+      "lowConfidenceReasons": [],
+      "features": {
+        "R": {
+          "value": 0.6,
+          "weight": 0.35,
+          "source": "Scenario rainfall (scn-dtu-20mmh-v1)",
+          "observedAt": "2026-10-08T11:30:00Z"
+        },
+        "T": {
+          "value": null,
+          "weight": 0.25,
+          "source": null,
+          "observedAt": null
+        },
+        "D": {
+          "value": null,
+          "weight": 0.2,
+          "source": null,
+          "observedAt": null
+        },
+        "O": {
+          "value": null,
+          "weight": 0.2,
+          "source": null,
+          "observedAt": null
+        }
+      },
+      "missing": [
+        "T",
+        "D",
+        "O"
+      ],
+      "evidenceIds": [],
+      "closure": null,
+      "computedAt": "2026-10-08T11:36:40Z",
+      "modelVersion": "pilot-heuristic-v1"
+    },
+    {
+      "segmentId": "S-V52",
+      "score": 0.331,
+      "class": "low",
+      "coverage": 0.8,
+      "lowConfidence": false,
+      "lowConfidenceReasons": [],
+      "features": {
+        "R": {
+          "value": 0.6,
+          "weight": 0.35,
+          "source": "Scenario rainfall (scn-dtu-20mmh-v1)",
+          "observedAt": "2026-10-08T11:30:00Z"
+        },
+        "T": {
+          "value": 0.1,
+          "weight": 0.25,
+          "source": "Copernicus DEM relative low-point prior (fixture)",
+          "observedAt": null
+        },
+        "D": {
+          "value": 0.15,
+          "weight": 0.2,
+          "source": "Curated drainage vulnerability (pilot assumption)",
+          "observedAt": null
+        },
+        "O": {
+          "value": null,
+          "weight": 0.2,
+          "source": null,
+          "observedAt": null
+        }
+      },
+      "missing": [
+        "O"
+      ],
+      "evidenceIds": [],
+      "closure": null,
+      "computedAt": "2026-10-08T11:36:40Z",
+      "modelVersion": "pilot-heuristic-v1"
+    },
+    {
+      "segmentId": "S-V53",
+      "score": null,
+      "class": "unknown",
+      "coverage": 0.35,
+      "lowConfidence": false,
+      "lowConfidenceReasons": [],
+      "features": {
+        "R": {
+          "value": 0.6,
+          "weight": 0.35,
+          "source": "Scenario rainfall (scn-dtu-20mmh-v1)",
+          "observedAt": "2026-10-08T11:30:00Z"
+        },
+        "T": {
+          "value": null,
+          "weight": 0.25,
+          "source": null,
+          "observedAt": null
+        },
+        "D": {
+          "value": null,
+          "weight": 0.2,
+          "source": null,
+          "observedAt": null
+        },
+        "O": {
+          "value": null,
+          "weight": 0.2,
+          "source": null,
+          "observedAt": null
+        }
+      },
+      "missing": [
+        "T",
+        "D",
+        "O"
+      ],
+      "evidenceIds": [],
+      "closure": null,
+      "computedAt": "2026-10-08T11:36:40Z",
+      "modelVersion": "pilot-heuristic-v1"
+    }
+  ]
+}

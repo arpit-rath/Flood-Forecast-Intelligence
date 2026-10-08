@@ -1,0 +1,106 @@
+/*
+ * Varuna design tokens (Design-System.md §2–4).
+ * Three layers: primitive → semantic → component. Components and the map
+ * style read these custom properties; do not hard-code colours elsewhere.
+ */
+:root {
+  /* ---------- Primitive ---------- */
+  --v-ink-900: #142B33;
+  --v-ink-600: #526A72;
+  --v-teal-600: #0B7378;
+  --v-teal-700: #07575C;
+  --v-teal-50: #E3F1F1;
+  --v-gray-50: #F5F8F8;
+  --v-gray-100: #ECF1F2;
+  --v-gray-200: #D4E0E1;
+  --v-gray-500: #697B82;
+  --v-white: #FFFFFF;
+
+  --v-green-600: #177B5A;
+  --v-green-800: #0E5640;
+  --v-green-50: #E5F4ED;
+  --v-amber-600: #A9630B;
+  --v-amber-800: #6E3F05;
+  --v-amber-50: #FFF1D8;
+  --v-red-600: #B33A32;
+  --v-red-800: #84251F;
+  --v-red-50: #FDE9E6;
+  --v-slate-500: #697B82;
+  --v-slate-700: #41535A;
+  --v-slate-50: #E9EFF0;
+  --v-route-blue: #2F5FA8;
+
+  --v-space-1: 4px;
+  --v-space-2: 8px;
+  --v-space-3: 12px;
+  --v-space-4: 16px;
+  --v-space-6: 24px;
+  --v-space-8: 32px;
+  --v-radius-sm: 8px;
+  --v-radius-md: 12px;
+  --v-radius-lg: 20px;
+
+  --v-font-ui: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --v-font-mono: 'IBM Plex Mono', ui-monospace, 'SFMono-Regular', Consolas, monospace;
+
+  /* Type scale: fluid between the mobile and desktop sizes in Design-System.md §4 */
+  --v-type-display: 700 clamp(26px, 1.6vw + 20px, 32px) / clamp(34px, 1.6vw + 28px, 40px) var(--v-font-ui);
+  --v-type-heading: 650 clamp(20px, 0.5vw + 18px, 22px) / clamp(28px, 0.5vw + 26px, 30px) var(--v-font-ui);
+  --v-type-body: 400 16px/24px var(--v-font-ui);
+  --v-type-detail: 400 14px/20px var(--v-font-ui);
+  --v-type-metric: 650 clamp(18px, 0.5vw + 16px, 20px) / clamp(26px, 0.5vw + 24px, 28px) var(--v-font-mono);
+
+  /* ---------- Semantic ---------- */
+  --v-bg: var(--v-gray-50);
+  --v-surface: var(--v-white);
+  --v-surface-muted: var(--v-gray-100);
+  --v-text: var(--v-ink-900);
+  --v-text-muted: var(--v-ink-600);
+  --v-action: var(--v-teal-600);
+  --v-action-hover: var(--v-teal-700);
+  --v-action-tint: var(--v-teal-50);
+  --v-divider: var(--v-gray-200);
+  --v-focus: var(--v-teal-700);
+
+  --v-status-low: var(--v-green-600);
+  --v-status-low-bg: var(--v-green-50);
+  --v-status-low-text: var(--v-green-800);
+  --v-status-watch: var(--v-amber-600);
+  --v-status-watch-bg: var(--v-amber-50);
+  --v-status-watch-text: var(--v-amber-800);
+  --v-status-high: var(--v-red-600);
+  --v-status-high-bg: var(--v-red-50);
+  --v-status-high-text: var(--v-red-800);
+  --v-status-unknown: var(--v-slate-500);
+  --v-status-unknown-bg: var(--v-slate-50);
+  --v-status-unknown-text: var(--v-slate-700);
+  --v-status-closed: var(--v-ink-900);
+
+  --v-route-recommended: var(--v-teal-600);
+  --v-route-alternate: var(--v-route-blue);
+
+  --v-mode-scenario-bg: #EEEAF6;
+  --v-mode-scenario-text: #3D2F66;
+  --v-mode-scenario-accent: #5B4A94;
+  --v-mode-live-bg: var(--v-teal-50);
+  --v-mode-live-text: var(--v-teal-700);
+  --v-simulated-bg: #F2ECFA;
+  --v-simulated-text: #4B2E83;
+
+  /* ---------- Component ---------- */
+  --v-button-primary-bg: var(--v-action);
+  --v-button-primary-bg-hover: var(--v-action-hover);
+  --v-button-primary-bg-pressed: #04403F;
+  --v-button-primary-text: var(--v-white);
+  --v-button-secondary-border: var(--v-action);
+  --v-button-secondary-text: var(--v-action-hover);
+  --v-button-destructive-text: var(--v-red-800);
+  --v-button-destructive-border: var(--v-red-600);
+  --v-card-bg: var(--v-surface);
+  --v-card-border: var(--v-divider);
+  --v-card-radius: var(--v-radius-md);
+  --v-input-border: #7A8F95; /* 3.4:1 on white; spec divider is 1.35:1, below WCAG 1.4.11 */
+  --v-control-min-height: 44px;
+  --v-focus-ring: 0 0 0 2px var(--v-surface), 0 0 0 4px var(--v-focus);
+  --v-sheet-shadow: 0 8px 24px rgba(20, 43, 51, 0.14);
+}
