@@ -8,7 +8,7 @@ from backend.varuna.fixture import load_fixture
 from backend.varuna.interventions import compare_interventions
 from backend.varuna.models import Report, Segment
 from backend.varuna.risk import score_segments
-from backend.varuna.routing import route_exposure
+from backend.varuna.routing import compare_routes, route_exposure
 from backend.varuna.service import SnapshotConflictError, VarunaService
 
 
@@ -74,7 +74,37 @@ class DomainTests(unittest.TestCase):
                                       valid_at=self.fixture.metadata["validAt"])
         without_report = score_segments(self.fixture.segments, self.fixture.weather, (),
                                         valid_at=self.fixture.metadata["validAt"])
-        self.assertEqual(without_report, with_expired)
+        stale_risk = next(item for item in with_expired["segments"] if item["segmentId"] == expired.segment_id)
+        baseline_risk = next(item for item in without_report["segments"] if item["segmentId"] == expired.segment_id)
+        self.assertEqual(baseline_risk["score"], stale_risk["score"])
+        self.assertEqual(baseline_risk["features"], stale_risk["features"])
+        self.assertEqual([], stale_risk["evidenceIds"])
+        self.assertEqual("Low", stale_risk["confidence"])
+
+    def test_report_reaches_only_one_lower_lying_neighbour(self) -> None:
+        base = self.fixture.segments[0]
+        target = replace(base, id="target", from_node="A", to_node="B", terrain_prior=0.1)
+        first = replace(base, id="first", from_node="A", to_node="C", terrain_prior=0.9)
+        second = replace(base, id="second", from_node="B", to_node="D", terrain_prior=0.7)
+        report = replace(self.fixture.reports[0], segment_id="target",
+                         captured_at=self.fixture.metadata["validAt"])
+        snapshot = score_segments((target, first, second), self.fixture.weather, (report,),
+                                  valid_at=self.fixture.metadata["validAt"])
+        risks = {item["segmentId"]: item for item in snapshot["segments"]}
+        self.assertEqual([report.id], risks["target"]["evidenceIds"])
+        self.assertEqual([report.id], risks["first"]["evidenceIds"])
+        self.assertEqual([], risks["second"]["evidenceIds"])
+        self.assertEqual(risks["target"]["features"]["O"] * 0.5,
+                         risks["first"]["features"]["O"])
+
+    def test_unassessed_routes_make_no_lower_exposure_claim(self) -> None:
+        snapshot = score_segments(self.fixture.segments, None,
+                                  valid_at=self.fixture.metadata["validAt"])
+        query = self.fixture.route_query
+        routes = compare_routes(self.fixture.segments, snapshot, query["originNodeId"],
+                                query["destinationNodeId"], query["travelMode"])
+        self.assertIn("No lower-exposure route found", routes["reason"])
+        self.assertTrue(all(item["exposure"] is None for item in routes["candidates"]))
 
     def test_pending_report_does_not_change_risk_until_accepted(self) -> None:
         baseline = self.service.snapshot()
@@ -155,6 +185,16 @@ class DomainTests(unittest.TestCase):
         segment["geometry"][0] = [200, 28]
         with self.assertRaises(ValueError):
             Segment.from_dict(segment)
+
+    def test_report_rejects_invalid_time_order_and_point_outside_pilot(self) -> None:
+        report = self.fixture.reports[1].as_dict()
+        report["capturedAt"] = "2026-10-08T11:41:00Z"
+        with self.assertRaisesRegex(ValueError, "capturedAt"):
+            Report.from_dict(report)
+        outside = replace(self.fixture.reports[1], id="outside", point=(0.0, 0.0))
+        with self.assertRaisesRegex(ValueError, "pilot bounds"):
+            self.service.add_pending_report(outside)
+        self.assertNotIn("outside", self.service.reports)
 
 
 if __name__ == "__main__":

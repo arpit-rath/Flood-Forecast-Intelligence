@@ -103,6 +103,7 @@ export interface RiskSnapshot {
 
 export interface RouteCandidate {
   id: string;
+  geometry: { type: "LineString"; coordinates: Point[] };
   segmentIds: string[];
   travelMinutes: number;
   exposure: number | null;

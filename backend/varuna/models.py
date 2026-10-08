@@ -122,9 +122,10 @@ class Report:
                 raise ValueError(f"report {key} is required")
         if raw["reviewStatus"] not in REPORT_STATES:
             raise ValueError("invalid report reviewStatus")
-        utc_time(raw["createdAt"])
+        created_at = utc_time(raw["createdAt"])
         if raw.get("capturedAt") is not None:
-            utc_time(raw["capturedAt"])
+            if utc_time(raw["capturedAt"]) > created_at:
+                raise ValueError("capturedAt cannot be after createdAt")
         observations = raw.get("observations")
         if not isinstance(observations, dict):
             raise ValueError("report observations must be an object")

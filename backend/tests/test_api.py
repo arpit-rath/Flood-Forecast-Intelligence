@@ -24,6 +24,14 @@ class ApiTests(unittest.TestCase):
         self.assertEqual(200, routes.status)
         self.assertEqual("Scenario", routes.body["mode"])
         self.assertTrue(routes.body["candidates"])
+        nodes = {segment["fromNode"]: segment["geometry"][0] for segment in pilot.body["segments"]}
+        nodes.update({segment["toNode"]: segment["geometry"][1] for segment in pilot.body["segments"]})
+        for candidate in routes.body["candidates"]:
+            geometry = candidate["geometry"]
+            self.assertEqual("LineString", geometry["type"])
+            self.assertEqual(nodes[query["originNodeId"]], geometry["coordinates"][0])
+            self.assertEqual(nodes[query["destinationNodeId"]], geometry["coordinates"][-1])
+            self.assertEqual(len(candidate["segmentIds"]) + 1, len(geometry["coordinates"]))
         actions = dispatch(self.service, "POST", "/v1/interventions/compare", body={
             **route_body, "selectedRouteId": routes.body["fastestRouteId"],
             "drainIds": ["D-01", "D-02"],
@@ -60,6 +68,38 @@ class ApiTests(unittest.TestCase):
         self.assertEqual(200, accepted.status)
         self.assertEqual("Accepted", accepted.body["reviewStatus"])
         self.assertNotEqual(before, self.service.snapshot()["id"])
+
+    def test_reviewed_evidence_flows_through_routes_and_two_interventions(self) -> None:
+        query = self.service.pilot()["routeQuery"]
+        baseline = dispatch(self.service, "GET", "/v1/snapshots/current").body
+        baseline_routes = dispatch(self.service, "POST", "/v1/routes/compare",
+                                   body={**query, "snapshotId": baseline["id"]})
+        self.assertEqual(200, baseline_routes.status)
+        reviewed = dispatch(
+            self.service, "PATCH", "/v1/reports/fixture-report-pending/review",
+            body={"reviewStatus": "Accepted"},
+            headers={"Authorization": "Bearer test-token"},
+            allow_local_mutations=True, operator_token="test-token",
+        )
+        self.assertEqual(200, reviewed.status)
+        updated = dispatch(self.service, "GET", "/v1/snapshots/current").body
+        self.assertNotEqual(baseline["id"], updated["id"])
+        stale = dispatch(self.service, "POST", "/v1/routes/compare",
+                         body={**query, "snapshotId": baseline["id"]})
+        self.assertEqual(409, stale.status)
+        self.assertEqual("stale_snapshot", stale.body["error"]["code"])
+        routes = dispatch(self.service, "POST", "/v1/routes/compare",
+                          body={**query, "snapshotId": updated["id"]})
+        self.assertEqual(200, routes.status)
+        actions = dispatch(self.service, "POST", "/v1/interventions/compare", body={
+            **query, "snapshotId": updated["id"],
+            "selectedRouteId": routes.body["fastestRouteId"],
+            "drainIds": ["D-01", "D-02"],
+        })
+        self.assertEqual(200, actions.status)
+        self.assertEqual(updated["id"], actions.body["baselineSnapshotId"])
+        self.assertEqual(2, len(actions.body["results"]))
+        self.assertEqual(updated, self.service.snapshot())
 
     def test_deployed_handler_is_read_only_and_returns_api_gateway_shape(self) -> None:
         event = {"version": "2.0", "rawPath": "/v1/snapshots/current",

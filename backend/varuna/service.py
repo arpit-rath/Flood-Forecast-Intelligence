@@ -83,6 +83,11 @@ class VarunaService:
             raise ValueError("new reports must begin Pending Review")
         if report.segment_id not in {segment.id for segment in self.fixture.segments}:
             raise ValueError("report segment is outside the pilot")
+        points = [point for segment in self.fixture.segments for point in segment.geometry]
+        longitude, latitude = report.point
+        if not (min(point[0] for point in points) <= longitude <= max(point[0] for point in points)
+                and min(point[1] for point in points) <= latitude <= max(point[1] for point in points)):
+            raise ValueError("report point is outside the pilot bounds")
         if report.id in self.reports:
             raise ValueError("report ID already exists")
         self.reports[report.id] = report

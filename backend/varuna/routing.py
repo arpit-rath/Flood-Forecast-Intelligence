@@ -85,6 +85,25 @@ def route_exposure(
     }
 
 
+def _route_geometry(segment_ids: Iterable[str], origin: str, segments_by_id: dict[str, Segment]) -> dict[str, Any]:
+    coordinates: list[list[float]] = []
+    node = origin
+    for segment_id in segment_ids:
+        segment = segments_by_id[segment_id]
+        if segment.from_node == node:
+            start, end = segment.geometry
+            node = segment.to_node
+        elif segment.to_node == node:
+            end, start = segment.geometry
+            node = segment.from_node
+        else:
+            raise ValueError("route segment order is disconnected")
+        if not coordinates:
+            coordinates.append(list(start))
+        coordinates.append(list(end))
+    return {"type": "LineString", "coordinates": coordinates}
+
+
 def compare_routes(
     segments: Iterable[Segment], snapshot: dict[str, Any], origin: str,
     destination: str, travel_mode: str, *, max_candidates: int = 12,
@@ -98,7 +117,11 @@ def compare_routes(
     )
     candidates = []
     for index, path in enumerate(paths, start=1):
-        candidate = {"id": f"R{index}", **path, **route_exposure(path["segmentIds"], by_id, risks)}
+        candidate = {
+            "id": f"R{index}", **path,
+            "geometry": _route_geometry(path["segmentIds"], origin, by_id),
+            **route_exposure(path["segmentIds"], by_id, risks),
+        }
         candidate["provenance"] = "Synthetic fixture graph"
         candidates.append(candidate)
     viable = [candidate for candidate in candidates if not candidate["blocked"]]
@@ -106,12 +129,12 @@ def compare_routes(
     assessed = [candidate for candidate in viable if candidate["exposure"] is not None and candidate["unknownShare"] <= 0.2]
     lowest = min(assessed, key=lambda item: (item["exposure"], item["travelMinutes"], item["id"])) if assessed else None
     recommended = fastest
-    reason = "No available route" if fastest is None else "Fastest route retained; no meaningful lower-exposure alternative"
+    reason = "No available route" if fastest is None else "No meaningful lower-exposure alternative; fastest route retained"
     if fastest and lowest and fastest["exposure"] is not None and fastest["exposure"] - lowest["exposure"] >= 0.10:
         recommended = lowest
         reason = "Lower estimated exposure; compare the additional travel time"
     elif fastest and fastest["unknownShare"] > 0.2:
-        reason = "Route has substantial unassessed distance; no lower-exposure claim"
+        reason = "No lower-exposure route found; route has substantial unassessed distance"
     return {
         "snapshotId": snapshot["id"], "mode": snapshot["mode"],
         "originNodeId": origin, "destinationNodeId": destination, "travelMode": travel_mode,

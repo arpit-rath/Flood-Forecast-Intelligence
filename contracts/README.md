@@ -23,7 +23,7 @@ The JSON schemas define the wire shape for `Segment` and `Report`. [`types.ts`](
    {"snapshotId":"<current snapshot id>","originNodeId":"N-2-0","destinationNodeId":"N-2-4","travelMode":"Pedestrian"}
    ```
 
-   The response includes `fastestRouteId`, `recommendedRouteId`, `reason`, and `candidates`. A candidate includes `segmentIds`, `travelMinutes`, `exposure`, `unknownShare`, `highestClass`, and `blocked`. A null route ID means no route was found.
+   The response includes `fastestRouteId`, `recommendedRouteId`, `reason`, and `candidates`. A candidate includes `geometry` (WGS84 GeoJSON `LineString`), `segmentIds`, `travelMinutes`, `exposure`, `unknownShare`, `highestClass`, and `blocked`. A null route ID means no route was found. When no meaningful lower-exposure alternative exists, `reason` says so; the fastest route is not a safety claim.
 4. Compare interventions using the same query plus the selected route:
 
    ```json

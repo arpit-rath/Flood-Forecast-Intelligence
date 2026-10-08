@@ -36,7 +36,7 @@ def _report_signal(report: Report) -> float | None:
 
 def _observations(
     segments: tuple[Segment, ...], reports: Iterable[Report], valid_at: str,
-) -> tuple[dict[str, float], dict[str, list[str]]]:
+) -> tuple[dict[str, float], dict[str, list[str]], set[str]]:
     now = utc_time(valid_at)
     by_id = {segment.id: segment for segment in segments}
     at_node: dict[str, list[Segment]] = defaultdict(list)
@@ -45,11 +45,13 @@ def _observations(
         at_node[segment.to_node].append(segment)
     signals: dict[str, float] = {}
     evidence: dict[str, list[str]] = defaultdict(list)
+    stale_report_segments: set[str] = set()
     for report in reports:
         if report.review_status != "Accepted" or report.segment_id not in by_id:
             continue
         captured = utc_time(report.captured_at or report.created_at)
         if captured > now or now - captured > REPORT_MAX_AGE:
+            stale_report_segments.add(report.segment_id)
             continue
         strength = _report_signal(report)
         if strength is None:
@@ -58,19 +60,22 @@ def _observations(
         if strength > signals.get(target.id, -1):
             signals[target.id] = strength
         evidence[target.id].append(report.id)
-        for node in (target.from_node, target.to_node):
-            for neighbour in at_node[node]:
-                if neighbour.id == target.id:
-                    continue
-                # Higher susceptibility means lower relative terrain in this pilot model.
-                if (target.terrain_prior is None or neighbour.terrain_prior is None
-                        or neighbour.terrain_prior <= target.terrain_prior):
-                    continue
-                attenuated = strength * 0.5
-                if attenuated > signals.get(neighbour.id, -1):
-                    signals[neighbour.id] = attenuated
-                evidence[neighbour.id].append(report.id)
-    return signals, evidence
+        # Higher susceptibility means lower relative terrain in this pilot model.
+        eligible = {
+            neighbour.id: neighbour
+            for node in (target.from_node, target.to_node)
+            for neighbour in at_node[node]
+            if neighbour.id != target.id and target.terrain_prior is not None
+            and neighbour.terrain_prior is not None
+            and neighbour.terrain_prior > target.terrain_prior
+        }
+        if eligible:
+            neighbour = min(eligible.values(), key=lambda item: (-item.terrain_prior, item.id))
+            attenuated = strength * 0.5
+            if attenuated > signals.get(neighbour.id, -1):
+                signals[neighbour.id] = attenuated
+            evidence[neighbour.id].append(report.id)
+    return signals, evidence, stale_report_segments
 
 
 def score_segments(
@@ -81,7 +86,7 @@ def score_segments(
     """Return a reproducible snapshot; missing signals never become zero."""
     ordered = tuple(sorted(segments, key=lambda item: item.id))
     closed = set(closed_segment_ids)
-    observation, evidence = _observations(ordered, reports, valid_at)
+    observation, evidence, stale_report_segments = _observations(ordered, reports, valid_at)
     rainfall: float | None = None
     mode = "Scenario"
     weather_stale = False
@@ -116,7 +121,7 @@ def score_segments(
             "score": None if score is None else round(score, 6),
             "class": class_for(score),
             "coverage": round(coverage, 6),
-            "confidence": "Low" if coverage < 0.80 or weather_stale else "Standard",
+            "confidence": "Low" if coverage < 0.80 or weather_stale or segment.id in stale_report_segments else "Standard",
             "features": features,
             "missingFeatures": [name for name, value in features.items() if value is None],
             "evidenceIds": sorted(set(evidence.get(segment.id, []))),
