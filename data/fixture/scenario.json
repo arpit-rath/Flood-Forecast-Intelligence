@@ -1,0 +1,83 @@
+{
+  "id": "dtu-synthetic-rain-v1",
+  "bundleVersion": "fixture-v1",
+  "mode": "Scenario",
+  "label": "Synthetic DTU-area grid for a repeatable demonstration",
+  "source": "Synthetic geometry and drainage assumptions; not surveyed roads or verified drains",
+  "validAt": "2026-10-08T12:00:00Z",
+  "grid": {
+    "rows": 5,
+    "columns": 5,
+    "southWest": [77.128, 28.746],
+    "stepLongitude": 0.001,
+    "stepLatitude": 0.001,
+    "terrainSusceptibility": [
+      [0.20, 0.25, 0.28, 0.25, 0.20],
+      [0.35, 0.45, 0.50, 0.45, 0.35],
+      [0.45, 0.55, 0.65, 0.55, 0.45],
+      [0.30, 0.40, 0.45, 0.40, 0.30],
+      [0.20, 0.25, 0.30, 0.25, 0.20]
+    ]
+  },
+  "weather": {
+    "mode": "Scenario",
+    "precipitationMmH": 19.5,
+    "validAt": "2026-10-08T12:00:00Z",
+    "fetchedAt": "2026-10-08T12:00:00Z",
+    "provider": "Synthetic fixture"
+  },
+  "defaultDrainageVulnerability": 0.2,
+  "drainageOverrides": {
+    "H-2-1": 0.95,
+    "H-2-2": 0.95,
+    "V-1-2": 0.85,
+    "H-1-1": 0.75,
+    "H-1-2": 0.75,
+    "V-1-1": 0.7
+  },
+  "drains": [
+    {
+      "id": "D-01",
+      "label": "Modelled choke point A",
+      "affectedSegmentIds": ["H-2-1", "H-2-2", "V-1-2"],
+      "drainageReduction": 0.5
+    },
+    {
+      "id": "D-02",
+      "label": "Modelled choke point B",
+      "affectedSegmentIds": ["H-1-1", "H-1-2", "V-1-1"],
+      "drainageReduction": 0.5
+    }
+  ],
+  "routeQuery": {
+    "originNodeId": "N-2-0",
+    "destinationNodeId": "N-2-4",
+    "travelMode": "Pedestrian"
+  },
+  "reports": [
+    {
+      "id": "fixture-report-accepted",
+      "segmentId": "H-2-1",
+      "point": [77.1295, 28.748],
+      "createdAt": "2026-10-08T11:30:00Z",
+      "capturedAt": "2026-10-08T11:25:00Z",
+      "imageKey": "fixture://synthetic/accepted",
+      "reviewStatus": "Accepted",
+      "observations": {"visible_water": "clear", "drain_state": "not_visible", "visible_hazards": [], "access_concern": "possible", "confidence": 0.82, "evidence_summary": "Synthetic report of visible standing water", "needs_human_review": true},
+      "modelConfidence": 0.82,
+      "source": "Synthetic fixture"
+    },
+    {
+      "id": "fixture-report-pending",
+      "segmentId": "H-1-1",
+      "point": [77.1295, 28.747],
+      "createdAt": "2026-10-08T11:40:00Z",
+      "capturedAt": "2026-10-08T11:35:00Z",
+      "imageKey": "fixture://synthetic/pending",
+      "reviewStatus": "Pending Review",
+      "observations": {"visible_water": "clear", "drain_state": "not_visible", "visible_hazards": [], "access_concern": "possible", "confidence": 0.9, "evidence_summary": "Synthetic report awaiting review", "needs_human_review": true},
+      "modelConfidence": 0.9,
+      "source": "Synthetic fixture"
+    }
+  ]
+}
