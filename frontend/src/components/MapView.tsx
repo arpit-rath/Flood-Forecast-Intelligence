@@ -105,11 +105,14 @@ export function MapView({
   className = '',
   legendOpen,
   onOpenSelection,
+  showSimulation = false,
 }: {
   className?: string;
   legendOpen?: boolean;
   /** When set, selecting a road shows a peek card with a link to its details. */
   onOpenSelection?: () => void;
+  /** Responder console only: residents always see the current estimate. */
+  showSimulation?: boolean;
 }) {
   const {
     pilot,
@@ -123,6 +126,7 @@ export function MapView({
     routeQuery,
     simulationPreview,
     intervention,
+    interventionIsStale,
     reports,
   } = useAppState();
   const containerRef = useRef<HTMLDivElement>(null);
@@ -143,12 +147,12 @@ export function MapView({
   const pilotData = pilot.status === 'ready' ? pilot.data : null;
 
   const simulatedClasses = useMemo(() => {
-    if (!simulationPreview || intervention.status !== 'ready') return null;
+    if (!showSimulation || !simulationPreview || intervention.status !== 'ready' || interventionIsStale) return null;
     if (intervention.data.comparisonId !== simulationPreview.comparisonId) return null;
     const option = intervention.data.options.find((o) => o.drainId === simulationPreview.drainId);
     if (!option) return null;
     return new Map<string, RiskClass>(option.segmentChanges.map((c) => [c.segmentId, c.afterClass]));
-  }, [simulationPreview, intervention]);
+  }, [showSimulation, simulationPreview, intervention, interventionIsStale]);
 
   const classes = useMemo(() => {
     const map = new Map<string, RiskClass>();

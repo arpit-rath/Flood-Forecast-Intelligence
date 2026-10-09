@@ -1,6 +1,6 @@
 # Varuna frontend
 
-React + TypeScript + Vite interface for the Varuna pilot: resident route view and responder console. MapLibre GL renders the map. The UI follows [Design-System.md](../Design-System.md) and consumes the API described in [Architecture.md](../Architecture.md) §7.
+React + TypeScript + Vite interface for the Varuna pilot: a landing page, the resident route view and the responder console. MapLibre GL renders the map. The UI follows [Design-System.md](../Design-System.md) and consumes the API described in [Architecture.md](../Architecture.md) §7.
 
 ## Run
 
@@ -10,14 +10,14 @@ npm install
 npm run dev        # http://localhost:5173
 npm run build      # type-check and production build into frontend/dist
 npm run lint       # oxlint
-npm run test:unit  # API adapter unit checks
+npm run test:unit  # API adapter, terrain contour and label unit checks
 npm run fixtures   # regenerate mock fixture JSON
-npm run test:e2e   # Playwright: both core flows at 360 px and 1280 px
+npm run test:e2e   # Playwright: landing and both core flows at 360 px and 1280 px
 ```
 
-`test:e2e` uses the locally installed Microsoft Edge (`PW_CHANNEL=chrome` for Chrome) and starts the dev server itself. In mock mode it covers the resident and responder fixture flows at 360 px and 1280 px. With `VITE_USE_MOCKS=false`, it also starts the local Python API and tests the real HTTP scenario, routes, interventions, unavailable reports, and unavailable Live weather. To test the production build, run `npm run build && npx vite preview --port 5173` in another terminal first; the tests reuse a running server.
+`test:e2e` uses the locally installed Microsoft Edge (`PW_CHANNEL=chrome` for Chrome) and starts the dev server itself. In mock mode it covers the landing page, the resident and responder fixture flows, the redesigned navigation, and an axe-core WCAG scan of each view, at 360 px and 1280 px. With `VITE_USE_MOCKS=false`, it also starts the local Python API and tests the real HTTP scenario, routes, interventions, unavailable reports, and unavailable Live weather. To test the production build, run `npm run build && npx vite preview --port 5173` in another terminal first; the tests reuse a running server. If another checkout already serves port 5173, set `PW_PORT` (for example `PW_PORT=5174`) so the tests start and use their own server. The local API only allows the origin `http://localhost:5173`, so run HTTP-mode tests on that port.
 
-Views: `#/resident` (default) and `#/responder`.
+Views: `#/` (landing), `#/resident` and `#/responder`. Add `?map=static` before the hash (for example `/?map=static#/resident`) to see the static SVG fallback that replaces the interactive map when WebGL or the map style is unavailable.
 
 ## Configuration
 
@@ -58,13 +58,23 @@ Demo story with fixtures: the baseline shows Central Avenue as the fastest defau
 ```
 src/
   api/          contract types, HTTP client, mock client + fixtures
-  components/   map, banners, cards, forms, panels
-  lib/          formatting, copy, hooks
+  components/   map, status strip, sketch, cards, forms, panels
+  lib/          formatting, copy, hooks, geometry, terrain contours
   state/        AppState provider (data loading, selection, review, simulation)
-  styles/       tokens.css (primitive → semantic → component), base, layout, components
-  views/        ResidentView, ResponderView
+  styles/       tokens.css (primitive → semantic → component), base, layout,
+                components, map, landing
+  views/        LandingView, ResidentView, ResponderView
 scripts/        fixture authoring
 ```
+
+## Visual system
+
+- **Tokens.** `styles/tokens.css` keeps three explicit layers. Components and the MapLibre style read the same custom properties; no colours are hard-coded in React.
+- **Type.** Inter for interface text, IBM Plex Mono for times and metrics, and Newsreader (display serif) for page and decision headlines only.
+- **Colour.** Ink and paper carry the page, teal is the only action colour, and violet marks Scenario mode and simulated output. Low, Watch, High, Unknown and Closed colours appear only where they describe a road, always with text and a pattern (solid, thick, dashed, crosshatch).
+- **Map context.** Contour lines show the terrain low-point prior, smoothed from the per-segment values in the pilot bundle. They are context only: not surveyed elevation, not a flood extent, and not used in any score. The legend says so. The "Illustrative fixture geometry" chip stays on the map.
+- **Motion.** Motion follows a user action: hero text settles on load, preview steps cross-fade, the map eases to a road chosen from a list, and roads whose class just changed (after a review or when a simulation is shown) get a one-off highlight. Nothing loops or pulses, so nothing suggests live monitoring. `prefers-reduced-motion` removes all of it, and every element is visible without animation.
+- **Simulation scope.** A drain simulation preview colours the map in the responder console only; the resident map always shows the current estimate.
 
 ## Contract status
 
@@ -78,12 +88,13 @@ scripts/        fixture authoring
 
 ## Accessibility
 
-- Every map state has a text equivalent (segment queue, route cards, segment card), and colour is never the only signal.
-- Inputs have visible labels. Focus rings are 2 px. Touch targets are at least 44 px. Tabs follow the WAI-ARIA pattern.
+- Every map state has a text equivalent (segment queue, route cards, segment card, landing preview lists), and colour is never the only signal.
+- Inputs have visible labels. Focus rings are 2 px, with an inverse ring on dark surfaces. Touch targets are at least 44 px. Tabs follow the WAI-ARIA pattern; the mobile responder tabs are docked at the bottom of the screen.
 - Recalculations are announced through a polite live region; errors state the next step.
-- Motion is limited to a loading spinner and respects `prefers-reduced-motion`.
+- `prefers-reduced-motion` is respected (see Motion above).
 - Input borders use `#7A8F95` (3.4:1) instead of the divider colour (1.35:1) to meet WCAG 1.4.11.
+- `e2e/a11y.spec.ts` runs axe-core (WCAG 2.x A/AA) on each view at both widths.
 
 ## Credits
 
-MapLibre GL JS (BSD-3-Clause), React (MIT), Lucide icons (ISC), Inter and IBM Plex Mono via Fontsource (OFL).
+MapLibre GL JS (BSD-3-Clause), React (MIT), Lucide icons (ISC), Inter, IBM Plex Mono and Newsreader via Fontsource (OFL).

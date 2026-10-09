@@ -150,7 +150,7 @@ export function ResponderView() {
             {queue}
           </aside>
           <div className="responder-col responder-col--map">
-            <MapView legendOpen={false} />
+            <MapView legendOpen={false} showSimulation />
           </div>
           <aside className="responder-col responder-col--drawer" aria-label="Details and action">
             {drawer}
@@ -180,7 +180,7 @@ export function ResponderView() {
           {queue}
         </TabPanel>
         <TabPanel idPrefix="responder" id="map" active={mobileTab === 'map'} className="responder-mobile__panel responder-mobile__panel--map">
-          <MapView legendOpen={false} />
+          <MapView legendOpen={false} showSimulation />
         </TabPanel>
         <TabPanel idPrefix="responder" id="action" active={mobileTab === 'action'} className="responder-mobile__panel">
           {drawer}

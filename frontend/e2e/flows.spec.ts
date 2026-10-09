@@ -106,6 +106,8 @@ test('responder: review report, recalculated route advice, compare two drain act
   await page.getByRole('link', { name: 'Resident' }).click();
   await expect(page.getByRole('heading', { name: 'Lower estimated exposure · +4 min' })).toBeVisible();
   await expect(page.getByRole('radio', { name: /Via Hostel Road/ })).toBeChecked();
+  // A simulation previewed in the console never colours the resident map.
+  await expect(page.getByText(/Simulated: clear/)).toHaveCount(0);
 });
 
 test('keyboard: skip link and tabs are operable without a pointer', async ({ page }) => {
