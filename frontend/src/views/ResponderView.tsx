@@ -1,4 +1,6 @@
+import { ListOrdered, Map as MapIcon, ShieldAlert, UserCheck, Wrench } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
+import { ConsoleBrief } from '../components/ConsoleBrief';
 import { InterventionPanel } from '../components/InterventionPanel';
 import { MapView } from '../components/MapView';
 import { ReportQueue, ReportReviewCard } from '../components/ReportReview';
@@ -11,11 +13,12 @@ import { useAppState } from '../state/AppState';
 type Detail = { kind: 'segment'; id: string } | { kind: 'report'; id: string } | null;
 
 /**
- * Responder console (Design-System.md §5). Desktop: ranked queue (300 px),
- * map, detail/simulation drawer. Below 1024 px: Queue, Map and Action tabs.
+ * Responder console (Design-System.md §5). Desktop: ranked queue, map,
+ * detail/simulation drawer. Below 1024 px: Queue, Map and Action tabs docked
+ * at the bottom of the screen, within thumb reach.
  */
 export function ResponderView() {
-  const { selectedSegmentId, selectSegment, reports, refreshReports } = useAppState();
+  const { selectedSegmentId, selectSegment, reports, refreshReports, api } = useAppState();
   const desktop = useMediaQuery(DESKTOP_QUERY);
   const [mobileTab, setMobileTab] = useState('queue');
   const [queueTab, setQueueTab] = useState('reports');
@@ -60,6 +63,12 @@ export function ResponderView() {
     focusDrawer();
   };
 
+  const openSimulation = () => {
+    setDrawerTab('simulate');
+    if (!desktop) setMobileTab('action');
+    focusDrawer();
+  };
+
   const awaiting =
     'data' in reports && reports.data
       ? reports.data.filter((r) => ['pending_review', 'needs_manual_review', 'analysis_pending'].includes(r.reviewStatus)).length
@@ -70,6 +79,7 @@ export function ResponderView() {
       <Tabs
         idPrefix="queue"
         label="Queue"
+        className="tabs--underline"
         tabs={[
           { id: 'reports', label: `Reports (${awaiting})` },
           { id: 'segments', label: 'Segments' },
@@ -91,6 +101,7 @@ export function ResponderView() {
       <Tabs
         idPrefix="drawer"
         label="Details and action"
+        className="tabs--underline"
         tabs={[
           { id: 'detail', label: 'Selected' },
           { id: 'simulate', label: 'Drain action' },
@@ -109,7 +120,7 @@ export function ResponderView() {
           />
         )}
         {detail?.kind === 'report' && <ReportReviewCard reportId={detail.id} onClose={() => setDetail(null)} />}
-        {!detail && <p className="detail panel-hint">Select a report or road segment from the queue or the map.</p>}
+        {!detail && <ConsoleBrief onOpenReport={openReport} onOpenSegment={openSegment} onOpenSimulation={openSimulation} />}
       </TabPanel>
       <TabPanel idPrefix="drawer" id="simulate" active={drawerTab === 'simulate'}>
         <InterventionPanel />
@@ -117,45 +128,73 @@ export function ResponderView() {
     </div>
   );
 
+  const consoleBar = (
+    <div className="console-bar">
+      <p className="console-bar__title">Responder console</p>
+      <span className="operator-chip">
+        <UserCheck aria-hidden="true" size={16} />
+        {api.kind === 'mock' ? 'Demo operator (mock session)' : 'Responder view (read-only reports)'}
+      </span>
+      <p className="console-bar__note">
+        <ShieldAlert aria-hidden="true" size={16} /> Advisory only: nothing is closed, sent or dispatched.
+      </p>
+    </div>
+  );
+
   if (desktop) {
     return (
-      <div className="responder-layout">
-        <aside className="responder-col responder-col--queue" aria-label="Queue">
-          {queue}
-        </aside>
-        <div className="responder-col responder-col--map">
-          <MapView legendOpen={false} />
+      <div className="responder">
+        {consoleBar}
+        <div className="responder-layout">
+          <aside className="responder-col responder-col--queue" aria-label="Queue">
+            {queue}
+          </aside>
+          <div className="responder-col responder-col--map">
+            <MapView legendOpen={false} />
+          </div>
+          <aside className="responder-col responder-col--drawer" aria-label="Details and action">
+            {drawer}
+          </aside>
         </div>
-        <aside className="responder-col responder-col--drawer" aria-label="Details and action">
-          {drawer}
-        </aside>
       </div>
     );
   }
 
   return (
-    <div className="responder-mobile">
-      <Tabs
-        idPrefix="responder"
-        label="Responder sections"
-        className="tabs--primary"
-        tabs={[
-          { id: 'queue', label: 'Queue' },
-          { id: 'map', label: 'Map' },
-          { id: 'action', label: 'Action' },
-        ]}
-        active={mobileTab}
-        onChange={setMobileTab}
-      />
-      <TabPanel idPrefix="responder" id="queue" active={mobileTab === 'queue'} className="responder-mobile__panel">
-        {queue}
-      </TabPanel>
-      <TabPanel idPrefix="responder" id="map" active={mobileTab === 'map'} className="responder-mobile__panel responder-mobile__panel--map">
-        <MapView legendOpen={false} />
-      </TabPanel>
-      <TabPanel idPrefix="responder" id="action" active={mobileTab === 'action'} className="responder-mobile__panel">
-        {drawer}
-      </TabPanel>
+    <div className="responder">
+      {consoleBar}
+      <div className="responder-mobile">
+        <Tabs
+          idPrefix="responder"
+          label="Responder sections"
+          className="tabs--dock"
+          tabs={[
+            { id: 'queue', label: <DockLabel icon={<ListOrdered aria-hidden="true" size={20} />} text="Queue" /> },
+            { id: 'map', label: <DockLabel icon={<MapIcon aria-hidden="true" size={20} />} text="Map" /> },
+            { id: 'action', label: <DockLabel icon={<Wrench aria-hidden="true" size={20} />} text="Action" /> },
+          ]}
+          active={mobileTab}
+          onChange={setMobileTab}
+        />
+        <TabPanel idPrefix="responder" id="queue" active={mobileTab === 'queue'} className="responder-mobile__panel">
+          {queue}
+        </TabPanel>
+        <TabPanel idPrefix="responder" id="map" active={mobileTab === 'map'} className="responder-mobile__panel responder-mobile__panel--map">
+          <MapView legendOpen={false} />
+        </TabPanel>
+        <TabPanel idPrefix="responder" id="action" active={mobileTab === 'action'} className="responder-mobile__panel">
+          {drawer}
+        </TabPanel>
+      </div>
     </div>
+  );
+}
+
+function DockLabel({ icon, text }: { icon: React.ReactNode; text: string }) {
+  return (
+    <>
+      {icon}
+      <span>{text}</span>
+    </>
   );
 }

@@ -92,6 +92,33 @@ legend {
   font-weight: 600;
 }
 
+.eyebrow {
+  font: var(--v-type-eyebrow);
+  letter-spacing: var(--v-tracking-eyebrow);
+  text-transform: uppercase;
+  color: var(--v-action-hover);
+}
+
+.eyebrow--inverse {
+  color: var(--v-teal-200);
+}
+
+.text-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  color: var(--v-action-hover);
+  font-weight: 650;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 4px;
+}
+
+.text-link:hover {
+  text-decoration-thickness: 2px;
+}
+
 .visually-hidden {
   position: absolute !important;
   width: 1px;
@@ -145,8 +172,49 @@ legend {
   font-weight: 600;
 }
 
+.btn--lg {
+  min-height: 52px;
+  padding: 12px var(--v-space-6);
+  font-size: 17px;
+  font-weight: 650;
+}
+
 .btn--block {
   width: 100%;
+}
+
+.btn--inverse {
+  background: var(--v-button-inverse-bg);
+  color: var(--v-button-inverse-text);
+  text-decoration: none;
+}
+
+.btn--inverse:hover {
+  background: var(--v-white);
+}
+
+.btn--inverse:active {
+  background: var(--v-teal-100);
+}
+
+.btn--ghost-inverse {
+  background: transparent;
+  color: var(--v-text-inverse);
+  border-color: rgba(201, 213, 216, 0.5);
+  text-decoration: none;
+}
+
+.btn--ghost-inverse:hover {
+  background: rgba(245, 248, 248, 0.08);
+  border-color: var(--v-text-inverse);
+}
+
+a.btn {
+  text-decoration: none;
+}
+
+a.btn--primary:visited {
+  color: var(--v-button-primary-text);
 }
 
 .btn--primary {
@@ -297,6 +365,7 @@ input[type='text']:focus-visible {
   *::before,
   *::after {
     animation-duration: 0.01ms !important;
+    animation-delay: 0s !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;

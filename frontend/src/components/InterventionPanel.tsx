@@ -41,9 +41,12 @@ export function InterventionPanel() {
   return (
     <section className="intervention-panel" aria-labelledby="intervention-title">
       <div className="intervention-panel__header">
-        <h2 id="intervention-title" className="panel-heading">
-          <Wrench aria-hidden="true" size={20} /> Compare drain clearance
-        </h2>
+        <div className="panel-intro">
+          <p className="eyebrow">Response choice</p>
+          <h2 id="intervention-title" className="panel-title">
+            <Wrench aria-hidden="true" size={22} /> Compare drain clearance
+          </h2>
+        </div>
         <SimulatedTag label="Simulation" />
       </div>
       <p className="detail">
@@ -51,17 +54,14 @@ export function InterventionPanel() {
         stays unchanged.
       </p>
 
-      <ul className="drain-list">
+      <ul className="drain-versus" aria-label="Modelled drains">
         {drains.map((d) => (
-          <li key={d.id}>
+          <li key={d.id} className="drain-card">
             <span className="drain-chip mono">{d.id}</span>
-            <span>
-              <strong>{d.properties.label}</strong>
-              <span className="detail">
-                {' '}
-                · affects {pluralize(d.properties.affectedSegmentIds.length, 'segment')}
-                {d.properties.illustrative ? ' · illustrative location' : ''}
-              </span>
+            <strong className="drain-card__label">{d.properties.label}</strong>
+            <span className="detail">
+              Affects {pluralize(d.properties.affectedSegmentIds.length, 'segment')}
+              {d.properties.illustrative ? ' · illustrative location' : ''}
             </span>
           </li>
         ))}
@@ -171,6 +171,7 @@ function InterventionResult({ data }: { data: InterventionComparison }) {
                 {o.affectedRouteCount !== undefined && ` · ${pluralize(o.affectedRouteCount, 'route')} affected`}
                 {!o.hasEstimatedBenefit && ' · no estimated benefit'}
               </span>
+              <ExposureShift before={o.routeExposureBefore} after={o.routeExposureAfter} />
             </span>
           </li>
         ))}
@@ -212,6 +213,21 @@ function InterventionResult({ data }: { data: InterventionComparison }) {
       </details>
       <HowEstimatedButton topic="simulation" />
     </div>
+  );
+}
+
+/** Baseline (ring) and simulated (dot) route exposure on a 0–1 track; the numbers are in the text beside it. */
+function ExposureShift({ before, after }: { before: number | null; after: number | null }) {
+  if (before === null || after === null) return null;
+  const pct = (v: number) => `${Math.min(100, Math.max(0, v * 100))}%`;
+  const lo = Math.min(before, after);
+  const hi = Math.max(before, after);
+  return (
+    <span className="exposure-shift" aria-hidden="true">
+      <span className="exposure-shift__span" style={{ left: pct(lo), width: `calc(${pct(hi)} - ${pct(lo)})` }} />
+      <span className="exposure-shift__before" style={{ left: pct(before) }} />
+      <span className="exposure-shift__after" style={{ left: pct(after) }} />
+    </span>
   );
 }
 

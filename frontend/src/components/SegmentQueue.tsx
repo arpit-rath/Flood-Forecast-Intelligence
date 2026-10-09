@@ -61,16 +61,17 @@ export function SegmentQueue({ onOpen }: { onOpen: (id: string) => void }) {
         {rows.map(({ segment, risk }) => {
           const count = reportCount.get(segment.id) ?? 0;
           const active = selectedSegmentId === segment.id;
+          const cls = risk?.class ?? 'unknown';
           return (
             <li key={segment.id}>
               <button
                 type="button"
-                className={`queue-item${active ? ' queue-item--active' : ''}`}
+                className={`queue-item queue-item--${cls}${active ? ' queue-item--active' : ''}`}
                 aria-current={active ? 'true' : undefined}
                 onClick={() => onOpen(segment.id)}
               >
                 <span className="queue-item__top">
-                  <StatusBadge status={risk?.class ?? 'unknown'} size="sm" />
+                  <StatusBadge status={cls} size="sm" />
                   <span className="mono metric-sm">{formatScore(risk?.score)}</span>
                 </span>
                 <span className="queue-item__name">{segment.name}</span>

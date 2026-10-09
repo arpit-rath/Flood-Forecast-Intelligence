@@ -1,0 +1,574 @@
+/* Map, map chrome, legend, and the static SVG sketch. Colours from tokens only. */
+
+/* ---------- Sketch (SVG) ---------- */
+
+.sketch {
+  --road-halo: var(--v-surface);
+}
+
+.sketch__contour {
+  fill: none;
+  stroke: var(--v-map-contour);
+  stroke-width: 1;
+  stroke-opacity: 0.32;
+  stroke-linejoin: round;
+}
+
+.sketch__contour--inner {
+  stroke-opacity: 0.55;
+  stroke-width: 1.3;
+}
+
+.sketch__frame {
+  fill: none;
+  stroke: var(--v-map-frame);
+  stroke-width: 1;
+  stroke-dasharray: 3 5;
+}
+
+.sketch__route {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: opacity var(--v-duration-base) var(--v-ease-out);
+}
+
+.sketch__route--selected {
+  stroke: var(--v-route-recommended);
+  stroke-width: 18;
+  stroke-opacity: 0.26;
+}
+
+.sketch__route--alternate {
+  stroke: var(--v-route-alternate);
+  stroke-width: 12;
+  stroke-opacity: 0.13;
+}
+
+.sketch__road {
+  transition: opacity var(--v-duration-base) var(--v-ease-out);
+}
+
+/* Muted roads use an opaque mix, not opacity, so overlapping caps stay even. */
+.sketch__road.is-muted .sketch__road-line {
+  stroke: color-mix(in srgb, var(--road-color) 34%, var(--v-map-bg));
+}
+
+.sketch__road.is-muted .sketch__road-halo {
+  stroke: var(--v-map-bg);
+}
+
+.sketch__road--closed.is-muted {
+  opacity: 0.45;
+}
+
+.sketch__road.is-focus .sketch__road-halo {
+  stroke: var(--v-text);
+  stroke-width: 13;
+}
+
+.sketch__road.is-focus .sketch__road-line {
+  stroke-width: 7;
+}
+
+.sketch__road-halo {
+  fill: none;
+  stroke: var(--road-halo);
+  stroke-width: 8;
+  stroke-linecap: round;
+}
+
+.sketch__road {
+  --road-color: var(--v-status-unknown);
+}
+
+.sketch__road--low {
+  --road-color: var(--v-status-low);
+}
+
+.sketch__road--watch {
+  --road-color: var(--v-status-watch);
+}
+
+.sketch__road--high {
+  --road-color: var(--v-status-high);
+}
+
+.sketch__road-line {
+  fill: none;
+  stroke: var(--road-color);
+  stroke-width: 4.5;
+  stroke-linecap: round;
+  transition: stroke-width var(--v-duration-fast) ease, stroke var(--v-duration-base) ease;
+}
+
+.sketch__road--high .sketch__road-line {
+  stroke-width: 6.5;
+}
+
+.sketch__road--unknown .sketch__road-line {
+  stroke-dasharray: 5 4;
+  stroke-linecap: butt;
+}
+
+.sketch__road--closed .sketch__road-line {
+  stroke-width: 8;
+  stroke-dasharray: none;
+  stroke-linecap: butt;
+}
+
+.sketch__road.is-hovered .sketch__road-line {
+  stroke-width: 7.5;
+}
+
+.sketch__road.is-hovered .sketch__road-halo {
+  stroke: var(--v-text);
+  stroke-width: 12;
+}
+
+.sketch__road-hit {
+  fill: none;
+  stroke: transparent;
+  stroke-width: 16;
+  pointer-events: stroke;
+}
+
+.sketch__hatch-bg {
+  fill: var(--v-surface);
+}
+
+.sketch__hatch-line {
+  fill: var(--v-status-closed);
+}
+
+.sketch__report {
+  fill: var(--v-surface);
+  stroke: var(--v-text);
+  stroke-width: 2.5;
+}
+
+.sketch__drain {
+  transition: opacity var(--v-duration-base) var(--v-ease-out);
+}
+
+.sketch__drain.is-muted {
+  opacity: 0.4;
+}
+
+.sketch__drain rect {
+  fill: var(--v-surface);
+  stroke: var(--v-text);
+  stroke-width: 2;
+}
+
+.sketch__drain text {
+  font: 600 11px var(--v-font-mono);
+  fill: var(--v-text);
+}
+
+.sketch__endpoint circle {
+  fill: var(--v-text);
+  stroke: var(--v-surface);
+  stroke-width: 2;
+}
+
+.sketch__endpoint text {
+  font: 700 11px var(--v-font-ui);
+  fill: var(--v-surface);
+}
+
+/* Dark plate: a neutral network over terrain-prior contours. */
+.sketch--dark {
+  --road-halo: var(--v-ink-900);
+}
+
+.sketch--dark .sketch__contour {
+  stroke: var(--v-teal-300);
+  stroke-opacity: 0.24;
+}
+
+.sketch--dark .sketch__contour--inner {
+  stroke-opacity: 0.5;
+}
+
+.sketch--dark .sketch__frame {
+  stroke: var(--v-ink-400);
+}
+
+.sketch--dark .sketch__road-line {
+  stroke: var(--v-teal-100);
+  stroke-opacity: 0.78;
+  stroke-width: 3;
+  stroke-dasharray: none;
+}
+
+.sketch--dark .sketch__road-halo {
+  stroke-width: 6;
+}
+
+.sketch--dark .sketch__route--selected {
+  stroke: var(--v-teal-300);
+  stroke-opacity: 0.32;
+}
+
+.sketch--dark .sketch__route--alternate {
+  stroke: var(--v-ink-200);
+  stroke-opacity: 0.1;
+}
+
+.sketch--dark .sketch__drain rect {
+  fill: var(--v-ink-900);
+  stroke: var(--v-teal-100);
+  stroke-width: 1.5;
+}
+
+.sketch--dark .sketch__drain text {
+  fill: var(--v-teal-100);
+}
+
+/* ---------- Interactive map ---------- */
+
+.map-shell {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: inherit;
+  overflow: hidden;
+  background: var(--v-map-bg);
+}
+
+.map-canvas {
+  position: absolute;
+  inset: 0;
+}
+
+.map-chrome {
+  position: absolute;
+  top: var(--v-space-3);
+  left: var(--v-space-3);
+  right: 72px;
+  z-index: 2;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: var(--v-space-2);
+  pointer-events: none;
+}
+
+.map-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  max-width: 100%;
+  min-height: 28px;
+  padding: 3px 10px;
+  border: 1px solid var(--v-divider);
+  border-radius: var(--v-radius-pill);
+  background: var(--v-surface);
+  font: var(--v-type-detail);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--v-text-muted);
+  box-shadow: var(--v-card-shadow);
+}
+
+.map-chip--simulated {
+  background: var(--v-simulated-bg);
+  color: var(--v-simulated-text);
+  border: 1px dashed var(--v-simulated-text);
+}
+
+.map-chip--warning {
+  background: var(--v-status-watch-bg);
+  color: var(--v-status-watch-text);
+  border-color: var(--v-status-watch);
+}
+
+.map-error {
+  position: absolute;
+  inset: auto var(--v-space-3) 64px;
+  z-index: 3;
+  padding: var(--v-space-3);
+  border: 1px solid var(--v-divider);
+  background: var(--v-surface);
+  border-radius: var(--v-radius-sm);
+  font: var(--v-type-detail);
+  box-shadow: var(--v-float-shadow);
+}
+
+.map-fallback {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 56px var(--v-space-3) 64px;
+}
+
+.map-fallback .sketch {
+  width: 100%;
+  height: 100%;
+  max-height: 100%;
+}
+
+/* Markers: labels never intercept clicks on roads. */
+.map-drain-marker {
+  padding: 1px 6px;
+  border: 2px solid var(--v-text);
+  border-radius: var(--v-radius-xs);
+  background: var(--v-surface);
+  color: var(--v-text);
+  font: 600 12px/16px var(--v-font-mono);
+  box-shadow: var(--v-card-shadow);
+  pointer-events: none;
+}
+
+.map-road-label {
+  font: 650 10.5px/1 var(--v-font-ui);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--v-map-label);
+  text-shadow:
+    0 0 2px var(--v-map-label-halo),
+    0 0 2px var(--v-map-label-halo),
+    0 0 4px var(--v-map-label-halo),
+    0 0 6px var(--v-map-label-halo);
+  pointer-events: none;
+  transition: opacity var(--v-duration-base) ease;
+}
+
+.map-shell:not(.map-shell--labels) .map-road-label {
+  opacity: 0;
+  visibility: hidden;
+}
+
+.map-place-marker {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  pointer-events: none;
+}
+
+.map-place-marker__dot {
+  display: grid;
+  place-items: center;
+  width: 12px;
+  height: 12px;
+  border: 2px solid var(--v-text);
+  border-radius: 50%;
+  background: var(--v-surface);
+  color: var(--v-surface);
+  font: 700 11px/1 var(--v-font-ui);
+}
+
+.map-place-marker__label {
+  padding: 1px 6px;
+  border-radius: var(--v-radius-xs);
+  background: color-mix(in srgb, var(--v-surface) 88%, transparent);
+  font: 650 12px/16px var(--v-font-ui);
+  color: var(--v-text);
+  white-space: nowrap;
+}
+
+.map-place-marker--endpoint .map-place-marker__dot {
+  width: 22px;
+  height: 22px;
+  border-color: var(--v-surface);
+  background: var(--v-text);
+  box-shadow: 0 0 0 1px var(--v-text);
+}
+
+.map-shell:not(.map-shell--labels) .map-place-marker:not(.map-place-marker--endpoint) .map-place-marker__label {
+  display: none;
+}
+
+/* ---------- Legend ---------- */
+
+.map-legend {
+  position: absolute;
+  left: var(--v-space-3);
+  bottom: var(--v-space-3);
+  z-index: 2;
+  max-width: min(300px, calc(100% - 120px));
+  border: 1px solid var(--v-divider);
+  border-radius: var(--v-radius-md);
+  background: var(--v-surface);
+  box-shadow: var(--v-float-shadow);
+}
+
+.map-legend summary {
+  display: flex;
+  align-items: center;
+  gap: var(--v-space-2);
+  min-height: 44px;
+  padding: 0 var(--v-space-3);
+  font: var(--v-type-detail);
+  font-weight: 700;
+  cursor: pointer;
+  list-style: none;
+}
+
+.map-legend summary::-webkit-details-marker {
+  display: none;
+}
+
+.map-legend__chevron {
+  margin-left: auto;
+  transition: transform var(--v-duration-fast) ease;
+}
+
+.map-legend[open] .map-legend__chevron {
+  transform: rotate(180deg);
+}
+
+.map-legend__mini {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.map-legend__mini .legend-swatch {
+  width: 14px;
+}
+
+.map-legend[open] .map-legend__mini {
+  display: none;
+}
+
+.map-legend__body {
+  display: grid;
+  gap: var(--v-space-3);
+  max-height: min(56vh, 420px);
+  overflow-y: auto;
+  padding: 0 var(--v-space-3) var(--v-space-3);
+}
+
+.map-legend__group {
+  display: grid;
+  gap: 6px;
+  font: var(--v-type-detail);
+}
+
+.map-legend__group-title {
+  font: var(--v-type-eyebrow);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--v-text-muted);
+}
+
+.map-legend li {
+  display: flex;
+  align-items: center;
+  gap: var(--v-space-2);
+}
+
+.legend-detail {
+  color: var(--v-text-muted);
+  font-size: 12px;
+}
+
+.legend-swatch {
+  flex: none;
+  display: inline-block;
+  width: 28px;
+  height: 6px;
+  border-radius: 3px;
+}
+
+.legend-swatch--low {
+  background: var(--v-status-low);
+}
+
+.legend-swatch--watch {
+  background: var(--v-status-watch);
+}
+
+.legend-swatch--high {
+  height: 9px;
+  background: var(--v-status-high);
+}
+
+.legend-swatch--unknown {
+  background: repeating-linear-gradient(90deg, var(--v-status-unknown) 0 6px, transparent 6px 10px);
+}
+
+.legend-swatch--closed {
+  height: 10px;
+  background: repeating-linear-gradient(45deg, var(--v-status-closed) 0 2px, var(--v-surface) 2px 5px);
+  border: 1px solid var(--v-status-closed);
+}
+
+.legend-swatch--route-selected {
+  height: 5px;
+  background: var(--v-route-recommended);
+  box-shadow: 0 0 0 2px var(--v-surface), 0 0 0 3px var(--v-divider);
+}
+
+.legend-swatch--route-alternate {
+  height: 4px;
+  background: repeating-linear-gradient(90deg, var(--v-route-alternate) 0 8px, transparent 8px 13px);
+}
+
+.legend-swatch--route-halo {
+  height: 10px;
+  background: color-mix(in srgb, var(--v-route-recommended) 30%, transparent);
+}
+
+.legend-swatch--drain {
+  width: 28px;
+  height: 14px;
+  border: 2px solid var(--v-text);
+  border-radius: 3px;
+  background: var(--v-surface);
+}
+
+.legend-swatch--report {
+  width: 14px;
+  height: 14px;
+  margin: 0 7px;
+  border: 3px solid var(--v-text);
+  border-radius: 50%;
+  background: var(--v-surface);
+}
+
+.legend-swatch--contour {
+  height: 10px;
+  background:
+    linear-gradient(var(--v-map-contour), var(--v-map-contour)) 0 2px / 100% 1px no-repeat,
+    linear-gradient(var(--v-map-contour), var(--v-map-contour)) 0 7px / 100% 1px no-repeat;
+  opacity: 0.7;
+}
+
+/* ---------- MapLibre controls: 44 × 44 touch targets ---------- */
+
+.maplibregl-ctrl-group {
+  border-radius: var(--v-radius-md) !important;
+  box-shadow: var(--v-float-shadow) !important;
+  overflow: hidden;
+}
+
+.maplibregl-ctrl-group button {
+  width: 44px;
+  height: 44px;
+}
+
+.maplibregl-ctrl-group button:focus-visible {
+  box-shadow: inset 0 0 0 3px var(--v-focus);
+}
+
+.map-recenter .maplibregl-ctrl-icon {
+  display: grid;
+  place-items: center;
+  color: var(--v-text);
+}
+
+.maplibregl-ctrl-attrib {
+  font: 400 11px/16px var(--v-font-ui);
+}
+
+.maplibregl-ctrl-attrib.maplibregl-compact {
+  margin: 0 var(--v-space-3) var(--v-space-3) 0 !important;
+  border: 1px solid var(--v-divider);
+  box-shadow: var(--v-card-shadow);
+}

@@ -2,7 +2,10 @@ import { defineConfig } from '@playwright/test';
 
 // End-to-end checks of the two core flows against the fixture-backed mock API.
 // Uses the locally installed Edge (or Chrome via PW_CHANNEL=chrome) so no
-// browser download is needed.
+// browser download is needed. PW_PORT moves the dev server off 5173 when
+// another checkout is already serving there (a running server is reused).
+const port = Number(process.env.PW_PORT ?? 5173);
+
 export default defineConfig({
   testDir: './e2e',
   timeout: 60_000,
@@ -10,7 +13,7 @@ export default defineConfig({
   fullyParallel: false,
   reporter: [['list']],
   use: {
-    baseURL: 'http://localhost:5173',
+    baseURL: `http://localhost:${port}`,
     channel: process.env.PW_CHANNEL ?? 'msedge',
     screenshot: 'only-on-failure',
   },
@@ -27,8 +30,8 @@ export default defineConfig({
       timeout: 60_000,
     }] : []),
     {
-      command: 'npm run dev -- --port 5173 --strictPort',
-      url: 'http://localhost:5173',
+      command: `npm run dev -- --port ${port} --strictPort`,
+      url: `http://localhost:${port}`,
       reuseExistingServer: true,
       timeout: 60_000,
     },

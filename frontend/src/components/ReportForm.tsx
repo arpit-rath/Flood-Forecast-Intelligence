@@ -86,11 +86,11 @@ export function ReportForm({ headingRef }: { headingRef?: React.Ref<HTMLHeadingE
     const point: [number, number] = [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2];
 
     try {
-      setPhase({ kind: 'uploading', step: 'Preparing upload…' });
+      setPhase({ kind: 'uploading', step: 'Preparing uploadâ€¦' });
       const upload = await api.requestUploadUrl({ contentType: file.type, sizeBytes: file.size });
-      setPhase({ kind: 'uploading', step: 'Uploading photo…' });
+      setPhase({ kind: 'uploading', step: 'Uploading photoâ€¦' });
       await api.uploadImage(upload, file);
-      setPhase({ kind: 'uploading', step: 'Sending report…' });
+      setPhase({ kind: 'uploading', step: 'Sending reportâ€¦' });
       const report = await api.createReport({
         imageKey: upload.imageKey,
         segmentId,
@@ -119,7 +119,7 @@ export function ReportForm({ headingRef }: { headingRef?: React.Ref<HTMLHeadingE
   if (api.kind === 'http') {
     return (
       <section className="report-flow" aria-labelledby={`${formId}-title`}>
-        <h2 id={`${formId}-title`} className="panel-heading" ref={headingRef} tabIndex={-1}>Report a road condition</h2>
+        <h2 id={`${formId}-title`} className="panel-title" ref={headingRef} tabIndex={-1}>Report a road condition</h2>
         <p className="callout callout--muted">Photo upload and report submission are unavailable in the local API. No report has been sent.</p>
       </section>
     );
@@ -127,7 +127,7 @@ export function ReportForm({ headingRef }: { headingRef?: React.Ref<HTMLHeadingE
 
   return (
     <section className="report-flow" aria-labelledby={`${formId}-title`}>
-      <h2 id={`${formId}-title`} className="panel-heading" ref={headingRef} tabIndex={-1}>
+      <h2 id={`${formId}-title`} className="panel-title" ref={headingRef} tabIndex={-1}>
         Report a road condition
       </h2>
       <p className="detail">
@@ -251,7 +251,7 @@ function ReportStatusItem({ report: r }: { report: Report }) {
       <div className="evidence-list__row">
         <ReviewBadge status={r.reviewStatus} />
         <span className="mono detail">
-          {r.id} · <time dateTime={r.createdAt}>{formatTimeIST(r.createdAt)}</time>
+          {r.id} Â· <time dateTime={r.createdAt}>{formatTimeIST(r.createdAt)}</time>
         </span>
       </div>
       <p className="detail">{segmentsById.get(r.segmentId)?.name ?? r.segmentId}</p>

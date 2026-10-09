@@ -2,38 +2,10 @@ import { Ban, Route as RouteIcon } from 'lucide-react';
 import type { RouteCandidate, RouteComparison as RouteComparisonData } from '../api/types';
 import { TRAVEL_MODE_LABEL } from '../lib/copy';
 import { formatExposure, formatExtraMinutes, formatMinutes, formatPercent, formatTimeIST, pluralize } from '../lib/format';
+import { outcomeSummary } from '../lib/routeCopy';
 import { useAppState } from '../state/AppState';
 import { HowEstimatedButton } from './HowEstimated';
 import { StatusBadge, Tag } from './StatusBadge';
-
-function outcomeSummary(data: RouteComparisonData) {
-  const fastest = data.candidates.find((c) => c.id === data.fastestCandidateId)!;
-  const rec = data.candidates.find((c) => c.id === data.recommendedCandidateId);
-  switch (data.outcome) {
-    case 'lower_exposure_recommended':
-      if (!rec) break;
-      return {
-        title: `Lower estimated exposure · ${formatExtraMinutes(rec.travelMinutes - fastest.travelMinutes)}`,
-        body:
-          rec.id === fastest.id
-            ? `${rec.label} has the lowest estimated exposure among the eligible routes.`
-            : fastest.blocked
-              ? `${rec.label} is recommended because the fastest route crosses a confirmed closure.`
-              : `${rec.label} lowers estimated exposure from ${formatExposure(fastest.exposure)} to ${formatExposure(rec.exposure)} compared with the fastest route, which meets the ${data.exposureThreshold.toFixed(2)} threshold.`,
-      };
-    case 'fastest_default':
-      return {
-        title: 'Fastest route shown as default',
-        body: `No alternative lowers estimated exposure by ${data.exposureThreshold.toFixed(2)} or more. Exposure note: ${fastest.label} has exposure ${formatExposure(fastest.exposure)}${fastest.flaggedSegmentIds.length ? ` with ${pluralize(fastest.flaggedSegmentIds.length, 'flagged segment')}` : ''}.`,
-      };
-    case 'no_lower_exposure':
-      return {
-        title: 'No lower-exposure route found',
-        body: 'Every returned route is high, unknown or blocked. Consider whether the journey is needed.',
-      };
-  }
-  return { title: 'Route comparison', body: '' };
-}
 
 export function RouteComparisonPanel() {
   const { routes, currentRoutes, snapshot } = useAppState();
@@ -79,19 +51,20 @@ export function RouteComparisonPanel() {
   const summary = outcomeSummary(currentRoutes);
   return (
     <section className="route-results" aria-labelledby="route-results-title" aria-busy={routes.status === 'loading'}>
-      <div className={`route-summary route-summary--${currentRoutes.outcome}`}>
-        <h2 id="route-results-title" className="route-summary__title">
+      <div className={`decision decision--${currentRoutes.outcome}`}>
+        <p className="eyebrow">Route advice</p>
+        <h2 id="route-results-title" className="decision__title">
           {summary.title}
         </h2>
-        <p>{summary.body}</p>
+        <p className="decision__body">{summary.body}</p>
       </div>
       <RouteOptions data={currentRoutes} />
-      <p className="detail">
+      <p className="provenance">
         {currentRoutes.provenance.label} · {TRAVEL_MODE_LABEL[currentRoutes.travelMode]} · risk snapshot{' '}
         <span className="mono">{currentRoutes.snapshotId}</span> ·{' '}
         <time className="mono" dateTime={currentRoutes.computedAt}>{formatTimeIST(currentRoutes.computedAt)}</time>
       </p>
-      <p className="detail">
+      <p className="detail trust-note">
         Lower estimated exposure is not a safety guarantee. Roads without recent evidence may still be impassable.
       </p>
       <HowEstimatedButton topic="routes" />
@@ -100,8 +73,9 @@ export function RouteComparisonPanel() {
 }
 
 function RouteOptions({ data }: { data: RouteComparisonData }) {
-  const { selectedRouteId, setSelectedRouteId } = useAppState();
-  const fastest = data.candidates.find((c) => c.id === data.fastestCandidateId)!;
+  const { selectedRouteId, setSelectedRouteId, snapshot } = useAppState();
+  const fastest = data.candidates.find((c) => c.id === data.fastestCandidateId) ?? data.candidates[0];
+  const thresholds = snapshot.status === 'ready' ? snapshot.data.thresholds : null;
   const ordered = [...data.candidates].sort((a, b) => {
     const rank = (c: RouteCandidate) => (c.id === data.recommendedCandidateId ? 0 : c.blocked ? 2 : 1);
     return rank(a) - rank(b) || a.travelMinutes - b.travelMinutes;
@@ -117,10 +91,27 @@ function RouteOptions({ data }: { data: RouteComparisonData }) {
           recommended={c.id === data.recommendedCandidateId}
           isDefaultOnly={data.outcome === 'fastest_default'}
           selected={c.id === selectedRouteId}
+          thresholds={thresholds}
           onSelect={() => setSelectedRouteId(c.id)}
         />
       ))}
     </fieldset>
+  );
+}
+
+/** Exposure on a 0–1 track with the Watch and High boundaries marked; the number is always shown beside it. */
+function ExposureMeter({ value, thresholds }: { value: number | null; thresholds: { watch: number; high: number } | null }) {
+  if (value === null) return <span className="exposure-meter exposure-meter--empty" aria-hidden="true" />;
+  return (
+    <span className="exposure-meter" aria-hidden="true">
+      <span className="exposure-meter__fill" style={{ width: `${Math.min(100, Math.max(0, value * 100))}%` }} />
+      {thresholds && (
+        <>
+          <span className="exposure-meter__tick" style={{ left: `${thresholds.watch * 100}%` }} />
+          <span className="exposure-meter__tick exposure-meter__tick--high" style={{ left: `${thresholds.high * 100}%` }} />
+        </>
+      )}
+    </span>
   );
 }
 
@@ -130,6 +121,7 @@ function RouteOptionCard({
   recommended,
   isDefaultOnly,
   selected,
+  thresholds,
   onSelect,
 }: {
   candidate: RouteCandidate;
@@ -137,6 +129,7 @@ function RouteOptionCard({
   recommended: boolean;
   isDefaultOnly: boolean;
   selected: boolean;
+  thresholds: { watch: number; high: number } | null;
   onSelect: () => void;
 }) {
   const { segmentsById, riskById, selectSegment } = useAppState();
@@ -155,6 +148,7 @@ function RouteOptionCard({
         />
         <span className="route-option__body">
           <span className="route-option__title">
+            <span className="route-option__marker" aria-hidden="true" />
             <span className="route-option__label">{c.label}</span>
             {recommended && <Tag tone="action">{isDefaultOnly ? 'Default' : 'Recommended'}</Tag>}
             {c.isFastest && <Tag>Fastest</Tag>}
@@ -166,17 +160,18 @@ function RouteOptionCard({
             {c.unassessed && <Tag tone="warning">Unassessed</Tag>}
           </span>
           <span className="route-option__metrics">
-            <span>
-              <span className="metric">{formatMinutes(c.travelMinutes)}</span>
-              <span className="detail">{c.isFastest ? 'fastest' : formatExtraMinutes(extraMinutes)}</span>
+            <span className="route-metric">
+              <span className="route-metric__value">{formatMinutes(c.travelMinutes)}</span>
+              <span className="route-metric__label">{c.isFastest ? 'fastest' : formatExtraMinutes(extraMinutes)}</span>
             </span>
-            <span>
-              <span className="metric">{formatExposure(c.exposure)}</span>
-              <span className="detail">exposure</span>
+            <span className="route-metric route-metric--exposure">
+              <span className="route-metric__value">{formatExposure(c.exposure)}</span>
+              <span className="route-metric__label">exposure</span>
+              <ExposureMeter value={c.exposure} thresholds={thresholds} />
             </span>
-            <span className="route-option__max">
+            <span className="route-metric route-metric--class">
               <StatusBadge status={c.maxClass} size="sm" />
-              <span className="detail">highest</span>
+              <span className="route-metric__label">highest</span>
             </span>
           </span>
           <span id={descId} className="detail route-option__desc">

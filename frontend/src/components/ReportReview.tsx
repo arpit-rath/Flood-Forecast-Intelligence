@@ -48,7 +48,7 @@ export function ReportQueue({ onOpen, activeId }: { onOpen: (id: string) => void
           <li key={r.id}>
             <button
               type="button"
-              className={`queue-item${activeId === r.id ? ' queue-item--active' : ''}`}
+              className={`queue-item queue-item--report queue-item--review-${r.reviewStatus}${activeId === r.id ? ' queue-item--active' : ''}`}
               aria-current={activeId === r.id ? 'true' : undefined}
               onClick={() => onOpen(r.id)}
             >

@@ -1,4 +1,4 @@
-import { Car, Footprints } from 'lucide-react';
+import { ArrowDownUp, Car, Footprints } from 'lucide-react';
 import { useEffect, useState, type FormEvent } from 'react';
 import type { TravelMode } from '../api/types';
 import { TRAVEL_MODE_LABEL } from '../lib/copy';
@@ -31,35 +31,55 @@ export function RouteSearch() {
     compareRoutes({ originPlaceId: origin, destinationPlaceId: destination, travelMode });
   };
 
+  const swap = () => {
+    setOrigin(destination);
+    setDestination(origin);
+  };
+
   return (
     <form className="route-search" onSubmit={submit} aria-labelledby="route-search-title" noValidate>
-      <h2 id="route-search-title" className="panel-heading">
-        Compare routes
-      </h2>
-      <div className="field-row">
-        <div className="field">
-          <label htmlFor="route-origin">From</label>
-          <select id="route-origin" value={origin} onChange={(e) => setOrigin(e.target.value)}>
-            <option value="">Choose start</option>
-            {places.map((p) => (
-              <option key={p.id} value={p.id}>
-                {p.label}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div className="field">
-          <label htmlFor="route-destination">To</label>
-          <select id="route-destination" value={destination} onChange={(e) => setDestination(e.target.value)}>
-            <option value="">Choose destination</option>
-            {places.map((p) => (
-              <option key={p.id} value={p.id}>
-                {p.label}
-              </option>
-            ))}
-          </select>
-        </div>
+      <div className="panel-intro">
+        <p className="eyebrow">Resident · route check</p>
+        <h2 id="route-search-title" className="panel-title">
+          Compare routes
+        </h2>
       </div>
+
+      <div className="journey">
+        <span className="journey__rail" aria-hidden="true">
+          <span className="journey__stop">A</span>
+          <span className="journey__line" />
+          <span className="journey__stop journey__stop--end">B</span>
+        </span>
+        <div className="journey__fields">
+          <div className="field">
+            <label htmlFor="route-origin">From</label>
+            <select id="route-origin" value={origin} onChange={(e) => setOrigin(e.target.value)}>
+              <option value="">Choose start</option>
+              {places.map((p) => (
+                <option key={p.id} value={p.id}>
+                  {p.label}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="field">
+            <label htmlFor="route-destination">To</label>
+            <select id="route-destination" value={destination} onChange={(e) => setDestination(e.target.value)}>
+              <option value="">Choose destination</option>
+              {places.map((p) => (
+                <option key={p.id} value={p.id}>
+                  {p.label}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+        <button type="button" className="icon-button journey__swap" onClick={swap} aria-label="Swap start and destination">
+          <ArrowDownUp aria-hidden="true" size={18} />
+        </button>
+      </div>
+
       <fieldset className="segmented">
         <legend>Travel mode</legend>
         {modes.map((m) => (

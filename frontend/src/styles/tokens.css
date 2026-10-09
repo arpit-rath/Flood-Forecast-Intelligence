@@ -2,20 +2,52 @@
  * Varuna design tokens (Design-System.md §2–4).
  * Three layers: primitive → semantic → component. Components and the map
  * style read these custom properties; do not hard-code colours elsewhere.
+ *
+ * Direction: an editorial geospatial console. Ink and paper carry the page,
+ * teal is the only action colour, violet marks Scenario and simulated output,
+ * and the four status hues appear only where they describe a risk class.
  */
 :root {
   /* ---------- Primitive ---------- */
+
+  /* Ink: text, dark surfaces, the hero plate */
+  --v-ink-950: #0A1B21;
   --v-ink-900: #142B33;
+  --v-ink-850: #1A333C;
+  --v-ink-800: #213D47;
+  --v-ink-700: #2F4D57;
   --v-ink-600: #526A72;
+  --v-ink-400: #7A8F95;
+  --v-ink-300: #A7B8BC;
+  --v-ink-200: #C9D5D8;
+
+  /* Paper: canvas and quiet surfaces */
+  --v-gray-50: #F5F8F8;
+  --v-gray-75: #F0F4F3;
+  --v-gray-100: #ECF1F2;
+  --v-gray-150: #E2E9EA;
+  --v-gray-200: #D4E0E1;
+  --v-white: #FFFFFF;
+  --v-map-paper: #EDF2F0;
+
+  /* Teal: actions and routes */
+  --v-teal-50: #E3F1F1;
+  --v-teal-100: #CBE6E4;
+  --v-teal-200: #A3D6D2;
+  --v-teal-300: #6FC0BA;
   --v-teal-600: #0B7378;
   --v-teal-700: #07575C;
-  --v-teal-50: #E3F1F1;
-  --v-gray-50: #F5F8F8;
-  --v-gray-100: #ECF1F2;
-  --v-gray-200: #D4E0E1;
-  --v-gray-500: #697B82;
-  --v-white: #FFFFFF;
+  --v-teal-800: #04403F;
 
+  /* Violet: Scenario mode and simulated results, never a hazard */
+  --v-violet-50: #F2ECFA;
+  --v-violet-100: #E6DCF5;
+  --v-violet-300: #B8A6E0;
+  --v-violet-600: #5B4A94;
+  --v-violet-700: #4B2E83;
+  --v-violet-800: #3D2F66;
+
+  /* Status hues (Design-System.md §2) */
   --v-green-600: #177B5A;
   --v-green-800: #0E5640;
   --v-green-50: #E5F4ED;
@@ -30,37 +62,73 @@
   --v-slate-50: #E9EFF0;
   --v-route-blue: #2F5FA8;
 
+  /* Spacing: 4 px base */
   --v-space-1: 4px;
   --v-space-2: 8px;
   --v-space-3: 12px;
   --v-space-4: 16px;
+  --v-space-5: 20px;
   --v-space-6: 24px;
   --v-space-8: 32px;
+  --v-space-10: 40px;
+  --v-space-12: 48px;
+  --v-space-16: 64px;
+  --v-space-24: 96px;
+
+  --v-radius-xs: 4px;
   --v-radius-sm: 8px;
   --v-radius-md: 12px;
   --v-radius-lg: 20px;
+  --v-radius-pill: 999px;
 
   --v-font-ui: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   --v-font-mono: 'IBM Plex Mono', ui-monospace, 'SFMono-Regular', Consolas, monospace;
+  /* Display serif for page and decision headlines only; UI copy stays Inter. */
+  --v-font-display: 'Newsreader Variable', 'Newsreader', Georgia, 'Times New Roman', serif;
 
   /* Type scale: fluid between the mobile and desktop sizes in Design-System.md §4 */
-  --v-type-display: 700 clamp(26px, 1.6vw + 20px, 32px) / clamp(34px, 1.6vw + 28px, 40px) var(--v-font-ui);
+  --v-type-hero: 420 clamp(38px, 3.2vw + 22px, 64px) / 1.04 var(--v-font-display);
+  --v-type-title: 450 clamp(30px, 2vw + 22px, 48px) / 1.08 var(--v-font-display);
+  --v-type-display: 500 clamp(26px, 1.6vw + 20px, 32px) / clamp(32px, 1.6vw + 26px, 38px) var(--v-font-display);
   --v-type-heading: 650 clamp(20px, 0.5vw + 18px, 22px) / clamp(28px, 0.5vw + 26px, 30px) var(--v-font-ui);
+  --v-type-lede: 400 clamp(17px, 0.4vw + 15px, 20px) / 1.55 var(--v-font-ui);
   --v-type-body: 400 16px/24px var(--v-font-ui);
   --v-type-detail: 400 14px/20px var(--v-font-ui);
+  --v-type-eyebrow: 650 12px/16px var(--v-font-ui);
+  --v-type-micro: 600 12px/16px var(--v-font-mono);
   --v-type-metric: 650 clamp(18px, 0.5vw + 16px, 20px) / clamp(26px, 0.5vw + 24px, 28px) var(--v-font-mono);
+  --v-type-metric-lg: 600 clamp(26px, 0.8vw + 22px, 30px) / 1.1 var(--v-font-mono);
+
+  --v-tracking-eyebrow: 0.12em;
+  --v-tracking-display: -0.015em;
+
+  --v-ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --v-duration-fast: 140ms;
+  --v-duration-base: 240ms;
+  --v-duration-slow: 520ms;
 
   /* ---------- Semantic ---------- */
   --v-bg: var(--v-gray-50);
+  --v-bg-raised: var(--v-gray-75);
   --v-surface: var(--v-white);
   --v-surface-muted: var(--v-gray-100);
+  --v-surface-sunken: var(--v-gray-150);
+  --v-surface-inverse: var(--v-ink-950);
+  --v-surface-inverse-raised: var(--v-ink-850);
   --v-text: var(--v-ink-900);
   --v-text-muted: var(--v-ink-600);
+  --v-text-inverse: var(--v-gray-50);
+  --v-text-inverse-muted: var(--v-ink-300);
   --v-action: var(--v-teal-600);
   --v-action-hover: var(--v-teal-700);
+  --v-action-pressed: var(--v-teal-800);
   --v-action-tint: var(--v-teal-50);
+  --v-action-inverse: var(--v-teal-200);
   --v-divider: var(--v-gray-200);
+  --v-divider-strong: var(--v-ink-400);
+  --v-divider-inverse: rgba(201, 213, 216, 0.18);
   --v-focus: var(--v-teal-700);
+  --v-focus-inverse: var(--v-teal-200);
 
   --v-status-low: var(--v-green-600);
   --v-status-low-bg: var(--v-green-50);
@@ -79,28 +147,43 @@
   --v-route-recommended: var(--v-teal-600);
   --v-route-alternate: var(--v-route-blue);
 
-  --v-mode-scenario-bg: #EEEAF6;
-  --v-mode-scenario-text: #3D2F66;
-  --v-mode-scenario-accent: #5B4A94;
+  --v-mode-scenario-bg: var(--v-violet-50);
+  --v-mode-scenario-text: var(--v-violet-800);
+  --v-mode-scenario-accent: var(--v-violet-600);
+  --v-mode-scenario-hatch: rgba(91, 74, 148, 0.07);
   --v-mode-live-bg: var(--v-teal-50);
   --v-mode-live-text: var(--v-teal-700);
-  --v-simulated-bg: #F2ECFA;
-  --v-simulated-text: #4B2E83;
+  --v-mode-live-accent: var(--v-teal-600);
+  --v-simulated-bg: var(--v-violet-50);
+  --v-simulated-text: var(--v-violet-700);
+
+  /* Map context: paper, terrain-prior contours, labels */
+  --v-map-bg: var(--v-map-paper);
+  --v-map-contour: #5E7B83;
+  --v-map-frame: #8FA5AA;
+  --v-map-label: var(--v-ink-800);
+  --v-map-label-halo: var(--v-map-paper);
 
   /* ---------- Component ---------- */
   --v-button-primary-bg: var(--v-action);
   --v-button-primary-bg-hover: var(--v-action-hover);
-  --v-button-primary-bg-pressed: #04403F;
+  --v-button-primary-bg-pressed: var(--v-action-pressed);
   --v-button-primary-text: var(--v-white);
   --v-button-secondary-border: var(--v-action);
   --v-button-secondary-text: var(--v-action-hover);
   --v-button-destructive-text: var(--v-red-800);
   --v-button-destructive-border: var(--v-red-600);
+  --v-button-inverse-bg: var(--v-gray-50);
+  --v-button-inverse-text: var(--v-ink-950);
   --v-card-bg: var(--v-surface);
   --v-card-border: var(--v-divider);
   --v-card-radius: var(--v-radius-md);
-  --v-input-border: #7A8F95; /* 3.4:1 on white; spec divider is 1.35:1, below WCAG 1.4.11 */
+  --v-input-border: var(--v-ink-400); /* 3.4:1 on white; spec divider is 1.35:1, below WCAG 1.4.11 */
   --v-control-min-height: 44px;
+  --v-header-height: 56px;
   --v-focus-ring: 0 0 0 2px var(--v-surface), 0 0 0 4px var(--v-focus);
+  --v-focus-ring-inverse: 0 0 0 2px var(--v-ink-950), 0 0 0 4px var(--v-focus-inverse);
   --v-sheet-shadow: 0 8px 24px rgba(20, 43, 51, 0.14);
+  --v-float-shadow: 0 1px 2px rgba(20, 43, 51, 0.08), 0 6px 18px rgba(20, 43, 51, 0.12);
+  --v-card-shadow: 0 1px 2px rgba(20, 43, 51, 0.06);
 }
