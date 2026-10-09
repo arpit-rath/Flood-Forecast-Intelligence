@@ -28,7 +28,7 @@ Resources:
     Properties:
       Handler: backend.varuna.api.lambda_handler
       Runtime: python3.12
-      CodeUri: ../
+      CodeUri: .lambda-package/
       MemorySize: 256
       Timeout: 10
       ReservedConcurrentExecutions: 2
