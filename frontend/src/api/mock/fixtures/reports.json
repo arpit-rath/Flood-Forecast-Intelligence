@@ -1,0 +1,99 @@
+[
+  {
+    "id": "RPT-0001",
+    "segmentId": "S-H23",
+    "point": [
+      77.11847,
+      28.7506
+    ],
+    "createdAt": "2026-10-08T11:24:00Z",
+    "capturedAt": "2026-10-08T11:22:00Z",
+    "imageKey": "fixtures/rpt-0001.jpg",
+    "imageUrl": null,
+    "note": "Water across the road near the canal corner.",
+    "reviewStatus": "pending_review",
+    "analysis": {
+      "status": "complete",
+      "provider": "fixture",
+      "model": null,
+      "completedAt": "2026-10-08T11:24:09Z",
+      "failureReason": null
+    },
+    "observations": {
+      "visible_water": "clear",
+      "drain_state": "not_visible",
+      "visible_hazards": [
+        "debris"
+      ],
+      "access_concern": "possible",
+      "confidence": 0.72,
+      "evidence_summary": "Standing water covers most of the visible carriageway; floating debris near the kerb.",
+      "needs_human_review": true
+    },
+    "modelConfidence": 0.72,
+    "source": "fixture",
+    "review": null
+  },
+  {
+    "id": "RPT-0002",
+    "segmentId": "S-H12",
+    "point": [
+      77.11687,
+      28.75181
+    ],
+    "createdAt": "2026-10-08T11:05:00Z",
+    "capturedAt": null,
+    "imageKey": "fixtures/rpt-0002.jpg",
+    "imageUrl": null,
+    "note": "Road looks wet outside the hostel.",
+    "reviewStatus": "rejected",
+    "analysis": {
+      "status": "complete",
+      "provider": "fixture",
+      "model": null,
+      "completedAt": "2026-10-08T11:05:11Z",
+      "failureReason": null
+    },
+    "observations": {
+      "visible_water": "uncertain",
+      "drain_state": "not_visible",
+      "visible_hazards": [],
+      "access_concern": "none",
+      "confidence": 0.31,
+      "evidence_summary": "Dark, reflective pavement; standing water cannot be confirmed.",
+      "needs_human_review": true
+    },
+    "modelConfidence": 0.31,
+    "source": "fixture",
+    "review": {
+      "decision": "reject",
+      "reviewedAt": "2026-10-08T11:12:00Z",
+      "reviewer": "Responder (demo account)"
+    }
+  },
+  {
+    "id": "RPT-0003",
+    "segmentId": "S-H23",
+    "point": [
+      77.11904,
+      28.75048
+    ],
+    "createdAt": "2026-10-08T11:27:00Z",
+    "capturedAt": null,
+    "imageKey": "fixtures/rpt-0003.jpg",
+    "imageUrl": null,
+    "note": "",
+    "reviewStatus": "needs_manual_review",
+    "analysis": {
+      "status": "failed",
+      "provider": "fixture",
+      "model": null,
+      "completedAt": "2026-10-08T11:27:30Z",
+      "failureReason": "Image analysis timed out"
+    },
+    "observations": null,
+    "modelConfidence": null,
+    "source": "fixture",
+    "review": null
+  }
+]

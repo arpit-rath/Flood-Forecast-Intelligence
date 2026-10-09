@@ -1,0 +1,50 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Varuna deterministic scenario API (synthetic fixture, read-only deployment)
+
+Parameters:
+  AllowedOrigin:
+    Type: String
+    Default: http://localhost:5173
+    Description: Exact frontend origin allowed to call the API
+
+Resources:
+  VarunaHttpApi:
+    Type: AWS::Serverless::HttpApi
+    Properties:
+      CorsConfiguration:
+        AllowOrigins:
+          - !Ref AllowedOrigin
+        AllowMethods:
+          - GET
+          - POST
+          - OPTIONS
+        AllowHeaders:
+          - content-type
+        MaxAge: 300
+
+  VarunaFixtureApi:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: backend.varuna.api.lambda_handler
+      Runtime: python3.12
+      CodeUri: ../
+      MemorySize: 256
+      Timeout: 10
+      ReservedConcurrentExecutions: 2
+      Description: Synthetic fixture only; all report and closure writes disabled
+      Environment:
+        Variables:
+          VARUNA_CORS_ORIGIN: !Ref AllowedOrigin
+      Events:
+        Proxy:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref VarunaHttpApi
+            Path: /{proxy+}
+            Method: ANY
+
+Outputs:
+  ApiBaseUrl:
+    Description: API base URL; responses explicitly identify synthetic Scenario mode
+    Value: !Sub https://${VarunaHttpApi}.execute-api.${AWS::Region}.amazonaws.com

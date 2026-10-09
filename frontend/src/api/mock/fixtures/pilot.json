@@ -1,0 +1,1423 @@
+{
+  "pilotId": "dtu-pilot",
+  "name": "DTU and approach roads (pilot)",
+  "bundleVersion": "dtu-pilot-fixture-2026-10-08",
+  "preparedAt": "2026-10-08T06:00:00Z",
+  "mapUpdatedAt": "2026-10-08T06:00:00Z",
+  "geometryNote": "Fixture geometry: an illustrative street grid near DTU used for interface development. It is not surveyed road geometry.",
+  "bounds": [
+    77.1112,
+    28.7467,
+    77.1224,
+    28.7545
+  ],
+  "center": [
+    77.116905,
+    28.75069
+  ],
+  "segments": {
+    "type": "FeatureCollection",
+    "features": [
+      {
+        "type": "Feature",
+        "id": "S-H00",
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              77.11266,
+              28.75308
+            ],
+            [
+              77.1144,
+              28.75314
+            ]
+          ]
+        },
+        "properties": {
+          "id": "S-H00",
+          "name": "North Link Road · block 1",
+          "fromNode": "N-00",
+          "toNode": "N-10",
+          "lengthM": 170,
+          "terrainPrior": 0.1,
+          "drainageVulnerability": null,
+          "source": "Fixture grid (illustrative)",
+          "bundleVersion": "dtu-pilot-fixture-2026-10-08"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "S-H01",
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              77.1144,
+              28.75314
+            ],
+            [
+              77.11614,
+              28.7532
+            ]
+          ]
+        },
+        "properties": {
+          "id": "S-H01",
+          "name": "North Link Road · block 2",
+          "fromNode": "N-10",
+          "toNode": "N-20",
+          "lengthM": 170,
+          "terrainPrior": 0.1,
+          "drainageVulnerability": null,
+          "source": "Fixture grid (illustrative)",
+          "bundleVersion": "dtu-pilot-fixture-2026-10-08"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "S-H02",
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              77.11614,
+              28.7532
+            ],
+            [
+              77.11753,
+              28.75326
+            ]
+          ]
+        },
+        "properties": {
+          "id": "S-H02",
+          "name": "North Link Road · block 3",
+          "fromNode": "N-20",
+          "toNode": "N-30",
+          "lengthM": 136,
+          "terrainPrior": 0.1,
+          "drainageVulnerability": 0.15,
+          "source": "Fixture grid (illustrative)",
+          "bundleVersion": "dtu-pilot-fixture-2026-10-08"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "S-H03",
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              77.11753,
+              28.75326
+            ],
+            [
+              77.11927,
+              28.75332
+            ]
+          ]
+        },
+        "properties": {
+          "id": "S-H03",
+          "name": "North Link Road · block 4",
+          "fromNode": "N-30",
+          "toNode": "N-40",
+          "lengthM": 170,
+          "terrainPrior": 0.1,
+          "drainageVulnerability": 0.15,
+          "source": "Fixture grid (illustrative)",
+          "bundleVersion": "dtu-pilot-fixture-2026-10-08"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "S-H04",
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              77.11927,
+              28.75332
+            ],
+            [
+              77.12066,
+              28.75308
+            ]
+          ]
+        },
+        "properties": {
+          "id": "S-H04",
+          "name": "North Link Road · block 5",
+          "fromNode": "N-40",
+          "toNode": "N-50",
+          "lengthM": 138,
+          "terrainPrior": null,
+          "drainageVulnerability": null,
+          "source": "Fixture grid (illustrative)",
+          "bundleVersion": "dtu-pilot-fixture-2026-10-08"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "S-H10",
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              77.11287,
+              28.75196
+            ],
+            [
+              77.11426,
+              28.75202
+            ]
+          ]
+        },
+        "properties": {
+          "id": "S-H10",
+          "name": "Hostel Road · block 1",
+          "fromNode": "N-01",
+          "toNode": "N-11",
+          "lengthM": 136,
+          "terrainPrior": 0.1,
+          "drainageVulnerability": 0.15,
+          "source": "Fixture grid (illustrative)",
+          "bundleVersion": "dtu-pilot-fixture-2026-10-08"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "S-H11",
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              77.11426,
+              28.75202
+            ],
+            [
+              77.116,
+              28.75178
+            ]
+          ]
+        },
+        "properties": {
+          "id": "S-H11",
+          "name": "Hostel Road · block 2",
+          "fromNode": "N-11",
+          "toNode": "N-21",
+          "lengthM": 172,
+          "terrainPrior": 0.1,
+          "drainageVulnerability": 0.15,
+          "source": "Fixture grid (illustrative)",
+          "bundleVersion": "dtu-pilot-fixture-2026-10-08"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "S-H12",
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              77.116,
+              28.75178
+            ],
+            [
+              77.11774,
+              28.75184
+            ]
+          ]
+        },
+        "properties": {
+          "id": "S-H12",
+          "name": "Hostel Road · block 3",
+          "fromNode": "N-21",
+          "toNode": "N-31",
+          "lengthM": 170,
+          "terrainPrior": 0.1,
+          "drainageVulnerability": 0.15,
+          "source": "Fixture grid (illustrative)",
+          "bundleVersion": "dtu-pilot-fixture-2026-10-08"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "S-H13",
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              77.11774,
+              28.75184
+            ],
+            [
+              77.11913,
+              28.7519
+            ]
+          ]
+        },
+        "properties": {
+          "id": "S-H13",
+          "name": "Hostel Road · block 4",
+          "fromNode": "N-31",
+          "toNode": "N-41",
+          "lengthM": 136,
+          "terrainPrior": 0.1,
+          "drainageVulnerability": 0.15,
+          "source": "Fixture grid (illustrative)",
+          "bundleVersion": "dtu-pilot-fixture-2026-10-08"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "S-H14",
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              77.11913,
+              28.7519
+            ],
+            [
+              77.12087,
+              28.75196
+            ]
+          ]
+        },
+        "properties": {
+          "id": "S-H14",
+          "name": "Hostel Road · block 5",
+          "fromNode": "N-41",
+          "toNode": "N-51",
+          "lengthM": 170,
+          "terrainPrior": 0.1,
+          "drainageVulnerability": 0.15,
+          "source": "Fixture grid (illustrative)",
+          "bundleVersion": "dtu-pilot-fixture-2026-10-08"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "S-H20",
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              77.11273,
+              28.75054
+            ],
+            [
+              77.11447,
+              28.7506
+            ]
+          ]
+        },
+        "properties": {
+          "id": "S-H20",
+          "name": "Central Avenue · block 1",
+          "fromNode": "N-02",
+          "toNode": "N-12",
+          "lengthM": 170,
+          "terrainPrior": 0.1,
+          "drainageVulnerability": 0.15,
+          "source": "Fixture grid (illustrative)",
+          "bundleVersion": "dtu-pilot-fixture-2026-10-08"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "S-H21",
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              77.11447,
+              28.7506
+            ],
+            [
+              77.11586,
+              28.75066
+            ]
+          ]
+        },
+        "properties": {
+          "id": "S-H21",
+          "name": "Central Avenue · block 2",
+          "fromNode": "N-12",
+          "toNode": "N-22",
+          "lengthM": 136,
+          "terrainPrior": 0.25,
+          "drainageVulnerability": 0.2,
+          "source": "Fixture grid (illustrative)",
+          "bundleVersion": "dtu-pilot-fixture-2026-10-08"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "S-H22",
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              77.11586,
+              28.75066
+            ],
+            [
+              77.1176,
+              28.75072
+            ]
+          ]
+        },
+        "properties": {
+          "id": "S-H22",
+          "name": "Central Avenue · block 3",
+          "fromNode": "N-22",
+          "toNode": "N-32",
+          "lengthM": 170,
+          "terrainPrior": 0.45,
+          "drainageVulnerability": 0.35,
+          "source": "Fixture grid (illustrative)",
+          "bundleVersion": "dtu-pilot-fixture-2026-10-08"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "S-H23",
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              77.1176,
+              28.75072
+            ],
+            [
+              77.11934,
+              28.75048
+            ]
+          ]
+        },
+        "properties": {
+          "id": "S-H23",
+          "name": "Central Avenue · block 4",
+          "fromNode": "N-32",
+          "toNode": "N-42",
+          "lengthM": 172,
+          "terrainPrior": 0.55,
+          "drainageVulnerability": 0.5,
+          "source": "Fixture grid (illustrative)",
+          "bundleVersion": "dtu-pilot-fixture-2026-10-08"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "S-H24",
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              77.11934,
+              28.75048
+            ],
+            [
+              77.12073,
+              28.75054
+            ]
+          ]
+        },
+        "properties": {
+          "id": "S-H24",
+          "name": "Central Avenue · block 5",
+          "fromNode": "N-42",
+          "toNode": "N-52",
+          "lengthM": 136,
+          "terrainPrior": 0.1,
+          "drainageVulnerability": 0.15,
+          "source": "Fixture grid (illustrative)",
+          "bundleVersion": "dtu-pilot-fixture-2026-10-08"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "S-H30",
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              77.11294,
+              28.74942
+            ],
+            [
+              77.11433,
+              28.74918
+            ]
+          ]
+        },
+        "properties": {
+          "id": "S-H30",
+          "name": "Library Lane · block 1",
+          "fromNode": "N-03",
+          "toNode": "N-13",
+          "lengthM": 138,
+          "terrainPrior": 0.1,
+          "drainageVulnerability": 0.15,
+          "source": "Fixture grid (illustrative)",
+          "bundleVersion": "dtu-pilot-fixture-2026-10-08"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "S-H31",
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              77.11433,
+              28.74918
+            ],
+            [
+              77.11607,
+              28.74924
+            ]
+          ]
+        },
+        "properties": {
+          "id": "S-H31",
+          "name": "Library Lane · block 2",
+          "fromNode": "N-13",
+          "toNode": "N-23",
+          "lengthM": 170,
+          "terrainPrior": 0.45,
+          "drainageVulnerability": 0.55,
+          "source": "Fixture grid (illustrative)",
+          "bundleVersion": "dtu-pilot-fixture-2026-10-08"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "S-H32",
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              77.11607,
+              28.74924
+            ],
+            [
+              77.11746,
+              28.7493
+            ]
+          ]
+        },
+        "properties": {
+          "id": "S-H32",
+          "name": "Library Lane · block 3",
+          "fromNode": "N-23",
+          "toNode": "N-33",
+          "lengthM": 136,
+          "terrainPrior": 0.6,
+          "drainageVulnerability": 0.65,
+          "source": "Fixture grid (illustrative)",
+          "bundleVersion": "dtu-pilot-fixture-2026-10-08"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "S-H33",
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              77.11746,
+              28.7493
+            ],
+            [
+              77.1192,
+              28.74936
+            ]
+          ]
+        },
+        "properties": {
+          "id": "S-H33",
+          "name": "Library Lane · block 4",
+          "fromNode": "N-33",
+          "toNode": "N-43",
+          "lengthM": 170,
+          "terrainPrior": 0.5,
+          "drainageVulnerability": 0.4,
+          "source": "Fixture grid (illustrative)",
+          "bundleVersion": "dtu-pilot-fixture-2026-10-08"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "S-H34",
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              77.1192,
+              28.74936
+            ],
+            [
+              77.12094,
+              28.74942
+            ]
+          ]
+        },
+        "properties": {
+          "id": "S-H34",
+          "name": "Library Lane · block 5",
+          "fromNode": "N-43",
+          "toNode": "N-53",
+          "lengthM": 170,
+          "terrainPrior": 0.1,
+          "drainageVulnerability": 0.15,
+          "source": "Fixture grid (illustrative)",
+          "bundleVersion": "dtu-pilot-fixture-2026-10-08"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "S-H40",
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              77.1128,
+              28.748
+            ],
+            [
+              77.11454,
+              28.74806
+            ]
+          ]
+        },
+        "properties": {
+          "id": "S-H40",
+          "name": "South Service Road · block 1",
+          "fromNode": "N-04",
+          "toNode": "N-14",
+          "lengthM": 170,
+          "terrainPrior": 0.1,
+          "drainageVulnerability": 0.15,
+          "source": "Fixture grid (illustrative)",
+          "bundleVersion": "dtu-pilot-fixture-2026-10-08"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "S-H41",
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              77.11454,
+              28.74806
+            ],
+            [
+              77.11593,
+              28.74812
+            ]
+          ]
+        },
+        "properties": {
+          "id": "S-H41",
+          "name": "South Service Road · block 2",
+          "fromNode": "N-14",
+          "toNode": "N-24",
+          "lengthM": 136,
+          "terrainPrior": 0.1,
+          "drainageVulnerability": 0.15,
+          "source": "Fixture grid (illustrative)",
+          "bundleVersion": "dtu-pilot-fixture-2026-10-08"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "S-H42",
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              77.11593,
+              28.74812
+            ],
+            [
+              77.11767,
+              28.74788
+            ]
+          ]
+        },
+        "properties": {
+          "id": "S-H42",
+          "name": "South Service Road · block 3",
+          "fromNode": "N-24",
+          "toNode": "N-34",
+          "lengthM": 172,
+          "terrainPrior": 0.1,
+          "drainageVulnerability": 0.15,
+          "source": "Fixture grid (illustrative)",
+          "bundleVersion": "dtu-pilot-fixture-2026-10-08"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "S-H43",
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              77.11767,
+              28.74788
+            ],
+            [
+              77.11906,
+              28.74794
+            ]
+          ]
+        },
+        "properties": {
+          "id": "S-H43",
+          "name": "South Service Road · block 4",
+          "fromNode": "N-34",
+          "toNode": "N-44",
+          "lengthM": 136,
+          "terrainPrior": 0.1,
+          "drainageVulnerability": 0.15,
+          "source": "Fixture grid (illustrative)",
+          "bundleVersion": "dtu-pilot-fixture-2026-10-08"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "S-H44",
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              77.11906,
+              28.74794
+            ],
+            [
+              77.1208,
+              28.748
+            ]
+          ]
+        },
+        "properties": {
+          "id": "S-H44",
+          "name": "South Service Road · block 5",
+          "fromNode": "N-44",
+          "toNode": "N-54",
+          "lengthM": 170,
+          "terrainPrior": 0.1,
+          "drainageVulnerability": 0.15,
+          "source": "Fixture grid (illustrative)",
+          "bundleVersion": "dtu-pilot-fixture-2026-10-08"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "S-V00",
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              77.11266,
+              28.75308
+            ],
+            [
+              77.11287,
+              28.75196
+            ]
+          ]
+        },
+        "properties": {
+          "id": "S-V00",
+          "name": "West Gate Road · block 1",
+          "fromNode": "N-00",
+          "toNode": "N-01",
+          "lengthM": 126,
+          "terrainPrior": 0.1,
+          "drainageVulnerability": null,
+          "source": "Fixture grid (illustrative)",
+          "bundleVersion": "dtu-pilot-fixture-2026-10-08"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "S-V01",
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              77.11287,
+              28.75196
+            ],
+            [
+              77.11273,
+              28.75054
+            ]
+          ]
+        },
+        "properties": {
+          "id": "S-V01",
+          "name": "West Gate Road · block 2",
+          "fromNode": "N-01",
+          "toNode": "N-02",
+          "lengthM": 158,
+          "terrainPrior": 0.1,
+          "drainageVulnerability": 0.15,
+          "source": "Fixture grid (illustrative)",
+          "bundleVersion": "dtu-pilot-fixture-2026-10-08"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "S-V02",
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              77.11273,
+              28.75054
+            ],
+            [
+              77.11294,
+              28.74942
+            ]
+          ]
+        },
+        "properties": {
+          "id": "S-V02",
+          "name": "West Gate Road · block 3",
+          "fromNode": "N-02",
+          "toNode": "N-03",
+          "lengthM": 126,
+          "terrainPrior": 0.1,
+          "drainageVulnerability": 0.15,
+          "source": "Fixture grid (illustrative)",
+          "bundleVersion": "dtu-pilot-fixture-2026-10-08"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "S-V03",
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              77.11294,
+              28.74942
+            ],
+            [
+              77.1128,
+              28.748
+            ]
+          ]
+        },
+        "properties": {
+          "id": "S-V03",
+          "name": "West Gate Road · block 4",
+          "fromNode": "N-03",
+          "toNode": "N-04",
+          "lengthM": 158,
+          "terrainPrior": 0.1,
+          "drainageVulnerability": 0.15,
+          "source": "Fixture grid (illustrative)",
+          "bundleVersion": "dtu-pilot-fixture-2026-10-08"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "S-V11",
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              77.11426,
+              28.75202
+            ],
+            [
+              77.11447,
+              28.7506
+            ]
+          ]
+        },
+        "properties": {
+          "id": "S-V11",
+          "name": "Lab Street · block 2",
+          "fromNode": "N-11",
+          "toNode": "N-12",
+          "lengthM": 159,
+          "terrainPrior": 0.1,
+          "drainageVulnerability": 0.15,
+          "source": "Fixture grid (illustrative)",
+          "bundleVersion": "dtu-pilot-fixture-2026-10-08"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "S-V12",
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              77.11447,
+              28.7506
+            ],
+            [
+              77.11433,
+              28.74918
+            ]
+          ]
+        },
+        "properties": {
+          "id": "S-V12",
+          "name": "Lab Street · block 3",
+          "fromNode": "N-12",
+          "toNode": "N-13",
+          "lengthM": 158,
+          "terrainPrior": 0.1,
+          "drainageVulnerability": 0.15,
+          "source": "Fixture grid (illustrative)",
+          "bundleVersion": "dtu-pilot-fixture-2026-10-08"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "S-V20",
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              77.11614,
+              28.7532
+            ],
+            [
+              77.116,
+              28.75178
+            ]
+          ]
+        },
+        "properties": {
+          "id": "S-V20",
+          "name": "Admin Walk · block 1",
+          "fromNode": "N-20",
+          "toNode": "N-21",
+          "lengthM": 158,
+          "terrainPrior": 0.1,
+          "drainageVulnerability": 0.15,
+          "source": "Fixture grid (illustrative)",
+          "bundleVersion": "dtu-pilot-fixture-2026-10-08"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "S-V21",
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              77.116,
+              28.75178
+            ],
+            [
+              77.11586,
+              28.75066
+            ]
+          ]
+        },
+        "properties": {
+          "id": "S-V21",
+          "name": "Admin Walk · block 2",
+          "fromNode": "N-21",
+          "toNode": "N-22",
+          "lengthM": 125,
+          "terrainPrior": 0.1,
+          "drainageVulnerability": 0.15,
+          "source": "Fixture grid (illustrative)",
+          "bundleVersion": "dtu-pilot-fixture-2026-10-08"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "S-V22",
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              77.11586,
+              28.75066
+            ],
+            [
+              77.11607,
+              28.74924
+            ]
+          ]
+        },
+        "properties": {
+          "id": "S-V22",
+          "name": "Admin Walk · block 3",
+          "fromNode": "N-22",
+          "toNode": "N-23",
+          "lengthM": 159,
+          "terrainPrior": 0.4,
+          "drainageVulnerability": 0.5,
+          "source": "Fixture grid (illustrative)",
+          "bundleVersion": "dtu-pilot-fixture-2026-10-08"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "S-V23",
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              77.11607,
+              28.74924
+            ],
+            [
+              77.11593,
+              28.74812
+            ]
+          ]
+        },
+        "properties": {
+          "id": "S-V23",
+          "name": "Admin Walk · block 4",
+          "fromNode": "N-23",
+          "toNode": "N-24",
+          "lengthM": 125,
+          "terrainPrior": 0.1,
+          "drainageVulnerability": 0.15,
+          "source": "Fixture grid (illustrative)",
+          "bundleVersion": "dtu-pilot-fixture-2026-10-08"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "S-V30",
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              77.11753,
+              28.75326
+            ],
+            [
+              77.11774,
+              28.75184
+            ]
+          ]
+        },
+        "properties": {
+          "id": "S-V30",
+          "name": "Canal Street · block 1",
+          "fromNode": "N-30",
+          "toNode": "N-31",
+          "lengthM": 159,
+          "terrainPrior": 0.1,
+          "drainageVulnerability": 0.15,
+          "source": "Fixture grid (illustrative)",
+          "bundleVersion": "dtu-pilot-fixture-2026-10-08"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "S-V31",
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              77.11774,
+              28.75184
+            ],
+            [
+              77.1176,
+              28.75072
+            ]
+          ]
+        },
+        "properties": {
+          "id": "S-V31",
+          "name": "Canal Street · block 2",
+          "fromNode": "N-31",
+          "toNode": "N-32",
+          "lengthM": 125,
+          "terrainPrior": 0.4,
+          "drainageVulnerability": 0.3,
+          "source": "Fixture grid (illustrative)",
+          "bundleVersion": "dtu-pilot-fixture-2026-10-08"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "S-V32",
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              77.1176,
+              28.75072
+            ],
+            [
+              77.11746,
+              28.7493
+            ]
+          ]
+        },
+        "properties": {
+          "id": "S-V32",
+          "name": "Canal Street · block 3",
+          "fromNode": "N-32",
+          "toNode": "N-33",
+          "lengthM": 158,
+          "terrainPrior": 0.65,
+          "drainageVulnerability": 0.5,
+          "source": "Fixture grid (illustrative)",
+          "bundleVersion": "dtu-pilot-fixture-2026-10-08"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "S-V33",
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              77.11746,
+              28.7493
+            ],
+            [
+              77.11767,
+              28.74788
+            ]
+          ]
+        },
+        "properties": {
+          "id": "S-V33",
+          "name": "Canal Street · block 4",
+          "fromNode": "N-33",
+          "toNode": "N-34",
+          "lengthM": 159,
+          "terrainPrior": 0.1,
+          "drainageVulnerability": 0.15,
+          "source": "Fixture grid (illustrative)",
+          "bundleVersion": "dtu-pilot-fixture-2026-10-08"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "S-V40",
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              77.11927,
+              28.75332
+            ],
+            [
+              77.11913,
+              28.7519
+            ]
+          ]
+        },
+        "properties": {
+          "id": "S-V40",
+          "name": "Sports Lane · block 1",
+          "fromNode": "N-40",
+          "toNode": "N-41",
+          "lengthM": 158,
+          "terrainPrior": 0.1,
+          "drainageVulnerability": 0.15,
+          "source": "Fixture grid (illustrative)",
+          "bundleVersion": "dtu-pilot-fixture-2026-10-08"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "S-V41",
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              77.11913,
+              28.7519
+            ],
+            [
+              77.11934,
+              28.75048
+            ]
+          ]
+        },
+        "properties": {
+          "id": "S-V41",
+          "name": "Sports Lane · block 2",
+          "fromNode": "N-41",
+          "toNode": "N-42",
+          "lengthM": 159,
+          "terrainPrior": 0.1,
+          "drainageVulnerability": 0.15,
+          "source": "Fixture grid (illustrative)",
+          "bundleVersion": "dtu-pilot-fixture-2026-10-08"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "S-V42",
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              77.11934,
+              28.75048
+            ],
+            [
+              77.1192,
+              28.74936
+            ]
+          ]
+        },
+        "properties": {
+          "id": "S-V42",
+          "name": "Sports Lane · block 3",
+          "fromNode": "N-42",
+          "toNode": "N-43",
+          "lengthM": 125,
+          "terrainPrior": 0.1,
+          "drainageVulnerability": 0.15,
+          "source": "Fixture grid (illustrative)",
+          "bundleVersion": "dtu-pilot-fixture-2026-10-08"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "S-V50",
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              77.12066,
+              28.75308
+            ],
+            [
+              77.12087,
+              28.75196
+            ]
+          ]
+        },
+        "properties": {
+          "id": "S-V50",
+          "name": "East Gate Road · block 1",
+          "fromNode": "N-50",
+          "toNode": "N-51",
+          "lengthM": 126,
+          "terrainPrior": 0.1,
+          "drainageVulnerability": 0.15,
+          "source": "Fixture grid (illustrative)",
+          "bundleVersion": "dtu-pilot-fixture-2026-10-08"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "S-V51",
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              77.12087,
+              28.75196
+            ],
+            [
+              77.12073,
+              28.75054
+            ]
+          ]
+        },
+        "properties": {
+          "id": "S-V51",
+          "name": "East Gate Road · block 2",
+          "fromNode": "N-51",
+          "toNode": "N-52",
+          "lengthM": 158,
+          "terrainPrior": null,
+          "drainageVulnerability": null,
+          "source": "Fixture grid (illustrative)",
+          "bundleVersion": "dtu-pilot-fixture-2026-10-08"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "S-V52",
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              77.12073,
+              28.75054
+            ],
+            [
+              77.12094,
+              28.74942
+            ]
+          ]
+        },
+        "properties": {
+          "id": "S-V52",
+          "name": "East Gate Road · block 3",
+          "fromNode": "N-52",
+          "toNode": "N-53",
+          "lengthM": 126,
+          "terrainPrior": 0.1,
+          "drainageVulnerability": 0.15,
+          "source": "Fixture grid (illustrative)",
+          "bundleVersion": "dtu-pilot-fixture-2026-10-08"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "S-V53",
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              77.12094,
+              28.74942
+            ],
+            [
+              77.1208,
+              28.748
+            ]
+          ]
+        },
+        "properties": {
+          "id": "S-V53",
+          "name": "East Gate Road · block 4",
+          "fromNode": "N-53",
+          "toNode": "N-54",
+          "lengthM": 158,
+          "terrainPrior": null,
+          "drainageVulnerability": null,
+          "source": "Fixture grid (illustrative)",
+          "bundleVersion": "dtu-pilot-fixture-2026-10-08"
+        }
+      }
+    ]
+  },
+  "drains": {
+    "type": "FeatureCollection",
+    "features": [
+      {
+        "type": "Feature",
+        "id": "D-01",
+        "geometry": {
+          "type": "Point",
+          "coordinates": [
+            77.1176,
+            28.75072
+          ]
+        },
+        "properties": {
+          "id": "D-01",
+          "label": "Canal Street culvert inlet",
+          "affectedSegmentIds": [
+            "S-H22",
+            "S-H23",
+            "S-V32"
+          ],
+          "illustrative": true
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "D-02",
+        "geometry": {
+          "type": "Point",
+          "coordinates": [
+            77.11607,
+            28.74924
+          ]
+        },
+        "properties": {
+          "id": "D-02",
+          "label": "Library Lane gully line",
+          "affectedSegmentIds": [
+            "S-H31",
+            "S-H32",
+            "S-V22"
+          ],
+          "illustrative": true
+        }
+      }
+    ]
+  },
+  "places": [
+    {
+      "id": "west-gate",
+      "label": "West Gate",
+      "point": [
+        77.11273,
+        28.75054
+      ]
+    },
+    {
+      "id": "east-gate",
+      "label": "East Gate",
+      "point": [
+        77.12073,
+        28.75054
+      ]
+    },
+    {
+      "id": "hostel-block",
+      "label": "Hostel block",
+      "point": [
+        77.116,
+        28.75178
+      ]
+    },
+    {
+      "id": "library",
+      "label": "Central Library",
+      "point": [
+        77.11746,
+        28.7493
+      ]
+    }
+  ],
+  "travelModes": [
+    "pedestrian",
+    "car"
+  ],
+  "sources": [
+    {
+      "id": "geometry",
+      "name": "Fixture street grid",
+      "licence": "Project fixture",
+      "note": "Replace with the checked OpenStreetMap extract (© OpenStreetMap contributors, ODbL)."
+    },
+    {
+      "id": "terrain",
+      "name": "Copernicus DEM GLO-30 (fixture values)",
+      "licence": "Copernicus DEM licence",
+      "url": "https://registry.opendata.aws/copernicus-dem/",
+      "note": "30 m surface model; cannot resolve kerbs, drains or underpasses."
+    },
+    {
+      "id": "rain",
+      "name": "Scenario rainfall file",
+      "licence": "Project fixture",
+      "note": "Synthetic, reproducible demo rainfall."
+    },
+    {
+      "id": "drains",
+      "name": "Modelled drain nodes",
+      "licence": "Project fixture",
+      "note": "Illustrative choke points."
+    }
+  ]
+}
