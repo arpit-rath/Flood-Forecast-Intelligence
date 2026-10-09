@@ -12,7 +12,7 @@ function isErrorBody(value: unknown): value is ApiErrorBody {
 function unavailable(): Promise<never> {
   return Promise.reject(new ApiError({
     code: 'reports_unavailable',
-    message: 'Photo upload and persistent report review are unavailable in the local API.',
+    message: 'Photo upload and persistent report review are unavailable in the fixture API.',
     retryable: false,
     requestId: '',
   }));
