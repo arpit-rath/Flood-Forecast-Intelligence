@@ -12,6 +12,9 @@ Resources:
   VarunaHttpApi:
     Type: AWS::Serverless::HttpApi
     Properties:
+      DefaultRouteSettings:
+        ThrottlingBurstLimit: 10
+        ThrottlingRateLimit: 2
       CorsConfiguration:
         AllowOrigins:
           - !Ref AllowedOrigin
@@ -31,7 +34,6 @@ Resources:
       CodeUri: .lambda-package/
       MemorySize: 256
       Timeout: 10
-      ReservedConcurrentExecutions: 2
       Description: Synthetic fixture only; all report and closure writes disabled
       Environment:
         Variables:
