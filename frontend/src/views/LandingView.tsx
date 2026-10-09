@@ -2,9 +2,11 @@ import { ArrowRight, Ban, Camera, CircleDashed, CloudRain, FlaskConical, Route a
 import { useMemo, useState } from 'react';
 import type { LngLat, PilotResponse, Report, RiskClass, RouteComparison } from '../api/types';
 import { PilotSketch, type SketchMarker, type SketchRoute } from '../components/PilotSketch';
+import { RainField } from '../components/RainField';
 import { ReviewBadge, SimulatedTag, StatusBadge } from '../components/StatusBadge';
 import { TabPanel, Tabs } from '../components/Tabs';
 import { RISK_LABEL, observationHeadline } from '../lib/copy';
+import { DESKTOP_QUERY, useMediaQuery } from '../lib/hooks';
 import { formatExposure, formatExtraMinutes, formatMinutes, formatScore, formatTimeIST, pluralize } from '../lib/format';
 import { outcomeSummary } from '../lib/routeCopy';
 import { useAppState } from '../state/AppState';
@@ -32,7 +34,6 @@ export function LandingView() {
   return (
     <div className="landing">
       <section className="hero" aria-labelledby="hero-title">
-        <RainField />
         <div className="hero__inner">
           <div className="hero__copy">
             <p className="eyebrow eyebrow--inverse">DTU pilot · decision-support prototype</p>
@@ -73,32 +74,36 @@ export function LandingView() {
             </p>
           </div>
 
-          <figure className="hero__figure">
-            {pilotData ? (
-              <PilotSketch
-                pilot={pilotData}
-                tone="dark"
-                routes={heroRoutes}
-                width={560}
-                height={420}
-                padding={30}
-                title={`Sketch of the ${pilotData.name} road network with terrain context`}
-              />
-            ) : (
-              <div className="hero__figure-placeholder" />
-            )}
-            <figcaption>
+          {/* Rain lives in the visual column so it never falls behind the copy. */}
+          <div className="hero__visual">
+            <RainField />
+            <figure className="hero__figure">
               {pilotData ? (
-                <>
-                  <span>{pilotData.name}</span>
-                  <span>{pluralize(pilotData.segments.features.length, 'road segment')}</span>
-                  <span>illustrative geometry</span>
-                </>
+                <PilotSketch
+                  pilot={pilotData}
+                  tone="dark"
+                  routes={heroRoutes}
+                  width={680}
+                  height={470}
+                  padding={26}
+                  title={`Sketch of the ${pilotData.name} road network with terrain context`}
+                />
               ) : (
-                'Loading pilot network…'
+                <div className="hero__figure-placeholder" />
               )}
-            </figcaption>
-          </figure>
+              <figcaption>
+                {pilotData ? (
+                  <>
+                    <span>{pilotData.name}</span>
+                    <span>{pluralize(pilotData.segments.features.length, 'road segment')}</span>
+                    <span>illustrative geometry</span>
+                  </>
+                ) : (
+                  'Loading pilot network…'
+                )}
+              </figcaption>
+            </figure>
+          </div>
         </div>
       </section>
 
@@ -304,6 +309,8 @@ function Story({ pilot }: { pilot: PilotResponse }) {
   const { snapshot, riskById, currentRoutes, routes, reports, segmentsById, routeQuery, mode } = useAppState();
   const [step, setStep] = useState<Step>('observe');
   const [hovered, setHovered] = useState<string | null>(null);
+  // Wider drawing on desktop so a large preview stays a sensible height.
+  const desktop = useMediaQuery(DESKTOP_QUERY);
 
   const classes = useMemo(() => {
     const map = new Map<string, RiskClass>();
@@ -498,7 +505,7 @@ function Story({ pilot }: { pilot: PilotResponse }) {
           focusDrains={focusDrains}
           reportPoints={reportPoints}
           endpoints={step === 'routes' ? endpoints : []}
-          width={640}
+          width={desktop ? 780 : 640}
           height={460}
           title="Pilot roads coloured by estimated risk class"
           hoveredSegment={hovered}
@@ -546,30 +553,5 @@ function SketchKey() {
         Modelled drain
       </li>
     </ul>
-  );
-}
-
-/** Rain hairlines behind the hero: decorative, deterministic, static. */
-const RAIN_LINES = (() => {
-  let seed = 7;
-  const rand = () => {
-    seed = (seed * 16807) % 2147483647;
-    return seed / 2147483647;
-  };
-  return Array.from({ length: 64 }, (_, i) => ({
-    x: (i / 64) * 1200 + rand() * 18,
-    y: rand() * 520,
-    h: 30 + rand() * 120,
-    o: 0.08 + rand() * 0.18,
-  }));
-})();
-
-function RainField() {
-  return (
-    <svg className="hero__rain" viewBox="0 0 1200 640" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false">
-      {RAIN_LINES.map((l, i) => (
-        <line key={i} x1={l.x} y1={l.y} x2={l.x - l.h * 0.12} y2={l.y + l.h} strokeOpacity={l.o} />
-      ))}
-    </svg>
   );
 }

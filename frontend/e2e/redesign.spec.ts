@@ -66,6 +66,63 @@ test('landing: content stays visible with reduced motion', async ({ page }) => {
   await expect(page.getByRole('link', { name: 'Explore routes' }).first()).toBeVisible();
 });
 
+test('wide screens: rows, hero visual and maps use the width; text keeps its measure', async ({ page }) => {
+  test.skip(!isDesktop(page), 'Desktop-only layout');
+  await page.setViewportSize({ width: 1920, height: 1080 });
+
+  await page.goto('/');
+  await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
+  await noHorizontalScroll(page);
+  const figure = (await page.locator('.hero__figure').boundingBox())!;
+  const lede = (await page.locator('.hero__lede').boundingBox())!;
+  const row = (await page.locator('.story .landing-section__inner').boundingBox())!;
+  expect(figure.width).toBeGreaterThan(900);
+  expect(lede.width).toBeLessThanOrEqual(720);
+  expect(row.width).toBeGreaterThan(1800);
+
+  await page.goto('/#/resident');
+  await expect(page.getByRole('heading', { name: 'Fastest route shown as default' })).toBeVisible();
+  expect((await page.locator('.resident-map').boundingBox())!.width).toBeGreaterThan(1400);
+  await noHorizontalScroll(page);
+
+  await page.goto('/#/responder');
+  await expect(page.getByText('Demo operator (mock session)')).toBeVisible();
+  const map = (await page.locator('.responder-col--map').boundingBox())!;
+  const drawer = (await page.locator('.responder-col--drawer').boundingBox())!;
+  expect(map.width).toBeGreaterThan(1000);
+  expect(drawer.x + drawer.width).toBeGreaterThan(1910);
+  await noHorizontalScroll(page);
+});
+
+test('hero rain falls continuously behind the content and stands still with reduced motion', async ({ page }) => {
+  await page.goto('/');
+  const rain = page.locator('.hero__rain');
+  const layers = page.locator('.rain-layer');
+  await expect(rain).toHaveAttribute('aria-hidden', 'true');
+  await expect(layers).toHaveCount(3);
+
+  const running = () =>
+    layers.evaluateAll((els) => els.flatMap((el) => el.getAnimations()).filter((a) => a.playState === 'running').length);
+  await expect.poll(running).toBe(3);
+  expect(await layers.first().evaluate((el) => getComputedStyle(el).animationIterationCount)).toBe('infinite');
+  // Layers fall at different speeds.
+  const durations = await layers.evaluateAll((els) => els.map((el) => getComputedStyle(el).animationDuration));
+  expect(new Set(durations).size).toBe(3);
+
+  // Behind everything: it ignores the pointer and the CTA on top stays clickable.
+  expect(await rain.evaluate((el) => getComputedStyle(el).pointerEvents)).toBe('none');
+  const cta = (await page.getByRole('link', { name: 'Explore routes' }).first().boundingBox())!;
+  const hit = await page.evaluate(
+    ([x, y]) => document.elementFromPoint(x, y)?.closest('a')?.textContent?.trim() ?? '',
+    [cta.x + cta.width / 2, cta.y + cta.height / 2],
+  );
+  expect(hit).toContain('Explore routes');
+
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await expect.poll(() => layers.evaluateAll((els) => els.flatMap((el) => el.getAnimations()).length)).toBe(0);
+  await expect(layers.first()).toBeAttached();
+});
+
 test('status strip keeps mode, times and source visible', async ({ page }) => {
   await page.goto('/#/resident');
   const strip = page.getByRole('region', { name: 'Data mode and timestamps' });
