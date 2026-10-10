@@ -120,7 +120,7 @@ export function ReportForm({ headingRef }: { headingRef?: React.Ref<HTMLHeadingE
     return (
       <section className="report-flow" aria-labelledby={`${formId}-title`}>
         <h2 id={`${formId}-title`} className="panel-title" ref={headingRef} tabIndex={-1}>Report a road condition</h2>
-        <p className="callout callout--muted">Photo upload and report submission are unavailable in the local API. No report has been sent.</p>
+        <p className="callout callout--muted">Photo upload and report submission are unavailable in the fixture API. No report has been sent.</p>
       </section>
     );
   }

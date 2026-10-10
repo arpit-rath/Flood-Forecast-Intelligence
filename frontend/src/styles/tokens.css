@@ -75,6 +75,12 @@
   --v-space-16: 64px;
   --v-space-24: 96px;
 
+  /* Layout: fluid page gutters and the widest a landing row may grow. Text
+     keeps its own measure, so wide screens give space to maps and visuals. */
+  --v-gutter: clamp(16px, 3.4vw, 72px);
+  --v-page-max: 1920px;
+  --v-measure: 36em;
+
   --v-radius-xs: 4px;
   --v-radius-sm: 8px;
   --v-radius-md: 12px;
@@ -87,7 +93,7 @@
   --v-font-display: 'Newsreader Variable', 'Newsreader', Georgia, 'Times New Roman', serif;
 
   /* Type scale: fluid between the mobile and desktop sizes in Design-System.md §4 */
-  --v-type-hero: 420 clamp(38px, 3.2vw + 22px, 64px) / 1.04 var(--v-font-display);
+  --v-type-hero: 420 clamp(38px, 2.6vw + 24px, 68px) / 1.04 var(--v-font-display);
   --v-type-title: 450 clamp(30px, 2vw + 22px, 48px) / 1.08 var(--v-font-display);
   --v-type-display: 500 clamp(26px, 1.6vw + 20px, 32px) / clamp(32px, 1.6vw + 26px, 38px) var(--v-font-display);
   --v-type-heading: 650 clamp(20px, 0.5vw + 18px, 22px) / clamp(28px, 0.5vw + 26px, 30px) var(--v-font-ui);

@@ -16,16 +16,12 @@
   }
 }
 
+/* Workspaces span the viewport: side panels have bounded widths and the map
+   takes the rest, so wide screens add map area rather than empty margins. */
 .app-main {
   flex: 1;
   min-height: 0;
   width: 100%;
-  max-width: 1440px;
-  margin: 0 auto;
-}
-
-.app-main--landing {
-  max-width: none;
 }
 
 .app-main:focus {
@@ -47,6 +43,8 @@
 }
 
 .app-header--inverse {
+  /* Line up with the landing rows, which stop growing at --v-page-max. */
+  padding-inline: max(var(--v-gutter), calc((100% - var(--v-page-max)) / 2 + var(--v-gutter)));
   background: var(--v-surface-inverse);
   color: var(--v-text-inverse);
   border-bottom-color: var(--v-divider-inverse);
@@ -434,7 +432,7 @@
 
 @media (min-width: 1024px) {
   .resident-layout {
-    grid-template-columns: 412px 1fr;
+    grid-template-columns: clamp(412px, 23vw, 460px) minmax(0, 1fr);
   }
 }
 
@@ -526,7 +524,7 @@
   flex: 1;
   min-height: 0;
   display: grid;
-  grid-template-columns: 320px minmax(0, 1fr) minmax(380px, 424px);
+  grid-template-columns: clamp(320px, 18vw, 380px) minmax(0, 1fr) clamp(424px, 24vw, 500px);
 }
 
 .responder-col {

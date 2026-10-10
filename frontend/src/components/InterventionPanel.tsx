@@ -290,7 +290,7 @@ function BeforeAfter({
                 {option.routeOutcomeAfter ? (
                   <>{routeLabel(recAfter)} <span className="detail">({OUTCOME_SHORT[option.routeOutcomeAfter.outcome]})</span></>
                 ) : (
-                  <span className="detail">Not recalculated by the local API; only selected-route exposure is estimated.</span>
+                  <span className="detail">Not recalculated by the fixture API; only selected-route exposure is estimated.</span>
                 )}
               </dd>
             </div>
