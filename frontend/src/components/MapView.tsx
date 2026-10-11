@@ -49,9 +49,7 @@ function hatchImage(color: string) {
   return { width: size, height: size, data };
 }
 
-function baseStyle(): StyleSpecification | string {
-  const styleUrl = import.meta.env.VITE_BASEMAP_STYLE_URL as string | undefined;
-  if (styleUrl) return styleUrl;
+function baseStyle(): StyleSpecification {
   // Quiet, offline-safe default: the fixture grid is illustrative, so it is
   // not drawn over real street tiles where it would look like surveyed data.
   return {
