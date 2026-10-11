@@ -228,6 +228,70 @@
 
 /* ---------- Interactive map ---------- */
 
+.delhi-overview {
+  position: relative;
+  flex: 1 1 auto;
+  width: 100%;
+  min-height: 440px;
+  overflow: hidden;
+  background: var(--v-map-bg);
+}
+
+.delhi-overview__map {
+  position: absolute;
+  inset: 0;
+}
+
+.delhi-overview__map[hidden] { display: none; }
+
+.delhi-overview__coverage,
+.delhi-overview__context {
+  position: absolute;
+  left: var(--v-space-3);
+  z-index: 2;
+  max-width: min(460px, calc(100% - 88px));
+  padding: var(--v-space-2) var(--v-space-3);
+  border-radius: var(--v-radius-sm);
+  background: var(--v-surface);
+  color: var(--v-text);
+  font: var(--v-type-detail);
+  box-shadow: var(--v-float-shadow);
+}
+
+.delhi-overview__coverage {
+  top: var(--v-space-3);
+  font-weight: 700;
+}
+
+.delhi-overview__context {
+  top: 76px;
+}
+
+.delhi-overview__notice {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 3;
+  width: min(420px, calc(100% - 32px));
+  transform: translate(-50%, -50%);
+  display: grid;
+  gap: var(--v-space-3);
+  padding: var(--v-space-6);
+  border: 1px solid var(--v-divider);
+  border-radius: var(--v-radius-md);
+  background: var(--v-surface);
+  color: var(--v-text);
+  box-shadow: var(--v-float-shadow);
+}
+
+.delhi-overview__notice h2 { font: var(--v-type-heading); }
+
+@media (max-width: 639px) {
+  .delhi-overview__coverage,
+  .delhi-overview__context { max-width: calc(100% - 72px); }
+  .delhi-overview__context { top: 98px; }
+}
+
 .map-shell {
   position: relative;
   width: 100%;

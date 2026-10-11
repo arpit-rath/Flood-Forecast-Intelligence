@@ -1,4 +1,5 @@
 import { useAppState } from '../state/AppState';
+import type { MapScope } from './MapScopeSwitch';
 
 export type View = 'landing' | 'resident' | 'responder';
 
@@ -19,7 +20,7 @@ export function BrandMark({ size = 28 }: { size?: number }) {
   );
 }
 
-export function AppHeader({ view }: { view: View }) {
+export function AppHeader({ view, mapScope }: { view: View; mapScope: MapScope }) {
   const { pilot } = useAppState();
   return (
     <header className={`app-header${view === 'landing' ? ' app-header--inverse' : ''}`}>
@@ -27,7 +28,7 @@ export function AppHeader({ view }: { view: View }) {
         <BrandMark />
         <span className="brand__name">Varuna</span>
       </a>
-      <span className="app-header__pilot">{pilot.status === 'ready' ? pilot.data.name : 'Pilot'}</span>
+      <span className="app-header__pilot">{view !== 'landing' && mapScope === 'delhi' ? 'Delhi basemap · unassessed' : pilot.status === 'ready' ? pilot.data.name : 'Pilot'}</span>
       <nav aria-label="Views" className="view-nav">
         <a href="#/resident" aria-current={view === 'resident' ? 'page' : undefined}>
           Resident

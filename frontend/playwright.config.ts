@@ -31,6 +31,9 @@ export default defineConfig({
     }] : []),
     {
       command: `npm run dev -- --port ${port} --strictPort`,
+      // Tests use an empty URL unless explicitly supplied. An ignored local
+      // key must never cause automated checks to request live map tiles.
+      env: { VITE_DELHI_HYBRID_STYLE_URL: process.env.VITE_DELHI_HYBRID_STYLE_URL ?? '' },
       url: `http://localhost:${port}`,
       reuseExistingServer: true,
       timeout: 60_000,

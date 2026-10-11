@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react';
 import { AppHeader, type View } from './components/AppHeader';
 import { ModeBanner } from './components/ModeBanner';
+import { MapScopeSwitch, type MapScope } from './components/MapScopeSwitch';
 import { useAppState } from './state/AppState';
 import { LandingView } from './views/LandingView';
 import { ResidentView } from './views/ResidentView';
 import { ResponderView } from './views/ResponderView';
+import { DelhiOverview } from './views/DelhiOverview';
 
 const TITLES: Record<View, string> = {
   landing: 'Varuna · Rain exposure on pilot roads',
@@ -21,6 +23,7 @@ function viewFromHash(): View {
 
 export function App() {
   const [view, setView] = useState<View>(viewFromHash);
+  const [mapScope, setMapScope] = useState<MapScope>('pilot');
   const { announcement, pilot } = useAppState();
 
   useEffect(() => {
@@ -47,12 +50,15 @@ export function App() {
       }}>
         Skip to main content
       </a>
-      <AppHeader view={view} />
-      {workspace && <ModeBanner />}
-      <main id="main" className={workspace ? 'app-main' : 'app-main app-main--landing'} tabIndex={-1}>
-        {workspace && <h1 className="visually-hidden">{view === 'resident' ? 'Resident route view' : 'Responder console'}</h1>}
+      <AppHeader view={view} mapScope={mapScope} />
+      {workspace && <MapScopeSwitch scope={mapScope} onChange={setMapScope} />}
+      {workspace && mapScope === 'pilot' && <ModeBanner />}
+      <main id="main" className={workspace ? `app-main${mapScope === 'delhi' ? ' app-main--delhi' : ''}` : 'app-main app-main--landing'} tabIndex={-1}>
+        {workspace && <h1 className="visually-hidden">{mapScope === 'delhi' ? 'Delhi basemap overview' : view === 'resident' ? 'Resident route view' : 'Responder console'}</h1>}
         {view === 'landing' ? (
           <LandingView />
+        ) : mapScope === 'delhi' ? (
+          <DelhiOverview onReturnToPilot={() => setMapScope('pilot')} />
         ) : pilot.status === 'error' ? (
           <div className="callout callout--muted page-error" role="alert">
             <p>

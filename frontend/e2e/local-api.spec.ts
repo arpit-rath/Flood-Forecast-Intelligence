@@ -22,7 +22,7 @@ test('local API: scenario, risk, routes, and two simulated interventions', async
   await expect(banner.getByText('Synthetic Scenario API')).toBeVisible();
   await expect(page.getByRole('heading', { name: /Lower estimated exposure/ })).toBeVisible();
   await expect(page.getByRole('radio', { name: /Route R2/ })).toBeChecked();
-  await expect(page.getByText(/Photo upload and report submission are unavailable in the local API/)).toBeVisible();
+  await expect(page.getByText(/Photo upload and report submission are unavailable in the fixture API/)).toBeVisible();
   await expect(page.getByRole('button', { name: 'Send report' })).toHaveCount(0);
   expect(await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)).toBeLessThanOrEqual(0);
 
@@ -33,7 +33,7 @@ test('local API: scenario, risk, routes, and two simulated interventions', async
   await page.getByLabel('Route to evaluate').selectOption('R1');
   await page.getByRole('button', { name: 'Compare both actions' }).click();
   await expect(page.getByText(/D-01 ranks first because it lowers estimated exposure/)).toBeVisible();
-  await expect(page.getByText(/Not recalculated by the local API; only selected-route exposure is estimated/)).toBeVisible();
+  await expect(page.getByText(/Not recalculated by the fixture API; only selected-route exposure is estimated/)).toBeVisible();
   await expect(page.getByText('Simulated', { exact: true }).first()).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)).toBeLessThanOrEqual(0);
   expect(apiPaths).toEqual(expect.arrayContaining([

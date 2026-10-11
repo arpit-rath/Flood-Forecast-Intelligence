@@ -27,7 +27,19 @@ Copy `.env.example` to `.env.local`.
 | --- | --- | --- |
 | `VITE_USE_MOCKS` | `true` | `false` calls the API at `VITE_API_BASE_URL`; anything else uses local fixtures |
 | `VITE_API_BASE_URL` | empty | Deployed API base URL (API Gateway) |
-| `VITE_BASEMAP_STYLE_URL` | empty | Optional MapLibre style URL; leave empty while geometry is illustrative |
+| `VITE_DELHI_HYBRID_STYLE_URL` | empty | Public Amazon Location Service Hybrid style descriptor URL for the Delhi-only overview |
+
+The Map coverage switch in the resident and responder workspaces separates two views. **Pilot scenario** keeps the neutral-background synthetic DTU-area grid and all risk, route, report and drain features. **Delhi satellite overview** displays only the Amazon Location Hybrid basemap, with no pilot overlays or citywide flood assessment. The Scenario/Live weather strip and pilot decision cards are absent from the Delhi view. Its persistent label says “Delhi basemap · flood risk not assessed outside the pilot.” Imagery is geographic context, not current flood evidence. The Delhi view does not extend the pilot's analysis area or imply citywide forecasting.
+
+For Hybrid imagery, create an Amazon Location API key in the intended region, restrict it to **map-reading/rendering actions and the required map resource only**, and allow only approved website referrers (development and deployed domains). Then set the following in your ignored `frontend/.env.local` before starting Vite:
+
+```text
+VITE_DELHI_HYBRID_STYLE_URL=https://maps.geo.<region>.amazonaws.com/v2/styles/Hybrid/descriptor?key=<restricted-map-key>
+```
+
+This URL and key are public in the browser bundle and network requests, so a Location API key is **not** an AWS credential or a secret storage mechanism. Never commit a real key or `.env.local`; never grant Places, Routes, or write actions to this key. The frontend accepts only an HTTPS `maps.geo.<region>.amazonaws.com` Hybrid descriptor URL. With no key, an invalid URL, blocked tiles, or no WebGL, Delhi shows an explicit **basemap unavailable** state and a way back to the fully working pilot; it never renders the synthetic grid over Delhi streets. The former `VITE_BASEMAP_STYLE_URL` is intentionally no longer applied to the pilot, which always uses a neutral background.
+
+Reference: [Amazon Location map styles](https://docs.aws.amazon.com/location/latest/developerguide/map-styles.html), [display a map](https://docs.aws.amazon.com/location/latest/developerguide/how-to-display-a-map.html), and [API-key restrictions](https://docs.aws.amazon.com/location/latest/APIReference/API_geoapikeys_ApiKeyRestrictions.html).
 
 The browser never holds AWS credentials or Bedrock access. Operator authentication is expected to come from the API, not from frontend secrets.
 

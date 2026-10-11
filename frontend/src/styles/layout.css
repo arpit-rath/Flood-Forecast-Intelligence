@@ -28,6 +28,8 @@
   outline: none;
 }
 
+.app-main--delhi { display: flex; }
+
 /* ---------- Header ---------- */
 
 .app-header {
@@ -321,6 +323,56 @@
 }
 
 /* ---------- Resident view ---------- */
+
+.map-scope {
+  position: relative;
+  z-index: 4;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--v-space-2) var(--v-space-4);
+  padding: var(--v-space-2) var(--v-space-4);
+  background: var(--v-surface);
+  border-bottom: 1px solid var(--v-divider);
+}
+
+.map-scope__switch {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: var(--v-space-1);
+}
+
+.map-scope__switch button {
+  min-height: 44px;
+  padding: var(--v-space-2) var(--v-space-3);
+  border: 1px solid var(--v-input-border);
+  border-radius: var(--v-radius-sm);
+  background: var(--v-surface);
+  color: var(--v-text);
+  font: var(--v-type-detail);
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.map-scope__switch button[aria-pressed='true'] {
+  border-color: var(--v-action);
+  background: var(--v-action-tint);
+  color: var(--v-action-hover);
+}
+
+.map-scope__label {
+  flex: 1 1 300px;
+  min-width: 0;
+  font: var(--v-type-detail);
+  font-weight: 650;
+  color: var(--v-text);
+}
+
+@media (max-width: 639px) {
+  .map-scope { padding: var(--v-space-2) var(--v-space-3); }
+  .map-scope__switch { width: 100%; }
+  .map-scope__switch button { flex: 1 1 135px; }
+}
 
 .resident-layout {
   display: flex;
