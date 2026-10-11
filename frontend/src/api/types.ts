@@ -192,9 +192,9 @@ export interface Observation {
 }
 
 export interface ReportAnalysis {
-  status: 'pending' | 'complete' | 'failed';
+  status: 'pending' | 'complete' | 'failed' | 'not_configured';
   /** 'bedrock' for a real model call; 'fixture' for mock data. */
-  provider: 'bedrock' | 'fixture';
+  provider: 'bedrock' | 'fixture' | 'none';
   model: string | null;
   completedAt: ISOTime | null;
   failureReason: string | null;
@@ -222,15 +222,20 @@ export interface Report {
   modelConfidence: number | null;
   source: 'resident_upload' | 'fixture';
   review: ReportReview | null;
+  manualVisibleWater?: VisibleWater | null;
+  scenarioValidAt?: ISOTime | null;
+  expiresAt?: ISOTime;
 }
 
 export interface UploadUrlRequest {
   contentType: string;
   sizeBytes: number;
+  idempotencyKey: string;
 }
 
 export interface UploadUrlResponse {
   uploadUrl: string;
+  uploadFields: Record<string, string>;
   imageKey: string;
   expiresAt: ISOTime;
   maxBytes: number;
@@ -248,6 +253,7 @@ export interface CreateReportRequest {
 
 export interface ReviewRequest {
   decision: 'accept' | 'reject';
+  manualVisibleWater?: VisibleWater;
 }
 
 export interface ReviewResponse {

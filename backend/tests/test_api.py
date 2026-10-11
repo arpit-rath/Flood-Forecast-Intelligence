@@ -112,8 +112,8 @@ class ApiTests(unittest.TestCase):
         event["requestContext"]["http"]["method"] = "POST"
         event["body"] = json.dumps({"anything": "value"})
         write = lambda_handler(event, None)
-        self.assertEqual(501, write["statusCode"])
-        self.assertEqual("not_implemented", json.loads(write["body"])["error"]["code"])
+        self.assertEqual(403, write["statusCode"])
+        self.assertEqual("forbidden", json.loads(write["body"])["error"]["code"])
 
     def test_invalid_json_is_a_client_error(self) -> None:
         event = {"version": "2.0", "rawPath": "/v1/routes/compare",

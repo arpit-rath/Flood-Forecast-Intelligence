@@ -85,6 +85,10 @@ The first implementation may use a single `tokens.css`; keep the layer sections 
 
 Use a 4 px spacing base; common gaps are 8, 12, 16, 24, and 32 px. The content area is capped at 1440 px. Cards use 12 px radius and a 1 px border; use shadow only for floating map sheets. Buttons and inputs are at least 44 px high, and map controls have 44 × 44 px touch targets.
 
+## Current photo-report labels
+
+In HTTP mode, show a labelled sign-in/create-account action in Resident and Responder while Cognito public sign-up is enabled; switch to sign-in-only wording when it is disabled. Local development uses labelled account/password fields and deployed mode opens Cognito managed login. Explain that a new account can submit a pilot report but cannot open the private responder queue. Never ask users to paste a JWT. Show `Pending review` immediately after upload, `No automated observation` in the review card, and the responder's manual visible-water decision separately from mock fixture analysis. Show the private photo only to a responder with access; render no public map photo. An accepted manual observation is explicitly a replay in the synthetic DTU-area Scenario, never Live or Delhi-wide. Submission errors keep the file/note for retry and appear beside the field or as an alert. The Delhi Hybrid overview remains basemap-only regardless of report state.
+
 ## 5. Layouts
 
 ### Resident view

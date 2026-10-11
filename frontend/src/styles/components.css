@@ -872,6 +872,29 @@
 
 /* ---------- Report form ---------- */
 
+.sign-in-panel {
+  display: grid;
+  gap: var(--v-space-2);
+  min-width: 0;
+  max-width: 32rem;
+}
+
+.sign-in-panel form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: var(--v-space-2);
+}
+
+.sign-in-panel .field {
+  flex: 1 1 11rem;
+  min-width: 0;
+}
+
+.sign-in-panel input {
+  width: 100%;
+}
+
 .report-flow {
   display: grid;
   gap: var(--v-space-3);
@@ -1059,10 +1082,17 @@
 }
 
 .review-card__image img {
+  display: block;
   width: 100%;
+  max-width: 100%;
   max-height: 260px;
   object-fit: cover;
   border-radius: var(--v-radius-sm);
+}
+
+.review-card {
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .review-card__image--empty {

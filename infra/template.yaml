@@ -1,17 +1,32 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
-Description: Varuna deterministic scenario API (synthetic fixture, read-only deployment)
+Description: Varuna synthetic Scenario API with private pilot photo reports and manual review
 
 Parameters:
   AllowedOrigin:
     Type: String
     Default: http://localhost:5173
     Description: Exact frontend origin allowed to call the API
+  CognitoJwtIssuer:
+    Type: String
+    Description: Cognito user-pool issuer URL (https://cognito-idp.REGION.amazonaws.com/POOL_ID)
+  CognitoJwtAudience:
+    Type: String
+    Description: Cognito app-client ID expected in signed-in access JWTs
 
 Resources:
   VarunaHttpApi:
     Type: AWS::Serverless::HttpApi
     Properties:
+      FailOnWarnings: true
+      Auth:
+        Authorizers:
+          CognitoAccessJwt:
+            JwtConfiguration:
+              issuer: !Ref CognitoJwtIssuer
+              audience:
+                - !Ref CognitoJwtAudience
+            IdentitySource: $request.header.Authorization
       DefaultRouteSettings:
         ThrottlingBurstLimit: 10
         ThrottlingRateLimit: 2
@@ -21,10 +36,69 @@ Resources:
         AllowMethods:
           - GET
           - POST
+          - PATCH
           - OPTIONS
         AllowHeaders:
           - content-type
+          - authorization
         MaxAge: 300
+
+  VarunaPrivatePhotos:
+    Type: AWS::S3::Bucket
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        IgnorePublicAcls: true
+        BlockPublicPolicy: true
+        RestrictPublicBuckets: true
+      OwnershipControls:
+        Rules:
+          - ObjectOwnership: BucketOwnerEnforced
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+      CorsConfiguration:
+        CorsRules:
+          - AllowedOrigins:
+              - !Ref AllowedOrigin
+            AllowedMethods:
+              - POST
+              - GET
+              - HEAD
+            AllowedHeaders:
+              - content-type
+            MaxAge: 300
+      LifecycleConfiguration:
+        Rules:
+          - Id: ExpireRawUploads
+            Status: Enabled
+            Prefix: uploads/
+            ExpirationInDays: 1
+          - Id: ExpireReviewPhotos
+            Status: Enabled
+            Prefix: review/
+            ExpirationInDays: 7
+
+  VarunaReports:
+    Type: AWS::DynamoDB::Table
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: id
+          AttributeType: S
+      KeySchema:
+        - AttributeName: id
+          KeyType: HASH
+      SSESpecification:
+        SSEEnabled: true
+      TimeToLiveSpecification:
+        AttributeName: expiresAtEpoch
+        Enabled: true
 
   VarunaFixtureApi:
     Type: AWS::Serverless::Function
@@ -34,10 +108,32 @@ Resources:
       CodeUri: .lambda-package/
       MemorySize: 256
       Timeout: 10
-      Description: Synthetic fixture only; all report and closure writes disabled
+      Description: Synthetic Scenario API; private photo reports and manual review, no Live feed
       Environment:
         Variables:
           VARUNA_CORS_ORIGIN: !Ref AllowedOrigin
+          VARUNA_REPORTS_TABLE: !Ref VarunaReports
+          VARUNA_MEDIA_BUCKET: !Ref VarunaPrivatePhotos
+      Policies:
+        - Statement:
+            - Effect: Allow
+              Action:
+                - dynamodb:GetItem
+                - dynamodb:PutItem
+                - dynamodb:UpdateItem
+                - dynamodb:Scan
+              Resource: !GetAtt VarunaReports.Arn
+            - Effect: Allow
+              Action:
+                - s3:GetObject
+                - s3:PutObject
+                - s3:DeleteObject
+              Resource: !Sub ${VarunaPrivatePhotos.Arn}/uploads/*
+            - Effect: Allow
+              Action:
+                - s3:GetObject
+                - s3:PutObject
+              Resource: !Sub ${VarunaPrivatePhotos.Arn}/review/*
       Events:
         Proxy:
           Type: HttpApi
@@ -45,8 +141,67 @@ Resources:
             ApiId: !Ref VarunaHttpApi
             Path: /{proxy+}
             Method: ANY
+        ProtectedUploadRequest:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref VarunaHttpApi
+            Path: /v1/reports/upload-url
+            Method: POST
+            RouteSettings:
+              ThrottlingBurstLimit: 2
+              ThrottlingRateLimit: 0.5
+            Auth:
+              Authorizer: CognitoAccessJwt
+              AuthorizationScopes:
+                - openid
+        ProtectedReportCreate:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref VarunaHttpApi
+            Path: /v1/reports
+            Method: POST
+            Auth:
+              Authorizer: CognitoAccessJwt
+              AuthorizationScopes:
+                - openid
+        ProtectedReportList:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref VarunaHttpApi
+            Path: /v1/reports
+            Method: GET
+            Auth:
+              Authorizer: CognitoAccessJwt
+              AuthorizationScopes:
+                - openid
+        ProtectedReportDetail:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref VarunaHttpApi
+            Path: /v1/reports/{id}
+            Method: GET
+            Auth:
+              Authorizer: CognitoAccessJwt
+              AuthorizationScopes:
+                - openid
+        ProtectedReportReview:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref VarunaHttpApi
+            Path: /v1/reports/{id}/review
+            Method: PATCH
+            Auth:
+              Authorizer: CognitoAccessJwt
+              AuthorizationScopes:
+                - openid
 
 Outputs:
   ApiBaseUrl:
     Description: API base URL; responses explicitly identify synthetic Scenario mode
     Value: !Sub https://${VarunaHttpApi}.execute-api.${AWS::Region}.amazonaws.com
+  PrivatePhotoBucket:
+    Description: Private report-photo bucket; do not make public
+    Value: !Ref VarunaPrivatePhotos
+  ReportsTable:
+    Description: Durable report metadata table
+    Value: !Ref VarunaReports

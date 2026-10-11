@@ -101,6 +101,9 @@ export function createMockApi(options: MockApiOptions = {}): VarunaApi {
 
   return {
     kind: 'mock',
+    authMode: 'mock',
+    setAccessToken() {},
+    async signInLocal() { throw new Error('Local sign-in is unavailable in mock mode.'); },
 
     getPilot: () => delay(pilot),
 
@@ -132,6 +135,7 @@ export function createMockApi(options: MockApiOptions = {}): VarunaApi {
       const imageKey = `mock-uploads/${crypto.randomUUID()}`;
       return delay({
         uploadUrl: `mock://upload/${imageKey}`,
+        uploadFields: {},
         imageKey,
         expiresAt: new Date(now().getTime() + 5 * 60_000).toISOString(),
         maxBytes,

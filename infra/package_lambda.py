@@ -14,9 +14,11 @@ SOURCE_PATHS = (
     "backend/varuna/interventions.py",
     "backend/varuna/models.py",
     "backend/varuna/risk.py",
+    "backend/varuna/reporting.py",
     "backend/varuna/routing.py",
     "backend/varuna/service.py",
     "data/fixture/scenario.json",
+    "requirements.txt",
 )
 SOURCES = tuple(ROOT / path for path in SOURCE_PATHS)
 

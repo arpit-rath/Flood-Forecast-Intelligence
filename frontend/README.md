@@ -15,7 +15,7 @@ npm run fixtures   # regenerate mock fixture JSON
 npm run test:e2e   # Playwright: landing and both core flows at 360 px and 1280 px
 ```
 
-`test:e2e` uses the locally installed Microsoft Edge (`PW_CHANNEL=chrome` for Chrome) and starts the dev server itself. In mock mode it covers the landing page, the resident and responder fixture flows, the redesigned navigation, and an axe-core WCAG scan of each view, at 360 px and 1280 px. With `VITE_USE_MOCKS=false`, it also starts the local Python API and tests the real HTTP scenario, routes, interventions, unavailable reports, and unavailable Live weather. To test the production build, run `npm run build && npx vite preview --port 5173` in another terminal first; the tests reuse a running server. If another checkout already serves port 5173, set `PW_PORT` (for example `PW_PORT=5174`) so the tests start and use their own server. The local API only allows the origin `http://localhost:5173`, so run HTTP-mode tests on that port.
+`test:e2e` uses the locally installed Microsoft Edge (`PW_CHANNEL=chrome` for Chrome) and starts the dev server itself. In mock mode it covers landing, resident/responder fixture flows, navigation and accessibility at 360 px and 1280 px. With `VITE_USE_MOCKS=false`, it starts the local Python API and tests Scenario/routing/interventions plus private photo submission and human review. Live remains unavailable. If another checkout already serves port 5173, stop it for HTTP-mode tests; the local API allows only `http://localhost:5173`. Automated map tests do not make real tile requests.
 
 Views: `#/` (landing), `#/resident` and `#/responder`. Add `?map=static` before the hash (for example `/?map=static#/resident`) to see the static SVG fallback that replaces the interactive map when WebGL or the map style is unavailable.
 
@@ -28,6 +28,11 @@ Copy `.env.example` to `.env.local`.
 | `VITE_USE_MOCKS` | `true` | `false` calls the API at `VITE_API_BASE_URL`; anything else uses local fixtures |
 | `VITE_API_BASE_URL` | empty | Deployed API base URL (API Gateway) |
 | `VITE_DELHI_HYBRID_STYLE_URL` | empty | Public Amazon Location Service Hybrid style descriptor URL for the Delhi-only overview |
+| `VITE_COGNITO_DOMAIN` | empty | HTTPS Cognito managed-login origin for deployed sign-in |
+| `VITE_COGNITO_CLIENT_ID` | empty | Public browser app-client ID, never a client secret |
+| `VITE_COGNITO_REDIRECT_URI` | current site root | Exact Cognito allowed callback URL, without a fragment |
+| `VITE_PUBLIC_SIGNUP_ENABLED` | `true` | Public UI wording only; set `false` and rebuild when Cognito self-sign-up is disabled |
+| `VITE_LOCAL_AUTH` | `false` | Enable loopback-only demo sign-in when using the local Python API |
 
 The Map coverage switch in the resident and responder workspaces separates two views. **Pilot scenario** keeps the neutral-background synthetic DTU-area grid and all risk, route, report and drain features. **Delhi satellite overview** displays only the Amazon Location Hybrid basemap, with no pilot overlays or citywide flood assessment. The Scenario/Live weather strip and pilot decision cards are absent from the Delhi view. Its persistent label says “Delhi basemap · flood risk not assessed outside the pilot.” Imagery is geographic context, not current flood evidence. The Delhi view does not extend the pilot's analysis area or imply citywide forecasting.
 
@@ -41,15 +46,22 @@ This URL and key are public in the browser bundle and network requests, so a Loc
 
 Reference: [Amazon Location map styles](https://docs.aws.amazon.com/location/latest/developerguide/map-styles.html), [display a map](https://docs.aws.amazon.com/location/latest/developerguide/how-to-display-a-map.html), and [API-key restrictions](https://docs.aws.amazon.com/location/latest/APIReference/API_geoapikeys_ApiKeyRestrictions.html).
 
-The browser never holds AWS credentials or Bedrock access. Operator authentication is expected to come from the API, not from frontend secrets.
+The browser never holds AWS credentials or Bedrock access. In deployed HTTP mode, Resident and Responder use Cognito managed login with authorization-code/PKCE. The managed login offers “Create an account” while temporary hackathon self-sign-up is enabled; the site uses the same sign-in action for both flows. After the event, disable Cognito self-sign-up, set `VITE_PUBLIC_SIGNUP_ENABLED=false` and rebuild/release the frontend so it advertises sign-in only; this flag does not enforce account policy. The access token is kept only in page memory, sent on protected report requests, and cleared on sign-out or expiry; refreshing the page requires signing in again. A new account has resident-level submission access, not review access. Any signed-in user can submit a Pending Review report; only administrator-assigned `varuna-responder` members can list, view, accept or reject private reports. The backend, not the browser's displayed role, enforces this. Do not put a Cognito client secret in frontend configuration.
 
 ## Local API mode
 
-From the repository root, start `python -m backend.varuna.local_server`. Then start the frontend with `VITE_USE_MOCKS=false` and `VITE_API_BASE_URL=http://127.0.0.1:8000` (or set these in `frontend/.env.local`). If no URL is supplied in HTTP mode, the client defaults to that local address; it never silently falls back to mock data.
+For loopback development, configure throwaway users in `VARUNA_LOCAL_USERS_JSON`, then start `python -m backend.varuna.local_server`. Start the frontend with `VITE_USE_MOCKS=false`, `VITE_LOCAL_AUTH=true`, and `VITE_API_BASE_URL=http://127.0.0.1:8000` (or set these in ignored `frontend/.env.local`). Use the sign-in form in Resident or Responder; do not paste a JWT. The local-only endpoint returns a 30-minute opaque session, never Cognito credentials. It is absent from Lambda and the server refuses non-loopback binding. If no URL is supplied in HTTP mode, the client defaults to that local address; it never silently falls back to mock data. Local reports, sessions and photos reset on restart.
+
+PowerShell example for the API terminal (use throwaway local-only passwords and never commit them):
+
+```powershell
+$env:VARUNA_LOCAL_USERS_JSON = '{"resident":{"password":"change-resident-password","sub":"local-resident","groups":[]},"responder":{"password":"change-responder-password","sub":"local-responder","groups":["varuna-responder"]}}'
+python -m backend.varuna.local_server
+```
 
 The HTTP adapter follows [`contracts/types.ts`](../contracts/types.ts) and [`contracts/README.md`](../contracts/README.md). It maps the backend's two default pilot nodes to the route controls and translates wire states for display. Risk scores, route exposures, and drain rankings come only from the backend. The displayed drain points are illustrative positions derived from affected segments because the fixture wire contract has no drain coordinates.
 
-Photo upload, report submission, and persistent review are unavailable in this API mode, and the UI says so. `Live` returns an unavailable state. The intervention API recalculates exposure on the selected route, but not post-action route advice; the UI leaves that field explicitly unavailable rather than borrowing a mock result. The backend data is synthetic Scenario data, not live AWS output.
+Resident and Responder can submit a JPEG/PNG/WebP photo (up to 8 MB) for a synthetic pilot road after sign-in. Upload uses signed multipart POST; S3 enforces the 8-MB bound and the backend checks size, type and decoding again. A new report is `Pending Review`, with no AI analysis or risk effect. A responder views the private, metadata-stripped photo and manually chooses visible water before accepting or rejecting. Acceptance replays evidence at the historical Scenario timestamp and refreshes the risk/route comparison; it does **not** describe current Delhi conditions. Pilot upload metadata and review photos expire after seven days; expired records are hidden while background deletion catches up. In deployed mode, S3 and DynamoDB are durable, but this code is not deployed by local tests. `Live` is unavailable. Post-intervention route advice remains unavailable; no mock result is borrowed.
 
 ## Mock mode
 
@@ -90,6 +102,8 @@ scripts/        fixture authoring
 - **Simulation scope.** A drain simulation preview colours the map in the responder console only; the resident map always shows the current estimate.
 
 ## Contract status
+
+The following list is a historical integration checklist. Report detail and the private `imageUrl` are now implemented; the HTTP adapter also represents `analysis.provider: none` truthfully. The remaining route-place and confidence items are view-model adaptations for the fixture wire API.
 
 `src/api/types.ts` defines view models for both the mock and real modes; `src/api/wireAdapter.ts` translates the real responses from the published contract. Fields the fixture backend does not supply are not represented as backend results. Further backend decisions are still needed for:
 

@@ -19,6 +19,9 @@ import type {
 export interface VarunaApi {
   /** 'mock' responses come from local fixtures, never from AWS. */
   readonly kind: 'mock' | 'http';
+  readonly authMode: 'mock' | 'cognito' | 'local' | 'unavailable';
+  setAccessToken(token: string): void;
+  signInLocal(username: string, password: string): Promise<{ accessToken: string; expiresAt: string; displayName: string; roles: string[] }>;
   getPilot(): Promise<PilotResponse>;
   getCurrentSnapshot(mode: WeatherMode): Promise<RiskSnapshotResponse>;
   listReports(): Promise<Report[]>;

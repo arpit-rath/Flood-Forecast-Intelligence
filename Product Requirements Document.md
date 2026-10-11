@@ -36,6 +36,10 @@ The MVP succeeds when a judge can use one coherent scenario to see:
 
 **Build targets, not validated impact claims:** first map under 3 seconds on a normal connection; risk recalculation under 5 seconds for the pilot graph; route comparison under 8 seconds when its provider responds; one complete scenario replay without manual database edits. Measure these locally and report actual results.
 
+## Current photo-report implementation boundary
+
+FR-03 has private photo upload and durable report metadata in the SAM design, with local in-memory equivalents. During the hackathon, Cognito public self-sign-up is enabled: newly registered accounts have resident-level report-submission access only; only administrator-assigned `varuna-responder` members can list, view, accept, or reject reports. S3 enforces an 8 MB POST upload limit, with server-side file checks. New reports remain `Pending Review` and cannot change risk. A responder manually selects visible water before acceptance; acceptance replays that observation at the historical Scenario timestamp while retaining actual upload/capture timestamps. Pilot uploaded photos and metadata expire after seven days and disappear from review/risk when expired, even before background deletion. This is neither Live evidence nor a Delhi-street assessment. FR-04's Bedrock interpretation remains planned, not implemented or claimed; mock observations remain explicitly mock. No public photo display, automated closure, or dispatch is implemented. The original P0 table and demo story below describe the intended product, not a claim that all services are deployed.
+
 ## 4. MVP scope and priority
 
 | ID | Priority | Requirement | Acceptance condition |

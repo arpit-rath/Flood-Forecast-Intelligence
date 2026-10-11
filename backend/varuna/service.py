@@ -35,6 +35,10 @@ class VarunaService:
             "synthetic": True,
         }
 
+    def sync_uploaded_reports(self, reports: list[Report]) -> None:
+        self.reports = {report.id: report for report in self.fixture.reports}
+        self.reports.update({report.id: report for report in reports})
+
     def snapshot(self, mode: str = "Scenario") -> dict[str, Any]:
         if mode != "Scenario":
             raise ModeUnavailableError("Live weather is not configured in fixture mode")

@@ -39,6 +39,14 @@ export interface Report {
   observations: VisualObservations | Record<string, never>;
   modelConfidence: number | null;
   source: string;
+  note?: string;
+  imageUrl?: string | null;
+  review?: { decision: "accept" | "reject"; reviewedAt: string; reviewer: string } | null;
+  analysis?: { status: "pending" | "complete" | "failed" | "not_configured"; provider: "fixture" | "none" | "bedrock"; model: string | null; completedAt: string | null; failureReason: string | null };
+  manualVisibleWater?: "none" | "possible" | "clear" | "uncertain" | null;
+  scenarioValidAt?: string | null;
+  /** Pilot uploads expire seven days after submission; fixture examples have no expiry. */
+  expiresAt?: string;
 }
 
 export interface DrainCandidate {

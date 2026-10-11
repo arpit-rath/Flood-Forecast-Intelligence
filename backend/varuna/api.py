@@ -8,6 +8,7 @@ from dataclasses import dataclass
 from typing import Any
 
 from .models import Report
+from .reporting import DynamoReportStore, PhotoMissing, ReportConflict, ReportWorkflow, S3Media
 from .service import ModeUnavailableError, SnapshotConflictError, VarunaService
 
 
@@ -25,7 +26,12 @@ def _required_string(body: dict[str, Any], key: str) -> str:
     return value
 
 
-def _authorized(headers: dict[str, str], operator_token: str | None) -> bool:
+def _authorized(headers: dict[str, str], operator_token: str | None, claims: dict[str, Any] | None = None) -> bool:
+    if claims:
+        groups = claims.get("cognito:groups", "")
+        if isinstance(groups, str):
+            groups = groups.strip("[]").replace('"', '').split(",")
+        return _authenticated(claims) and "varuna-responder" in [str(group).strip() for group in groups]
     if not operator_token:
         return False
     from hmac import compare_digest
@@ -33,21 +39,28 @@ def _authorized(headers: dict[str, str], operator_token: str | None) -> bool:
     return compare_digest(headers.get("authorization", ""), f"Bearer {operator_token}")
 
 
+def _authenticated(claims: dict[str, Any] | None) -> bool:
+    # In Lambda, API Gateway validates signature, issuer, audience, expiry and
+    # route scope before placing claims here. The local adapter uses opaque sessions.
+    return bool(claims and claims.get("token_use") == "access" and isinstance(claims.get("sub"), str) and claims["sub"])
+
+
 def dispatch(
     service: VarunaService, method: str, path: str, *,
     query: dict[str, str] | None = None, body: dict[str, Any] | None = None,
     headers: dict[str, str] | None = None, request_id: str = "local",
     allow_local_mutations: bool = False, operator_token: str | None = None,
+    operator_claims: dict[str, Any] | None = None, reporting: ReportWorkflow | None = None,
     cors_origin: str = "http://localhost:5173",
 ) -> ApiResponse:
-    """Handle one request. Mutations are local-only until durable auth/storage exist."""
+    """Handle one request; deployed report operations use durable storage and JWT claims."""
     query = query or {}
     body = {} if body is None else body
     headers = {key.lower(): value for key, value in (headers or {}).items()}
     response_headers = {
         "content-type": "application/json; charset=utf-8",
         "access-control-allow-origin": cors_origin,
-        "access-control-allow-methods": "GET,POST,PATCH,OPTIONS",
+        "access-control-allow-methods": "GET,POST,PATCH,PUT,OPTIONS",
         "access-control-allow-headers": "content-type,authorization",
         "vary": "Origin",
     }
@@ -63,6 +76,11 @@ def dispatch(
     if not isinstance(body, dict):
         return error(400, "invalid_body", "JSON body must be an object")
     try:
+        if reporting and (
+            (method == "GET" and path == "/v1/snapshots/current")
+            or (method == "POST" and path in ("/v1/routes/compare", "/v1/interventions/compare"))
+        ):
+            reporting.sync()
         if method == "GET" and path == "/health":
             return respond(200, {"status": "ok", "mode": "fixture", "synthetic": True})
         if method == "GET" and path == "/v1/pilot":
@@ -73,9 +91,19 @@ def dispatch(
                 raise ValueError("mode must be Scenario or Live")
             return respond(200, service.snapshot(mode))
         if method == "GET" and path == "/v1/reports":
-            if not allow_local_mutations or not _authorized(headers, operator_token):
+            if not (_authorized(headers, None, operator_claims) if reporting else _authorized(headers, operator_token, operator_claims)):
                 return error(403, "forbidden", "operator access is required")
+            if reporting:
+                return respond(200, {"reports": reporting.list()})
+            if not allow_local_mutations:
+                return error(501, "not_implemented", "Report storage is not configured")
             return respond(200, {"reports": [item.as_dict() for item in sorted(service.reports.values(), key=lambda report: report.id)]})
+        if method == "GET" and path.startswith("/v1/reports/") and path.count("/") == 3:
+            if not _authorized(headers, None, operator_claims):
+                return error(403, "forbidden", "operator access is required")
+            if not reporting:
+                return error(501, "not_implemented", "Report storage is not configured")
+            return respond(200, reporting.get(path.rsplit("/", 1)[-1], with_photo=True))
         if method == "POST" and path == "/v1/routes/compare":
             return respond(200, service.routes(
                 _required_string(body, "originNodeId"), _required_string(body, "destinationNodeId"),
@@ -92,22 +120,34 @@ def dispatch(
                 _required_string(body, "selectedRouteId"),
             ))
         if path == "/v1/reports/upload-url" and method == "POST":
+            if not _authenticated(operator_claims):
+                return error(403, "forbidden", "sign-in is required to submit a report")
+            if reporting:
+                return respond(200, reporting.prepare_upload(body, operator_claims["sub"]))
             return error(501, "not_implemented", "Fixture mode has no media upload service")
         if method == "POST" and path == "/v1/reports":
+            if not _authenticated(operator_claims):
+                return error(403, "forbidden", "sign-in is required to submit a report")
+            if reporting:
+                return respond(201, reporting.create(body, operator_claims["sub"]))
             if not allow_local_mutations:
                 return error(501, "not_implemented", "Report persistence is not configured")
             report = service.add_pending_report(Report.from_dict(body))
             return respond(201, report.as_dict())
         if method == "PATCH" and path.startswith("/v1/reports/") and path.endswith("/review"):
-            if not allow_local_mutations or not _authorized(headers, operator_token):
+            if not (_authorized(headers, None, operator_claims) if reporting else _authorized(headers, operator_token, operator_claims)):
                 return error(403, "forbidden", "operator access is required")
             report_id = path[len("/v1/reports/"):-len("/review")].strip("/")
             if not report_id or "/" in report_id:
                 raise ValueError("invalid report ID")
+            if reporting:
+                return respond(200, reporting.review(report_id, body, str((operator_claims or {}).get("sub") or "Local responder")))
+            if not allow_local_mutations:
+                return error(501, "not_implemented", "Report storage is not configured")
             report = service.set_report_status(report_id, _required_string(body, "reviewStatus"))
             return respond(200, report.as_dict())
         if method == "PATCH" and path.startswith("/v1/segments/") and path.endswith("/closure"):
-            if not allow_local_mutations or not _authorized(headers, operator_token):
+            if not allow_local_mutations or not _authorized(headers, operator_token, operator_claims):
                 return error(403, "forbidden", "operator access is required")
             segment_id = path[len("/v1/segments/"):-len("/closure")].strip("/")
             if not segment_id or "/" in segment_id or not isinstance(body.get("closed"), bool):
@@ -119,6 +159,10 @@ def dispatch(
         return error(503, "mode_unavailable", str(exc), True)
     except SnapshotConflictError as exc:
         return error(409, "stale_snapshot", str(exc), True)
+    except ReportConflict as exc:
+        return error(409, "report_conflict", str(exc))
+    except PhotoMissing as exc:
+        return error(404, "photo_missing", str(exc))
     except KeyError:
         return error(404, "not_found", "resource not found")
     except ValueError as exc:
@@ -126,7 +170,7 @@ def dispatch(
 
 
 def lambda_handler(event: dict[str, Any], context: Any) -> dict[str, Any]:
-    """AWS HTTP API v2 entry point; fixture deployment is deliberately read-only."""
+    """AWS HTTP API v2 entry point; protected routes require validated JWT claims."""
     request = event.get("requestContext") or {}
     http = request.get("http") or {}
     method = http.get("method", event.get("httpMethod", "GET"))
@@ -142,6 +186,8 @@ def lambda_handler(event: dict[str, Any], context: Any) -> dict[str, Any]:
         body=parsed_body, headers=event.get("headers") or {},
         request_id=request.get("requestId", "unknown"),
         allow_local_mutations=False,
+        operator_claims=((request.get("authorizer") or {}).get("jwt") or {}).get("claims"),
+        reporting=_LAMBDA_REPORTING,
         cors_origin=os.environ.get("VARUNA_CORS_ORIGIN", "http://localhost:5173"),
     )
     return {
@@ -151,3 +197,7 @@ def lambda_handler(event: dict[str, Any], context: Any) -> dict[str, Any]:
 
 
 _LAMBDA_SERVICE = VarunaService()
+_LAMBDA_REPORTING = (
+    ReportWorkflow(_LAMBDA_SERVICE, DynamoReportStore(os.environ["VARUNA_REPORTS_TABLE"]), S3Media(os.environ["VARUNA_MEDIA_BUCKET"]))
+    if os.environ.get("VARUNA_REPORTS_TABLE") and os.environ.get("VARUNA_MEDIA_BUCKET") else None
+)

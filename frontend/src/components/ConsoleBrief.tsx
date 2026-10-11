@@ -21,10 +21,10 @@ export function ConsoleBrief({
   onOpenSegment: (id: string) => void;
   onOpenSimulation: () => void;
 }) {
-  const { reports, snapshot, segmentsById } = useAppState();
+  const { api, reports, snapshot, segmentsById } = useAppState();
   const list = 'data' in reports && reports.data ? reports.data : [];
   const awaiting = list
-    .filter((r) => r.reviewStatus === 'pending_review' || r.reviewStatus === 'needs_manual_review')
+    .filter((r) => (api.kind !== 'http' || r.source !== 'fixture') && (r.reviewStatus === 'pending_review' || r.reviewStatus === 'needs_manual_review'))
     .sort((a, b) => a.createdAt.localeCompare(b.createdAt));
   const next = awaiting[0];
 

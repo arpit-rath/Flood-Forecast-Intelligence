@@ -15,7 +15,14 @@
     "reviewStatus": {"enum": ["Pending Review", "Accepted", "Rejected", "Needs Manual Review"]},
     "observations": {"oneOf": [{"type": "object", "maxProperties": 0}, {"$ref": "#/$defs/observation"}]},
     "modelConfidence": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
-    "source": {"type": "string", "minLength": 1}
+    "source": {"type": "string", "minLength": 1},
+    "note": {"type": "string", "maxLength": 280},
+    "imageUrl": {"type": ["string", "null"]},
+    "review": {"oneOf": [{"type": "null"}, {"type": "object", "additionalProperties": false, "required": ["decision", "reviewedAt", "reviewer"], "properties": {"decision": {"enum": ["accept", "reject"]}, "reviewedAt": {"type": "string", "format": "date-time"}, "reviewer": {"type": "string"}}}]},
+    "analysis": {"type": "object", "additionalProperties": false, "required": ["status", "provider", "model", "completedAt", "failureReason"], "properties": {"status": {"enum": ["pending", "complete", "failed", "not_configured"]}, "provider": {"enum": ["fixture", "none", "bedrock"]}, "model": {"type": ["string", "null"]}, "completedAt": {"type": ["string", "null"], "format": "date-time"}, "failureReason": {"type": ["string", "null"]}}},
+    "manualVisibleWater": {"enum": ["none", "possible", "clear", "uncertain", null]},
+    "scenarioValidAt": {"type": ["string", "null"], "format": "date-time"},
+    "expiresAt": {"type": "string", "format": "date-time"}
   },
   "$defs": {
     "observation": {

@@ -4,6 +4,8 @@ import { ConsoleBrief } from '../components/ConsoleBrief';
 import { InterventionPanel } from '../components/InterventionPanel';
 import { MapView } from '../components/MapView';
 import { ReportQueue, ReportReviewCard } from '../components/ReportReview';
+import { ReportForm } from '../components/ReportForm';
+import { SignInPanel } from '../components/SignInPanel';
 import { SegmentCard } from '../components/SegmentCard';
 import { SegmentQueue } from '../components/SegmentQueue';
 import { TabPanel, Tabs } from '../components/Tabs';
@@ -71,7 +73,7 @@ export function ResponderView() {
 
   const awaiting =
     'data' in reports && reports.data
-      ? reports.data.filter((r) => ['pending_review', 'needs_manual_review', 'analysis_pending'].includes(r.reviewStatus)).length
+      ? reports.data.filter((r) => (api.kind !== 'http' || r.source !== 'fixture') && ['pending_review', 'needs_manual_review', 'analysis_pending'].includes(r.reviewStatus)).length
       : 0;
 
   const queue = (
@@ -105,6 +107,7 @@ export function ResponderView() {
         tabs={[
           { id: 'detail', label: 'Selected' },
           { id: 'simulate', label: 'Drain action' },
+          { id: 'report', label: 'New report' },
         ]}
         active={drawerTab}
         onChange={setDrawerTab}
@@ -125,6 +128,9 @@ export function ResponderView() {
       <TabPanel idPrefix="drawer" id="simulate" active={drawerTab === 'simulate'}>
         <InterventionPanel />
       </TabPanel>
+      <TabPanel idPrefix="drawer" id="report" active={drawerTab === 'report'}>
+        <ReportForm />
+      </TabPanel>
     </div>
   );
 
@@ -133,8 +139,9 @@ export function ResponderView() {
       <p className="console-bar__title">Responder console</p>
       <span className="operator-chip">
         <UserCheck aria-hidden="true" size={16} />
-        {api.kind === 'mock' ? 'Demo operator (mock session)' : 'Responder view (read-only reports)'}
+        {api.kind === 'mock' ? 'Demo operator (mock session)' : 'Responder access required for private photos and review'}
       </span>
+      {api.kind === 'http' && <SignInPanel responderOnly />}
       <p className="console-bar__note">
         <ShieldAlert aria-hidden="true" size={16} /> Advisory only: nothing is closed, sent or dispatched.
       </p>
