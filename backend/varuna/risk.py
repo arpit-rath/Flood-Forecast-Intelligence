@@ -27,6 +27,8 @@ def class_for(score: float | None) -> str:
 
 
 def _report_signal(report: Report) -> float | None:
+    if report.manual_visible_water is not None:
+        return {"none": 0.0, "possible": 0.5, "clear": 0.9}.get(report.manual_visible_water)
     water = report.observations.get("visible_water")
     base = {"none": 0.0, "possible": 0.5, "clear": 0.9}.get(water)
     if base is None:
@@ -49,7 +51,9 @@ def _observations(
     for report in reports:
         if report.review_status != "Accepted" or report.segment_id not in by_id:
             continue
-        captured = utc_time(report.captured_at or report.created_at)
+        # A newly reviewed photo can be replayed at the historical Scenario
+        # valid time, while its real capture/upload time remains unchanged.
+        captured = utc_time(report.scenario_valid_at or report.captured_at or report.created_at)
         if captured > now or now - captured > REPORT_MAX_AGE:
             stale_report_segments.add(report.segment_id)
             continue

@@ -16,6 +16,10 @@ This file specifies both the AI actors inside Varuna and the rules for coding ag
 
 The UI should never imply that an AI agent has authority to close a road, send an alert, or dispatch a team. Only the authenticated responder can accept evidence or mark a closure, and the MVP does not initiate emergency operations.
 
+## Current report implementation
+
+The Observation Agent below is planned, not active in the photo-report slice. HTTP mode runs no AI image analysis. A human responder reviews the private, metadata-stripped photo and selects `none`, `possible`, `clear`, or `uncertain` visible water before accepting it. Pending Review and Rejected reports cannot enter risk. Accepted manual evidence is replayed only in the historical synthetic Scenario; actual upload time remains recorded. Mock fixture output remains labelled as a fixture response, not a model call. No agent infers depth, Live conditions, or Delhi-wide risk from this report.
+
 ## 2. Observation Agent
 
 **Trigger:** New report image has uploaded successfully.  

@@ -4,10 +4,15 @@ from __future__ import annotations
 
 import json
 import os
+import re
 from dataclasses import dataclass
 from typing import Any
 
 from .models import Report
+from .reporting import DynamoReportStore, PhotoMissing, ReportConflict, ReportWorkflow, S3Media
+from .real_roads import DynamoRealRoadStore, RealRoadWorkflow, RoadSnapshot, UploadLimit
+from .road_alerts import AlertConflict, RoadAlertWorkflow
+from .traffic_ingest import DynamoRoadAlertStore
 from .service import ModeUnavailableError, SnapshotConflictError, VarunaService
 
 
@@ -25,7 +30,12 @@ def _required_string(body: dict[str, Any], key: str) -> str:
     return value
 
 
-def _authorized(headers: dict[str, str], operator_token: str | None) -> bool:
+def _authorized(headers: dict[str, str], operator_token: str | None, claims: dict[str, Any] | None = None) -> bool:
+    if claims:
+        groups = claims.get("cognito:groups", "")
+        if isinstance(groups, str):
+            groups = groups.strip("[]").replace('"', '').split(",")
+        return _authenticated(claims) and "varuna-responder" in [str(group).strip() for group in groups]
     if not operator_token:
         return False
     from hmac import compare_digest
@@ -33,24 +43,38 @@ def _authorized(headers: dict[str, str], operator_token: str | None) -> bool:
     return compare_digest(headers.get("authorization", ""), f"Bearer {operator_token}")
 
 
+def _authenticated(claims: dict[str, Any] | None) -> bool:
+    # In Lambda, API Gateway validates signature, issuer, audience, expiry and
+    # route scope before placing claims here. The local adapter uses opaque sessions.
+    return bool(claims and claims.get("token_use") == "access" and isinstance(claims.get("sub"), str) and claims["sub"])
+
+
 def dispatch(
     service: VarunaService, method: str, path: str, *,
     query: dict[str, str] | None = None, body: dict[str, Any] | None = None,
     headers: dict[str, str] | None = None, request_id: str = "local",
     allow_local_mutations: bool = False, operator_token: str | None = None,
+    operator_claims: dict[str, Any] | None = None, reporting: ReportWorkflow | None = None,
+    real_roads: RealRoadWorkflow | None = None,
+    road_alerts: RoadAlertWorkflow | None = None,
     cors_origin: str = "http://localhost:5173",
+    cors_preview_origin: str | None = None,
 ) -> ApiResponse:
-    """Handle one request. Mutations are local-only until durable auth/storage exist."""
+    """Handle one request; deployed report operations use durable storage and JWT claims."""
     query = query or {}
     body = {} if body is None else body
     headers = {key.lower(): value for key, value in (headers or {}).items()}
     response_headers = {
         "content-type": "application/json; charset=utf-8",
-        "access-control-allow-origin": cors_origin,
-        "access-control-allow-methods": "GET,POST,PATCH,OPTIONS",
-        "access-control-allow-headers": "content-type,authorization",
         "vary": "Origin",
     }
+    request_origin = headers.get("origin")
+    if request_origin and request_origin in (cors_origin, cors_preview_origin):
+        response_headers.update({
+            "access-control-allow-origin": request_origin,
+            "access-control-allow-methods": "GET,POST,PATCH,PUT,OPTIONS",
+            "access-control-allow-headers": "content-type,authorization",
+        })
 
     def respond(status: int, payload: dict[str, Any]) -> ApiResponse:
         return ApiResponse(status, payload, response_headers)
@@ -63,8 +87,63 @@ def dispatch(
     if not isinstance(body, dict):
         return error(400, "invalid_body", "JSON body must be an object")
     try:
+        if reporting and (
+            (method == "GET" and path == "/v1/snapshots/current")
+            or (method == "POST" and path in ("/v1/routes/compare", "/v1/interventions/compare"))
+        ):
+            reporting.sync()
         if method == "GET" and path == "/health":
             return respond(200, {"status": "ok", "mode": "fixture", "synthetic": True})
+        if method == "GET" and path == "/v2/roads":
+            return respond(200, real_roads.snapshot.public()) if real_roads else error(503, "real_roads_unavailable", "Real-road reporting is not configured")
+        if method == "GET" and path == "/v2/real-road-evidence":
+            return respond(200, {"evidence": real_roads.public_evidence()}) if real_roads else error(503, "real_roads_unavailable", "Real-road evidence is not configured")
+        if method == "GET" and path == "/v2/road-alerts":
+            if not road_alerts:
+                return error(503, "road_alerts_unavailable", "Road alerts are not configured")
+            feed = {"alerts": road_alerts.public_list()}
+            status = road_alerts.source_status()
+            if status:
+                feed["sourceStatus"] = status
+            return respond(200, feed)
+        if path.startswith("/v2/road-alerts/"):
+            if not _authorized(headers, None, operator_claims):
+                return error(403, "forbidden", "responder access is required")
+            if not road_alerts:
+                return error(503, "road_alerts_unavailable", "Road alerts are not configured")
+            if method == "POST" and path == "/v2/road-alerts/import":
+                alert, created = road_alerts.import_document(body)
+                return respond(201 if created else 200, alert)
+            if method == "GET" and path == "/v2/road-alerts/review":
+                return respond(200, {"alerts": road_alerts.private_list()})
+            if method == "GET" and re.fullmatch(r"/v2/road-alerts/RA-[0-9a-f]{32}", path):
+                return respond(200, road_alerts.detail(path.rsplit("/", 1)[-1]))
+            if method == "PATCH" and re.fullmatch(r"/v2/road-alerts/RA-[0-9a-f]{32}/review", path):
+                alert_id = path.split("/")[-2]
+                return respond(200, road_alerts.review(alert_id, body, operator_claims["sub"]))
+        if path == "/v2/real-road-reports/upload-url" and method == "POST":
+            if not _authenticated(operator_claims):
+                return error(403, "forbidden", "sign-in is required to submit a report")
+            return respond(200, real_roads.prepare_upload(body, operator_claims["sub"])) if real_roads else error(503, "real_roads_unavailable", "Real-road reporting is not configured")
+        if path == "/v2/real-road-reports" and method == "POST":
+            if not _authenticated(operator_claims):
+                return error(403, "forbidden", "sign-in is required to submit a report")
+            return respond(201, real_roads.create(body, operator_claims["sub"])) if real_roads else error(503, "real_roads_unavailable", "Real-road reporting is not configured")
+        if path == "/v2/real-road-reports" and method == "GET":
+            if not _authorized(headers, None, operator_claims):
+                return error(403, "forbidden", "responder access is required")
+            return respond(200, {"reports": real_roads.list()}) if real_roads else error(503, "real_roads_unavailable", "Real-road reporting is not configured")
+        if path.startswith("/v2/real-road-reports/") and path.count("/") == 3 and method == "GET":
+            if not _authorized(headers, None, operator_claims):
+                return error(403, "forbidden", "responder access is required")
+            return respond(200, real_roads.detail(path.rsplit("/", 1)[-1])) if real_roads else error(503, "real_roads_unavailable", "Real-road reporting is not configured")
+        if path.startswith("/v2/real-road-reports/") and path.endswith("/review") and method == "PATCH":
+            if not _authorized(headers, None, operator_claims):
+                return error(403, "forbidden", "responder access is required")
+            report_id = path[len("/v2/real-road-reports/"):-len("/review")].strip("/")
+            if not re.fullmatch(r"RR-[0-9a-f]{32}", report_id):
+                raise ValueError("invalid real-road report ID")
+            return respond(200, real_roads.review(report_id, body, operator_claims["sub"])) if real_roads else error(503, "real_roads_unavailable", "Real-road reporting is not configured")
         if method == "GET" and path == "/v1/pilot":
             return respond(200, service.pilot())
         if method == "GET" and path == "/v1/snapshots/current":
@@ -73,9 +152,19 @@ def dispatch(
                 raise ValueError("mode must be Scenario or Live")
             return respond(200, service.snapshot(mode))
         if method == "GET" and path == "/v1/reports":
-            if not allow_local_mutations or not _authorized(headers, operator_token):
+            if not (_authorized(headers, None, operator_claims) if reporting else _authorized(headers, operator_token, operator_claims)):
                 return error(403, "forbidden", "operator access is required")
+            if reporting:
+                return respond(200, {"reports": reporting.list()})
+            if not allow_local_mutations:
+                return error(501, "not_implemented", "Report storage is not configured")
             return respond(200, {"reports": [item.as_dict() for item in sorted(service.reports.values(), key=lambda report: report.id)]})
+        if method == "GET" and path.startswith("/v1/reports/") and path.count("/") == 3:
+            if not _authorized(headers, None, operator_claims):
+                return error(403, "forbidden", "operator access is required")
+            if not reporting:
+                return error(501, "not_implemented", "Report storage is not configured")
+            return respond(200, reporting.get(path.rsplit("/", 1)[-1], with_photo=True))
         if method == "POST" and path == "/v1/routes/compare":
             return respond(200, service.routes(
                 _required_string(body, "originNodeId"), _required_string(body, "destinationNodeId"),
@@ -92,22 +181,34 @@ def dispatch(
                 _required_string(body, "selectedRouteId"),
             ))
         if path == "/v1/reports/upload-url" and method == "POST":
+            if not _authenticated(operator_claims):
+                return error(403, "forbidden", "sign-in is required to submit a report")
+            if reporting:
+                return respond(200, reporting.prepare_upload(body, operator_claims["sub"]))
             return error(501, "not_implemented", "Fixture mode has no media upload service")
         if method == "POST" and path == "/v1/reports":
+            if not _authenticated(operator_claims):
+                return error(403, "forbidden", "sign-in is required to submit a report")
+            if reporting:
+                return respond(201, reporting.create(body, operator_claims["sub"]))
             if not allow_local_mutations:
                 return error(501, "not_implemented", "Report persistence is not configured")
             report = service.add_pending_report(Report.from_dict(body))
             return respond(201, report.as_dict())
         if method == "PATCH" and path.startswith("/v1/reports/") and path.endswith("/review"):
-            if not allow_local_mutations or not _authorized(headers, operator_token):
+            if not (_authorized(headers, None, operator_claims) if reporting else _authorized(headers, operator_token, operator_claims)):
                 return error(403, "forbidden", "operator access is required")
             report_id = path[len("/v1/reports/"):-len("/review")].strip("/")
             if not report_id or "/" in report_id:
                 raise ValueError("invalid report ID")
+            if reporting:
+                return respond(200, reporting.review(report_id, body, str((operator_claims or {}).get("sub") or "Local responder")))
+            if not allow_local_mutations:
+                return error(501, "not_implemented", "Report storage is not configured")
             report = service.set_report_status(report_id, _required_string(body, "reviewStatus"))
             return respond(200, report.as_dict())
         if method == "PATCH" and path.startswith("/v1/segments/") and path.endswith("/closure"):
-            if not allow_local_mutations or not _authorized(headers, operator_token):
+            if not allow_local_mutations or not _authorized(headers, operator_token, operator_claims):
                 return error(403, "forbidden", "operator access is required")
             segment_id = path[len("/v1/segments/"):-len("/closure")].strip("/")
             if not segment_id or "/" in segment_id or not isinstance(body.get("closed"), bool):
@@ -119,6 +220,14 @@ def dispatch(
         return error(503, "mode_unavailable", str(exc), True)
     except SnapshotConflictError as exc:
         return error(409, "stale_snapshot", str(exc), True)
+    except ReportConflict as exc:
+        return error(409, "report_conflict", str(exc))
+    except AlertConflict as exc:
+        return error(409, "alert_conflict", str(exc))
+    except UploadLimit as exc:
+        return error(429, "upload_limit", str(exc))
+    except PhotoMissing as exc:
+        return error(404, "photo_missing", str(exc))
     except KeyError:
         return error(404, "not_found", "resource not found")
     except ValueError as exc:
@@ -126,7 +235,7 @@ def dispatch(
 
 
 def lambda_handler(event: dict[str, Any], context: Any) -> dict[str, Any]:
-    """AWS HTTP API v2 entry point; fixture deployment is deliberately read-only."""
+    """AWS HTTP API v2 entry point; protected routes require validated JWT claims."""
     request = event.get("requestContext") or {}
     http = request.get("http") or {}
     method = http.get("method", event.get("httpMethod", "GET"))
@@ -142,7 +251,12 @@ def lambda_handler(event: dict[str, Any], context: Any) -> dict[str, Any]:
         body=parsed_body, headers=event.get("headers") or {},
         request_id=request.get("requestId", "unknown"),
         allow_local_mutations=False,
-        cors_origin=os.environ.get("VARUNA_CORS_ORIGIN", "http://localhost:5173"),
+        operator_claims=((request.get("authorizer") or {}).get("jwt") or {}).get("claims"),
+        reporting=_LAMBDA_REPORTING,
+        real_roads=_LAMBDA_REAL_ROADS,
+        road_alerts=_LAMBDA_ROAD_ALERTS,
+        cors_origin=os.environ.get("VARUNA_CORS_ORIGIN", ""),
+        cors_preview_origin=os.environ.get("VARUNA_CORS_PREVIEW_ORIGIN"),
     )
     return {
         "statusCode": response.status, "headers": response.headers,
@@ -151,3 +265,15 @@ def lambda_handler(event: dict[str, Any], context: Any) -> dict[str, Any]:
 
 
 _LAMBDA_SERVICE = VarunaService()
+_LAMBDA_REPORTING = (
+    ReportWorkflow(_LAMBDA_SERVICE, DynamoReportStore(os.environ["VARUNA_REPORTS_TABLE"]), S3Media(os.environ["VARUNA_MEDIA_BUCKET"]))
+    if os.environ.get("VARUNA_REPORTS_TABLE") and os.environ.get("VARUNA_MEDIA_BUCKET") else None
+)
+_LAMBDA_REAL_ROADS = (
+    RealRoadWorkflow(RoadSnapshot(), DynamoRealRoadStore(os.environ["VARUNA_REAL_ROAD_REPORTS_TABLE"]), S3Media(os.environ["VARUNA_MEDIA_BUCKET"]))
+    if os.environ.get("VARUNA_REAL_ROAD_REPORTS_TABLE") and os.environ.get("VARUNA_MEDIA_BUCKET") else None
+)
+_LAMBDA_ROAD_ALERTS = (
+    RoadAlertWorkflow(RoadSnapshot(), DynamoRoadAlertStore(os.environ["VARUNA_ROAD_ALERTS_TABLE"]))
+    if os.environ.get("VARUNA_ROAD_ALERTS_TABLE") else None
+)

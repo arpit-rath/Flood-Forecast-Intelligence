@@ -42,7 +42,7 @@ export const REVIEW_LABEL: Record<ReviewStatus, string> = {
 
 export const REVIEW_DESCRIPTION: Record<ReviewStatus, string> = {
   analysis_pending: 'Photo uploaded. Image analysis is running.',
-  pending_review: 'Photo analysis finished. Awaiting responder review; it does not change route advice yet.',
+  pending_review: 'Awaiting responder review; it does not change the Scenario estimate yet.',
   needs_manual_review: 'Image analysis was unavailable. A responder will review the photo directly.',
   accepted: 'A responder accepted this report as evidence for the risk estimate.',
   rejected: 'A responder rejected this report. It does not enter the risk estimate.',

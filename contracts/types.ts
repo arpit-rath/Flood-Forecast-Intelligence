@@ -39,6 +39,139 @@ export interface Report {
   observations: VisualObservations | Record<string, never>;
   modelConfidence: number | null;
   source: string;
+  note?: string;
+  imageUrl?: string | null;
+  review?: { decision: "accept" | "reject"; reviewedAt: string; reviewer: string } | null;
+  analysis?: { status: "pending" | "complete" | "failed" | "not_configured"; provider: "fixture" | "none" | "bedrock"; model: string | null; completedAt: string | null; failureReason: string | null };
+  manualVisibleWater?: "none" | "possible" | "clear" | "uncertain" | null;
+  scenarioValidAt?: string | null;
+  /** Pilot uploads expire seven days after submission; fixture examples have no expiry. */
+  expiresAt?: string;
+}
+
+/** Separate v2 limited-coverage OSM evidence contract; /v1 Scenario remains unchanged. */
+export type RealRoadId = `osm:way/${number}`;
+
+/** Source alerts are separate from resident photo reports and /v1 Scenario. */
+export type RoadAlertState = "Reported / Unverified" | "Confirmed Flood Blockage" | "Cleared" | "Rejected" | "Expired";
+export interface RoadAlertSourceStatus {
+  state: "current" | "degraded" | "stale" | "unavailable";
+  lastCheckedAt: string | null;
+  lastSuccessfulAt: string | null;
+  message: string;
+}
+export type RoadAlertResolution = "matched_candidate" | "ambiguous" | "unlocated" | "outside_coverage" | "stale_snapshot" | "invalid_source_location";
+export interface RoadAlertProposal {
+  displayLabel: string;
+  method: string;
+  confidenceCategory: "high" | "moderate" | "low";
+  explanation: string;
+}
+export interface RoadAlertCandidate extends RoadAlertProposal {
+  roadId: RealRoadId;
+  matchedEvidence: string[];
+  distanceMeters: number | null;
+  ambiguityMarginMeters: number | null;
+  sourceContext: { source: string; sourceUrl: string; alertSourceUrl: string | null;
+    publishedAt: string | null; retrievedAt: string | null; statedCause: string | null };
+  snapshotGeometryVersion: string;
+  reason: string;
+  confidence: number;
+}
+export interface PublicRoadAlert {
+  id: string;
+  sourceName: string;
+  canonicalSourceUrl: string;
+  advisoryUrl: string | null;
+  sourceType: "traffic_alert" | "traffic_advisory";
+  publishedAtText: string | null;
+  publishedAt: string | null;
+  publishedPrecision: "datetime" | "date" | "missing" | "invalid";
+  retrievedAt: string;
+  originalHeadline: string;
+  statedCause: string | null;
+  affectedLocation: string | null;
+  validFromText: string | null;
+  validUntilText: string | null;
+  sourceAvailability: "available" | "unavailable" | "error";
+  freshness: "Current" | "Expired" | "Unavailable" | "Unverified time" | "Not yet valid";
+  state: RoadAlertState;
+  resolutionState: RoadAlertResolution;
+  /** Only a current unique proposal; no road ID or private source/review fields. */
+  proposal: RoadAlertProposal | null;
+}
+export interface PrivateRoadAlert extends PublicRoadAlert {
+  matchedRoadId: RealRoadId | null;
+  originalText: string;
+  sourceIdentifier: string | null;
+  sourceError: string | null;
+  locationHints: Record<string, unknown>;
+  candidateRoads: RoadAlertCandidate[];
+  matchAmbiguity: "unlocated" | "unique_candidate" | "multiple_candidates";
+  reviewState: "Imported" | "Confirmed Flood Blockage" | "Cleared" | "Rejected";
+  reviewHistory: Array<{ decision: string; state: string; roadId: RealRoadId | null; reviewerSub: string; reviewedAt: string; reason: string }>;
+}
+export type RealRoadReviewState = "Pending Review" | "Confirmed Blockage" | "Cleared" | "Rejected";
+
+export interface RealRoadReference {
+  roadId: RealRoadId;
+  /** Versioned OSM extract identifier; the server must resolve geometry itself. */
+  geometryVersion: string;
+  /** User-selected WGS84 point, never authoritative without server-side snapping. */
+  point: Point;
+}
+
+export interface RealRoadReportDraft {
+  idempotencyKey: string;
+  road: RealRoadReference;
+  imageKey: string;
+  capturedAt: string | null;
+  note?: string;
+}
+
+/** Submitter-only receipt; a retry must not expose responder review details. */
+export interface RealRoadSubmissionReceipt {
+  id: string;
+  reviewStatus: RealRoadReviewState;
+}
+
+export interface RealRoadEvidence {
+  /** Internal marker identity is optional; the public feed never returns a report ID. */
+  id?: string;
+  roadId: RealRoadId;
+  /** Pending/rejected states are only available in the protected responder report API. */
+  point: Point | null;
+  reviewState: RealRoadReviewState;
+  observedAt: string;
+  reviewedAt: string | null;
+  reviewDecision?: "confirm_blockage" | "clear" | "reject" | null;
+  expiresAt: string;
+  source: "resident_photo" | "responder_field_check";
+}
+
+/** Strict public feed: current, reviewed outcomes only, without private report fields. */
+export type PublicRealRoadEvidence = Omit<RealRoadEvidence, "id" | "point" | "reviewState" | "reviewedAt" | "reviewDecision"> & {
+  point: Point;
+  reviewState: "Confirmed Blockage" | "Cleared";
+  reviewedAt: string;
+  reviewDecision: "confirm_blockage" | "clear";
+};
+
+export interface RealRoadReport {
+  id: string;
+  roadId: RealRoadId;
+  geometryVersion: string;
+  point: Point;
+  reviewStatus: RealRoadReviewState;
+  source: "resident_photo";
+  observedAt: string;
+  createdAt: string;
+  reviewedAt: string | null;
+  evidenceExpiresAt: string;
+  expiresAt: string;
+  note: string;
+  review: { decision: "confirm_blockage" | "clear" | "reject"; reviewedAt: string; reviewer: string } | null;
+  photoUrl?: string;
 }
 
 export interface DrainCandidate {

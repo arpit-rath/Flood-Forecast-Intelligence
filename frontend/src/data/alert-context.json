@@ -1,0 +1,18 @@
+{
+  "version": "2026-10-11-review-1",
+  "geometryVersion": "sha256:b1b72d820147a58abc723fcb8164dfa0d3b6e66cd45791b121c37022b08f0020",
+  "aliases": [],
+  "landmarks": [
+    {
+      "name": "Delhi Technological University",
+      "displayName": "Delhi Technological University campus boundary (published corner 2)",
+      "locality": "Shahbad Daulatpur",
+      "point": [77.11866111111111, 28.752630555555555],
+      "source": "Government of India environmental clearance, DTU site boundary corner 2; not an entrance or campus centre",
+      "sourceUrl": "https://environmentclearance.nic.in/writereaddata/Form-1A/EC/111320191111664DTUBawanaECLetter.PDF",
+      "retrievedAt": "2026-10-11T14:32:37Z",
+      "reviewedAt": "2026-10-11T14:32:37Z",
+      "confidence": "limited_boundary_reference"
+    }
+  ]
+}

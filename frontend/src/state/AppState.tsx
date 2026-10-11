@@ -11,9 +11,11 @@ import {
   type SegmentProperties,
   type SegmentRisk,
   type TravelMode,
+  type VisibleWater,
   type WeatherMode,
 } from '../api/types';
 import { newIdempotencyKey } from '../lib/hooks';
+import { beginCognitoSignIn, completeCognitoSignIn, endCognitoSignIn, type SignedInUser } from '../auth/cognito';
 
 export type Async<T> =
   | { status: 'idle' }
@@ -34,6 +36,10 @@ export interface SimulationPreview {
 
 interface AppStateValue {
   api: VarunaApi;
+  auth: { status: 'signed_out' | 'signing_in' | 'signed_in' | 'error'; user?: SignedInUser; error?: string };
+  signInLocal: (username: string, password: string) => Promise<void>;
+  beginSignIn: () => Promise<void>;
+  signOut: () => void;
   pilot: Async<PilotResponse>;
   segmentsById: Map<string, SegmentProperties>;
   mode: WeatherMode;
@@ -55,7 +61,7 @@ interface AppStateValue {
   reports: Async<Report[]>;
   refreshReports: () => Promise<void>;
   upsertReport: (report: Report) => void;
-  reviewReport: (id: string, decision: 'accept' | 'reject') => Promise<ReviewResponse>;
+  reviewReport: (id: string, decision: 'accept' | 'reject', manualVisibleWater?: VisibleWater) => Promise<ReviewResponse>;
   intervention: Async<InterventionComparison>;
   interventionIsStale: boolean;
   runIntervention: (routeId: string) => void;
@@ -78,6 +84,7 @@ function toApiError(err: unknown): ApiError {
 }
 
 export function AppStateProvider({ api, children }: { api: VarunaApi; children: ReactNode }) {
+  const [auth, setAuth] = useState<AppStateValue['auth']>(api.kind === 'mock' ? { status: 'signed_in', user: { accessToken: '', displayName: 'Demo operator', roles: ['varuna-responder'], expiresAt: '' } } : { status: 'signed_out' });
   const [pilot, setPilot] = useState<Async<PilotResponse>>({ status: 'loading' });
   const [mode, setModeState] = useState<WeatherMode>('scenario');
   const [snapshot, setSnapshot] = useState<Async<RiskSnapshotResponse>>({ status: 'loading' });
@@ -127,8 +134,64 @@ export function AppStateProvider({ api, children }: { api: VarunaApi; children: 
       const data = await api.listReports();
       setReports({ status: 'ready', data });
     } catch (err) {
-      setReports((prev) => ({ status: 'error', error: toApiError(err), data: 'data' in prev ? prev.data : undefined }));
+      const error = toApiError(err);
+      setReports((prev) => ({
+        status: 'error', error,
+        data: error.code === 'forbidden' || error.code === 'HTTP_401' ? undefined : 'data' in prev ? prev.data : undefined,
+      }));
     }
+  }, [api]);
+
+  useEffect(() => {
+    if (api.authMode !== 'cognito') return;
+    let active = true;
+    void completeCognitoSignIn().then((user) => {
+      if (!active || !user) return;
+      api.setAccessToken(user.accessToken);
+      setAuth({ status: 'signed_in', user });
+      if (user.roles.includes('varuna-responder')) void refreshReports();
+      else setReports({ status: 'idle' });
+    }).catch((error: unknown) => {
+      if (active) setAuth({ status: 'error', error: error instanceof Error ? error.message : 'Sign-in failed. Please try again.' });
+    });
+    return () => { active = false; };
+  }, [api, refreshReports]);
+
+  useEffect(() => {
+    if (auth.status !== 'signed_in' || !auth.user?.expiresAt) return;
+    const remaining = Date.parse(auth.user.expiresAt) - Date.now();
+    const timer = window.setTimeout(() => {
+      api.setAccessToken('');
+      setReports({ status: 'idle' });
+      setAuth({ status: 'error', error: 'Your session expired. Sign in again.' });
+    }, Math.max(0, Math.min(remaining, 2_147_483_647)));
+    return () => window.clearTimeout(timer);
+  }, [api, auth]);
+
+  const signInLocal = useCallback(async (username: string, password: string) => {
+    setAuth({ status: 'signing_in' });
+    try {
+      const session = await api.signInLocal(username, password);
+      api.setAccessToken(session.accessToken);
+      setAuth({ status: 'signed_in', user: session });
+      if (session.roles.includes('varuna-responder')) await refreshReports();
+      else setReports({ status: 'idle' });
+    } catch (error) {
+      setAuth({ status: 'error', error: error instanceof Error ? error.message : 'Sign-in failed. Please try again.' });
+    }
+  }, [api, refreshReports]);
+
+  const beginSignIn = useCallback(async () => {
+    setAuth({ status: 'signing_in' });
+    try { await beginCognitoSignIn(); }
+    catch (error) { setAuth({ status: 'error', error: error instanceof Error ? error.message : 'Sign-in failed. Please try again.' }); }
+  }, []);
+
+  const signOut = useCallback(() => {
+    api.setAccessToken('');
+    setReports({ status: 'idle' });
+    setAuth({ status: 'signed_out' });
+    if (api.authMode === 'cognito') endCognitoSignIn();
   }, [api]);
 
   useEffect(() => {
@@ -137,7 +200,7 @@ export function AppStateProvider({ api, children }: { api: VarunaApi; children: 
       .then((data) => setPilot({ status: 'ready', data }))
       .catch((err) => setPilot({ status: 'error', error: toApiError(err) }));
     void loadSnapshot('scenario');
-    void refreshReports();
+    if (api.kind === 'mock') void refreshReports();
   }, [api, loadSnapshot, refreshReports]);
 
   const setMode = useCallback(
@@ -242,8 +305,8 @@ export function AppStateProvider({ api, children }: { api: VarunaApi; children: 
   }, []);
 
   const reviewReport = useCallback(
-    async (id: string, decision: 'accept' | 'reject') => {
-      const res = await api.reviewReport(id, { decision });
+    async (id: string, decision: 'accept' | 'reject', manualVisibleWater?: VisibleWater) => {
+      const res = await api.reviewReport(id, { decision, manualVisibleWater });
       upsertReport(res.report);
       if (res.snapshotId && res.snapshotId !== currentSnapshotId) {
         await loadSnapshot(mode, { announceResult: false });
@@ -270,6 +333,10 @@ export function AppStateProvider({ api, children }: { api: VarunaApi; children: 
 
   const value: AppStateValue = {
     api,
+    auth,
+    signInLocal,
+    beginSignIn,
+    signOut,
     pilot,
     segmentsById,
     mode,

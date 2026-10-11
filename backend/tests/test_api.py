@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 import json
+import os
 import unittest
+from unittest.mock import patch
 
 from backend.varuna.api import dispatch, lambda_handler
 from backend.varuna.service import VarunaService
@@ -112,8 +114,8 @@ class ApiTests(unittest.TestCase):
         event["requestContext"]["http"]["method"] = "POST"
         event["body"] = json.dumps({"anything": "value"})
         write = lambda_handler(event, None)
-        self.assertEqual(501, write["statusCode"])
-        self.assertEqual("not_implemented", json.loads(write["body"])["error"]["code"])
+        self.assertEqual(403, write["statusCode"])
+        self.assertEqual("forbidden", json.loads(write["body"])["error"]["code"])
 
     def test_invalid_json_is_a_client_error(self) -> None:
         event = {"version": "2.0", "rawPath": "/v1/routes/compare",
@@ -121,6 +123,34 @@ class ApiTests(unittest.TestCase):
                  "body": "{not-json"}
         response = lambda_handler(event, None)
         self.assertEqual(400, response["statusCode"])
+
+    def test_lambda_cors_echoes_only_the_two_exact_amplify_origins(self) -> None:
+        main = "https://main.d9r54jpiln4dg.amplifyapp.com"
+        preview = "https://feature-delhi-hybrid-overview.d9r54jpiln4dg.amplifyapp.com"
+        with patch.dict(os.environ, {"VARUNA_CORS_ORIGIN": main, "VARUNA_CORS_PREVIEW_ORIGIN": preview}):
+            for origin in (main, preview):
+                for method, path in (("GET", "/health"), ("GET", "/v1/reports"), ("OPTIONS", "/v1/reports/upload-url")):
+                    event = {"version": "2.0", "rawPath": path, "headers": {"Origin": origin},
+                             "requestContext": {"http": {"method": method}}}
+                    response = lambda_handler(event, None)
+                    self.assertEqual(origin, response["headers"].get("access-control-allow-origin"))
+            for origin in (None, "null", "http://main.d9r54jpiln4dg.amplifyapp.com",
+                           main + "/", main + ".attacker.example", preview + ":443",
+                           "https://unapproved.example"):
+                for method, path in (("GET", "/health"), ("GET", "/v1/reports"),
+                                     ("OPTIONS", "/v1/reports/upload-url")):
+                    event = {"version": "2.0", "rawPath": path,
+                             "headers": {} if origin is None else {"Origin": origin},
+                             "requestContext": {"http": {"method": method}}}
+                    response = lambda_handler(event, None)
+                    self.assertNotIn("access-control-allow-origin", response["headers"])
+                    self.assertEqual("Origin", response["headers"]["vary"])
+
+    def test_local_dispatch_keeps_only_its_loopback_origin(self) -> None:
+        approved = dispatch(self.service, "GET", "/health", headers={"Origin": "http://localhost:5173"})
+        denied = dispatch(self.service, "GET", "/health", headers={"Origin": "https://unapproved.example"})
+        self.assertEqual("http://localhost:5173", approved.headers.get("access-control-allow-origin"))
+        self.assertNotIn("access-control-allow-origin", denied.headers)
 
 
 if __name__ == "__main__":

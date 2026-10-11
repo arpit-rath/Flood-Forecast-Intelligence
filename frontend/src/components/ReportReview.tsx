@@ -1,6 +1,6 @@
 import { Check, ImageOff, X } from 'lucide-react';
-import { useState } from 'react';
-import { ApiError, type Report, type ReviewStatus } from '../api/types';
+import { useEffect, useState } from 'react';
+import { ApiError, type Report, type ReviewStatus, type VisibleWater } from '../api/types';
 import {
   ACCESS_LABEL,
   DRAIN_STATE_LABEL,
@@ -16,10 +16,13 @@ import { ReviewBadge, StatusBadge } from './StatusBadge';
 const REVIEWABLE: ReviewStatus[] = ['pending_review', 'needs_manual_review'];
 
 export function ReportQueue({ onOpen, activeId }: { onOpen: (id: string) => void; activeId: string | null }) {
-  const { reports, segmentsById } = useAppState();
+  const { api, auth, reports, segmentsById } = useAppState();
   const [filter, setFilter] = useState<'awaiting' | 'all'>('awaiting');
+  if (api.kind === 'http' && !auth.user?.roles.includes('varuna-responder')) {
+    return <p className="detail">Private report queue unavailable. Sign in with a varuna-responder account; new accounts have report-submission access only.</p>;
+  }
   const list = reports.status === 'ready' || reports.status === 'error' ? (reports.data ?? []) : [];
-  const awaiting = list.filter((r) => REVIEWABLE.includes(r.reviewStatus) || r.reviewStatus === 'analysis_pending');
+  const awaiting = list.filter((r) => (api.kind !== 'http' || r.source !== 'fixture') && (REVIEWABLE.includes(r.reviewStatus) || r.reviewStatus === 'analysis_pending'));
   const shown = filter === 'awaiting' ? awaiting : list;
 
   return (
@@ -70,22 +73,33 @@ export function ReportQueue({ onOpen, activeId }: { onOpen: (id: string) => void
 }
 
 export function ReportReviewCard({ reportId, onClose }: { reportId: string; onClose?: () => void }) {
-  const { reports, segmentsById, riskById, previousSnapshot, reviewReport, selectSegment } = useAppState();
+  const { api, reports, segmentsById, riskById, previousSnapshot, reviewReport, selectSegment, upsertReport } = useAppState();
   const [busy, setBusy] = useState<'accept' | 'reject' | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [outcome, setOutcome] = useState<string | null>(null);
+  const [manualWater, setManualWater] = useState<VisibleWater | ''>('');
+  useEffect(() => {
+    if (api.kind !== 'http') return;
+    let active = true;
+    api.getReport(reportId).then((item) => { if (active) upsertReport(item); }).catch(() => { if (active) setError('Private photo unavailable. Check responder access and reopen this report.'); });
+    return () => { active = false; };
+  }, [api, reportId, upsertReport]);
   const list = 'data' in reports && reports.data ? reports.data : [];
   const report = list.find((r) => r.id === reportId);
   if (!report) return <p className="detail">Report not found.</p>;
 
   const segmentName = segmentsById.get(report.segmentId)?.name ?? report.segmentId;
-  const reviewable = REVIEWABLE.includes(report.reviewStatus);
+  const reviewable = REVIEWABLE.includes(report.reviewStatus) && (api.kind !== 'http' || report.source !== 'fixture');
 
   const decide = async (decision: 'accept' | 'reject') => {
+    if (api.kind === 'http' && decision === 'accept' && !manualWater) {
+      setError('Choose what is visibly shown in the photo before accepting.');
+      return;
+    }
     setBusy(decision);
     setError(null);
     try {
-      const res = await reviewReport(report.id, decision);
+      const res = await reviewReport(report.id, decision, manualWater || undefined);
       setOutcome(res.note ?? (res.snapshotId ? 'Risk estimate recalculated with this evidence.' : null));
     } catch (err) {
       setError(`${err instanceof ApiError ? err.message : 'The review could not be saved.'} Nothing was changed; try again.`);
@@ -122,6 +136,7 @@ export function ReportReviewCard({ reportId, onClose }: { reportId: string; onCl
       <div className="review-card__status">
         <ReviewBadge status={report.reviewStatus} />
         <p className="detail">{REVIEW_DESCRIPTION[report.reviewStatus]}</p>
+        {api.kind === 'http' && report.source === 'fixture' && <p className="detail">Historical synthetic fixture example. This item is read-only; only newly uploaded reports can be reviewed here.</p>}
       </div>
 
       <ReportImage report={report} />
@@ -135,6 +150,10 @@ export function ReportReviewCard({ reportId, onClose }: { reportId: string; onCl
           <dt>Captured</dt>
           <dd className="mono">{report.capturedAt ? formatTimeIST(report.capturedAt) : 'Not recorded'}</dd>
         </div>
+        {report.scenarioValidAt && <div>
+          <dt>Synthetic Scenario replay time</dt>
+          <dd className="mono">{formatTimeIST(report.scenarioValidAt)}</dd>
+        </div>}
         <div>
           <dt>Location</dt>
           <dd className="mono">
@@ -152,11 +171,19 @@ export function ReportReviewCard({ reportId, onClose }: { reportId: string; onCl
 
       <ObservationPanel report={report} />
 
+      {api.kind === 'http' && reviewable && <div className="field">
+        <label htmlFor={`manual-water-${report.id}`}>Manual visible-water decision</label>
+        <select id={`manual-water-${report.id}`} value={manualWater} onChange={(event) => setManualWater(event.target.value as VisibleWater | '')}>
+          <option value="">Choose after viewing the photo</option>
+          {(['none', 'possible', 'clear', 'uncertain'] as const).map((value) => <option key={value} value={value}>{VISIBLE_WATER_LABEL[value]}</option>)}
+        </select>
+        <p className="detail">A human decision only. No AI image analysis is running. Acceptance replays this observation in the synthetic Scenario, not Live conditions.</p>
+      </div>}
+
       {reviewable && (
         <div className="review-card__actions">
           <p className="detail">
-            Accepting adds this observation to the risk estimate for {segmentName} only. Rejecting keeps it in history without
-            affecting scores.
+            {api.kind === 'http' ? `Accepting replays your manual observation in the synthetic Scenario for ${segmentName}; it does not assess Delhi streets. ` : `Accepting adds this observation to the risk estimate for ${segmentName} only. `}Rejecting keeps it in history without affecting scores.
           </p>
           <div className="button-row">
             <button type="button" className="btn btn--primary" aria-disabled={busy !== null} onClick={() => busy || decide('accept')}>
@@ -208,7 +235,7 @@ function ReportImage({ report }: { report: Report }) {
     return (
       <figure className="review-card__image">
         <img src={report.imageUrl} alt={`Photo submitted for ${report.segmentId}`} />
-        <figcaption className="detail">Private review copy. Public display requires consent and strips metadata.</figcaption>
+        <figcaption className="detail">Private, metadata-stripped responder review copy. Not published on the map.</figcaption>
       </figure>
     );
   }

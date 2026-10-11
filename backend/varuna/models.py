@@ -112,6 +112,8 @@ class Report:
     observations: dict[str, Any]
     model_confidence: float | None
     source: str
+    manual_visible_water: str | None = None
+    scenario_valid_at: str | None = None
 
     @classmethod
     def from_dict(cls, raw: dict[str, Any]) -> "Report":
@@ -154,11 +156,18 @@ class Report:
         confidence = raw.get("modelConfidence")
         if confidence is not None:
             confidence = unit_interval(confidence, "modelConfidence")
+        manual_water = raw.get("manualVisibleWater")
+        if manual_water is not None and manual_water not in ("none", "possible", "clear", "uncertain"):
+            raise ValueError("invalid manualVisibleWater")
+        scenario_valid_at = raw.get("scenarioValidAt")
+        if scenario_valid_at is not None:
+            utc_time(scenario_valid_at)
         return cls(
             id=raw["id"], segment_id=raw["segmentId"], point=point(raw.get("point")),
             created_at=raw["createdAt"], captured_at=raw.get("capturedAt"), image_key=raw["imageKey"],
             review_status=raw["reviewStatus"], observations=observations,
             model_confidence=confidence, source=raw["source"],
+            manual_visible_water=manual_water, scenario_valid_at=scenario_valid_at,
         )
 
     def as_dict(self) -> dict[str, Any]:
@@ -167,4 +176,6 @@ class Report:
             "createdAt": self.created_at, "capturedAt": self.captured_at, "imageKey": self.image_key,
             "reviewStatus": self.review_status, "observations": self.observations,
             "modelConfidence": self.model_confidence, "source": self.source,
+            "manualVisibleWater": self.manual_visible_water,
+            "scenarioValidAt": self.scenario_valid_at,
         }

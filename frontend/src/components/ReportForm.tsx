@@ -6,8 +6,10 @@ import { formatTimeIST } from '../lib/format';
 import { newIdempotencyKey } from '../lib/hooks';
 import { useAppState } from '../state/AppState';
 import { ReviewBadge } from './StatusBadge';
+import { SignInPanel } from './SignInPanel';
 
 const MAX_NOTE = 280;
+const MAX_BYTES = 8 * 1024 * 1024;
 const ACCEPTED_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 const POLL_MS = 1500;
 const POLL_LIMIT = 40;
@@ -15,7 +17,7 @@ const POLL_LIMIT = 40;
 type Phase = { kind: 'idle' } | { kind: 'uploading'; step: string } | { kind: 'error'; message: string };
 
 export function ReportForm({ headingRef }: { headingRef?: React.Ref<HTMLHeadingElement> }) {
-  const { api, pilot, selectedSegmentId, reports, upsertReport } = useAppState();
+  const { api, auth, pilot, selectedSegmentId, upsertReport } = useAppState();
   const formId = useId();
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
@@ -24,7 +26,9 @@ export function ReportForm({ headingRef }: { headingRef?: React.Ref<HTMLHeadingE
   const [consent, setConsent] = useState(false);
   const [phase, setPhase] = useState<Phase>({ kind: 'idle' });
   const [fieldErrors, setFieldErrors] = useState<{ photo?: string; location?: string }>({});
-  const [myReportIds, setMyReportIds] = useState<string[]>([]);
+  const [submitted, setSubmitted] = useState<{ session: string; reports: Report[] }>({ session: '', reports: [] });
+  const session = auth.status === 'signed_in' ? auth.user?.accessToken ?? '' : null;
+  const myReports = session !== null && submitted.session === session ? submitted.reports : [];
   const idempotencyKey = useRef(newIdempotencyKey());
   const fileInput = useRef<HTMLInputElement>(null);
 
@@ -47,11 +51,6 @@ export function ReportForm({ headingRef }: { headingRef?: React.Ref<HTMLHeadingE
     [pilot],
   );
 
-  const myReports: Report[] = useMemo(() => {
-    const list = reports.status === 'ready' ? reports.data : [];
-    return myReportIds.map((id) => list.find((r) => r.id === id)).filter((r): r is Report => Boolean(r));
-  }, [reports, myReportIds]);
-
   // Poll reports still in analysis until they settle.
   const pendingIds = myReports.filter((r) => r.reviewStatus === 'analysis_pending').map((r) => r.id).join(',');
   useEffect(() => {
@@ -61,7 +60,9 @@ export function ReportForm({ headingRef }: { headingRef?: React.Ref<HTMLHeadingE
       attempts += 1;
       for (const id of pendingIds.split(',')) {
         try {
-          upsertReport(await api.getReport(id));
+          const updated = await api.getReport(id);
+          setSubmitted((current) => current.session === session ? { ...current, reports: current.reports.map((item) => item.id === id ? updated : item) } : current);
+          if (api.kind === 'mock') upsertReport(updated);
         } catch {
           /* keep last known state; the status card stays visible */
         }
@@ -69,13 +70,18 @@ export function ReportForm({ headingRef }: { headingRef?: React.Ref<HTMLHeadingE
       if (attempts >= POLL_LIMIT) window.clearInterval(timer);
     }, POLL_MS);
     return () => window.clearInterval(timer);
-  }, [api, pendingIds, upsertReport]);
+  }, [api, pendingIds, session, upsertReport]);
 
   const submit = async (e: FormEvent) => {
     e.preventDefault();
+    if (api.kind === 'http' && auth.status !== 'signed_in') {
+      setPhase({ kind: 'error', message: 'Sign in before sending a pilot report.' });
+      return;
+    }
     const errors: typeof fieldErrors = {};
     if (!file) errors.photo = 'Add a photo of the road.';
     else if (!ACCEPTED_TYPES.includes(file.type)) errors.photo = 'Use a JPEG, PNG or WebP photo.';
+    else if (file.size === 0 || file.size > MAX_BYTES) errors.photo = 'Photo must be between 1 byte and 8 MB.';
     if (!segmentId) errors.location = 'Choose the road where the photo was taken.';
     setFieldErrors(errors);
     if (Object.keys(errors).length > 0 || !file) return;
@@ -86,11 +92,11 @@ export function ReportForm({ headingRef }: { headingRef?: React.Ref<HTMLHeadingE
     const point: [number, number] = [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2];
 
     try {
-      setPhase({ kind: 'uploading', step: 'Preparing uploadâ€¦' });
-      const upload = await api.requestUploadUrl({ contentType: file.type, sizeBytes: file.size });
-      setPhase({ kind: 'uploading', step: 'Uploading photoâ€¦' });
+      setPhase({ kind: 'uploading', step: 'Preparing upload...' });
+      const upload = await api.requestUploadUrl({ contentType: file.type, sizeBytes: file.size, idempotencyKey: idempotencyKey.current });
+      setPhase({ kind: 'uploading', step: 'Uploading photo...' });
       await api.uploadImage(upload, file);
-      setPhase({ kind: 'uploading', step: 'Sending reportâ€¦' });
+      setPhase({ kind: 'uploading', step: 'Sending report...' });
       const report = await api.createReport({
         imageKey: upload.imageKey,
         segmentId,
@@ -100,8 +106,8 @@ export function ReportForm({ headingRef }: { headingRef?: React.Ref<HTMLHeadingE
         consentPublicDerivative: consent,
         idempotencyKey: idempotencyKey.current,
       });
-      upsertReport(report);
-      setMyReportIds((ids) => [report.id, ...ids.filter((id) => id !== report.id)]);
+      if (api.kind === 'mock' || auth.user?.roles.includes('varuna-responder')) upsertReport(report);
+      setSubmitted((current) => ({ session: session ?? '', reports: [report, ...(current.session === session ? current.reports.filter((item) => item.id !== report.id) : [])] }));
       setPhase({ kind: 'idle' });
       setFile(null);
       setNote('');
@@ -116,24 +122,17 @@ export function ReportForm({ headingRef }: { headingRef?: React.Ref<HTMLHeadingE
 
   const busy = phase.kind === 'uploading';
 
-  if (api.kind === 'http') {
-    return (
-      <section className="report-flow" aria-labelledby={`${formId}-title`}>
-        <h2 id={`${formId}-title`} className="panel-title" ref={headingRef} tabIndex={-1}>Report a road condition</h2>
-        <p className="callout callout--muted">Photo upload and report submission are unavailable in the fixture API. No report has been sent.</p>
-      </section>
-    );
-  }
-
   return (
     <section className="report-flow" aria-labelledby={`${formId}-title`}>
       <h2 id={`${formId}-title`} className="panel-title" ref={headingRef} tabIndex={-1}>
         Report a road condition
       </h2>
       <p className="detail">
-        A responder reviews every photo before it can change route advice. Varuna does not send alerts or dispatch help;
+        This is a synthetic DTU-area Scenario, not the Delhi basemap. A responder reviews every photo before it can affect the Scenario estimate. Varuna does not send alerts or dispatch help;
         in an emergency, call 112.
       </p>
+
+      <SignInPanel />
 
       <form className="report-form" onSubmit={submit} noValidate aria-busy={busy}>
         <div className="field">
@@ -154,7 +153,7 @@ export function ReportForm({ headingRef }: { headingRef?: React.Ref<HTMLHeadingE
             </span>
           </div>
           <p id={`${formId}-photo-hint`} className="detail">
-            JPEG, PNG or WebP, up to 8 MB. Location and camera data are removed from any displayed copy.
+            JPEG, PNG or WebP, up to 8 MB. The private responder review copy is re-encoded without camera metadata.
           </p>
           {fieldErrors.photo && (
             <p id={`${formId}-photo-error`} className="field-error">
@@ -207,12 +206,12 @@ export function ReportForm({ headingRef }: { headingRef?: React.Ref<HTMLHeadingE
           </p>
         </div>
 
-        <div className="checkbox">
+        {api.kind === 'mock' && <div className="checkbox">
           <input id={`${formId}-consent`} type="checkbox" checked={consent} onChange={(e) => setConsent(e.target.checked)} />
           <label htmlFor={`${formId}-consent`}>
             Allow a public copy of this photo, with location and camera data removed. Responders see the photo either way.
           </label>
-        </div>
+        </div>}
 
         {phase.kind === 'error' && (
           <p className="field-error" role="alert">
@@ -221,7 +220,7 @@ export function ReportForm({ headingRef }: { headingRef?: React.Ref<HTMLHeadingE
         )}
 
         <div className="sticky-action">
-          <button type="submit" className="btn btn--primary btn--block" aria-disabled={busy} onClick={(e) => busy && e.preventDefault()}>
+          <button type="submit" className="btn btn--primary btn--block" disabled={busy || (api.kind === 'http' && auth.status !== 'signed_in')}>
             <Upload aria-hidden="true" size={18} />
             {busy ? phase.step : 'Send report'}
           </button>
@@ -251,7 +250,7 @@ function ReportStatusItem({ report: r }: { report: Report }) {
       <div className="evidence-list__row">
         <ReviewBadge status={r.reviewStatus} />
         <span className="mono detail">
-          {r.id} Â· <time dateTime={r.createdAt}>{formatTimeIST(r.createdAt)}</time>
+          {r.id} | <time dateTime={r.createdAt}>{formatTimeIST(r.createdAt)}</time>
         </span>
       </div>
       <p className="detail">{segmentsById.get(r.segmentId)?.name ?? r.segmentId}</p>
