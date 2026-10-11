@@ -12,6 +12,7 @@ from .models import Report
 from .reporting import DynamoReportStore, PhotoMissing, ReportConflict, ReportWorkflow, S3Media
 from .real_roads import DynamoRealRoadStore, RealRoadWorkflow, RoadSnapshot, UploadLimit
 from .road_alerts import AlertConflict, RoadAlertWorkflow
+from .traffic_ingest import DynamoRoadAlertStore
 from .service import ModeUnavailableError, SnapshotConflictError, VarunaService
 
 
@@ -98,12 +99,18 @@ def dispatch(
         if method == "GET" and path == "/v2/real-road-evidence":
             return respond(200, {"evidence": real_roads.public_evidence()}) if real_roads else error(503, "real_roads_unavailable", "Real-road evidence is not configured")
         if method == "GET" and path == "/v2/road-alerts":
-            return respond(200, {"alerts": road_alerts.public_list()}) if road_alerts else error(503, "road_alerts_unavailable", "Local-only road alerts are not configured")
+            if not road_alerts:
+                return error(503, "road_alerts_unavailable", "Road alerts are not configured")
+            feed = {"alerts": road_alerts.public_list()}
+            status = road_alerts.source_status()
+            if status:
+                feed["sourceStatus"] = status
+            return respond(200, feed)
         if path.startswith("/v2/road-alerts/"):
             if not _authorized(headers, None, operator_claims):
                 return error(403, "forbidden", "responder access is required")
             if not road_alerts:
-                return error(503, "road_alerts_unavailable", "Local-only road alerts are not configured")
+                return error(503, "road_alerts_unavailable", "Road alerts are not configured")
             if method == "POST" and path == "/v2/road-alerts/import":
                 alert, created = road_alerts.import_document(body)
                 return respond(201 if created else 200, alert)
@@ -247,6 +254,7 @@ def lambda_handler(event: dict[str, Any], context: Any) -> dict[str, Any]:
         operator_claims=((request.get("authorizer") or {}).get("jwt") or {}).get("claims"),
         reporting=_LAMBDA_REPORTING,
         real_roads=_LAMBDA_REAL_ROADS,
+        road_alerts=_LAMBDA_ROAD_ALERTS,
         cors_origin=os.environ.get("VARUNA_CORS_ORIGIN", ""),
         cors_preview_origin=os.environ.get("VARUNA_CORS_PREVIEW_ORIGIN"),
     )
@@ -264,4 +272,8 @@ _LAMBDA_REPORTING = (
 _LAMBDA_REAL_ROADS = (
     RealRoadWorkflow(RoadSnapshot(), DynamoRealRoadStore(os.environ["VARUNA_REAL_ROAD_REPORTS_TABLE"]), S3Media(os.environ["VARUNA_MEDIA_BUCKET"]))
     if os.environ.get("VARUNA_REAL_ROAD_REPORTS_TABLE") and os.environ.get("VARUNA_MEDIA_BUCKET") else None
+)
+_LAMBDA_ROAD_ALERTS = (
+    RoadAlertWorkflow(RoadSnapshot(), DynamoRoadAlertStore(os.environ["VARUNA_ROAD_ALERTS_TABLE"]))
+    if os.environ.get("VARUNA_ROAD_ALERTS_TABLE") else None
 )

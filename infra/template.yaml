@@ -20,6 +20,13 @@ Parameters:
   CognitoJwtAudience:
     Type: String
     Description: Cognito app-client ID expected in signed-in access JWTs
+  RoadAlertScheduleState:
+    Type: String
+    Default: DISABLED
+    AllowedValues:
+      - DISABLED
+      - ENABLED
+    Description: Enable only after a reviewed manual ingestion and source-permission check
 
 Resources:
   VarunaHttpApi:
@@ -127,6 +134,27 @@ Resources:
         AttributeName: expiresAtEpoch
         Enabled: true
 
+  VarunaRoadAlerts:
+    Type: AWS::DynamoDB::Table
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: id
+          AttributeType: S
+      KeySchema:
+        - AttributeName: id
+          KeyType: HASH
+      SSESpecification:
+        SSEEnabled: true
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: true
+        RecoveryPeriodInDays: 7
+      TimeToLiveSpecification:
+        AttributeName: expiresAtEpoch
+        Enabled: true
+
   VarunaFixtureApi:
     Type: AWS::Serverless::Function
     Properties:
@@ -143,8 +171,16 @@ Resources:
           VARUNA_REPORTS_TABLE: !Ref VarunaReports
           VARUNA_REAL_ROAD_REPORTS_TABLE: !Ref VarunaRealRoadReports
           VARUNA_MEDIA_BUCKET: !Ref VarunaPrivatePhotos
+          VARUNA_ROAD_ALERTS_TABLE: !Ref VarunaRoadAlerts
       Policies:
         - Statement:
+            - Effect: Allow
+              Action:
+                - dynamodb:GetItem
+                - dynamodb:PutItem
+                - dynamodb:UpdateItem
+                - dynamodb:Scan
+              Resource: !GetAtt VarunaRoadAlerts.Arn
             - Effect: Allow
               Action:
                 - dynamodb:GetItem
@@ -283,6 +319,83 @@ Resources:
               Authorizer: CognitoAccessJwt
               AuthorizationScopes:
                 - openid
+        ProtectedRoadAlertImport:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref VarunaHttpApi
+            Path: /v2/road-alerts/import
+            Method: POST
+            Auth:
+              Authorizer: CognitoAccessJwt
+              AuthorizationScopes: [openid]
+        ProtectedRoadAlertQueue:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref VarunaHttpApi
+            Path: /v2/road-alerts/review
+            Method: GET
+            Auth:
+              Authorizer: CognitoAccessJwt
+              AuthorizationScopes: [openid]
+        ProtectedRoadAlertDetail:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref VarunaHttpApi
+            Path: /v2/road-alerts/{id}
+            Method: GET
+            Auth:
+              Authorizer: CognitoAccessJwt
+              AuthorizationScopes: [openid]
+        ProtectedRoadAlertReview:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref VarunaHttpApi
+            Path: /v2/road-alerts/{id}/review
+            Method: PATCH
+            Auth:
+              Authorizer: CognitoAccessJwt
+              AuthorizationScopes: [openid]
+
+  VarunaRoadAlertIngest:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: backend.varuna.traffic_ingest.lambda_handler
+      Runtime: python3.12
+      CodeUri: .lambda-package/
+      MemorySize: 256
+      Timeout: 150
+      ReservedConcurrentExecutions: 1
+      EventInvokeConfig:
+        MaximumRetryAttempts: 0
+      Environment:
+        Variables:
+          VARUNA_ROAD_ALERTS_TABLE: !Ref VarunaRoadAlerts
+      Policies:
+        - Statement:
+            - Effect: Allow
+              Action:
+                - dynamodb:GetItem
+                - dynamodb:PutItem
+              Resource: !GetAtt VarunaRoadAlerts.Arn
+
+  VarunaRoadAlertSchedule:
+    Type: AWS::Events::Rule
+    Properties:
+      ScheduleExpression: rate(30 minutes)
+      State: !Ref RoadAlertScheduleState
+      Targets:
+        - Arn: !GetAtt VarunaRoadAlertIngest.Arn
+          Id: VarunaRoadAlertIngest
+          RetryPolicy:
+            MaximumRetryAttempts: 0
+
+  VarunaRoadAlertScheduleInvoke:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Ref VarunaRoadAlertIngest
+      Principal: events.amazonaws.com
+      SourceArn: !GetAtt VarunaRoadAlertSchedule.Arn
 
 Outputs:
   ApiBaseUrl:
@@ -297,3 +410,9 @@ Outputs:
   RealRoadReportsTable:
     Description: Separate limited-coverage real-road metadata and upload-quota table
     Value: !Ref VarunaRealRoadReports
+  RoadAlertsTable:
+    Description: Retained, encrypted official-source alert revisions and source health
+    Value: !Ref VarunaRoadAlerts
+  RoadAlertIngestFunction:
+    Description: Isolated scheduled/manual ingestion Lambda name
+    Value: !Ref VarunaRoadAlertIngest

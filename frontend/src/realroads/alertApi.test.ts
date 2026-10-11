@@ -39,6 +39,16 @@ describe('local source alert HTTP boundary', () => {
     await expect(roadAlertApi.publicList()).resolves.toEqual({ alerts: [proposed] });
   });
 
+  it('accepts only the bounded public source-health envelope', async () => {
+    const sourceStatus = { state: 'stale', lastCheckedAt: '2026-10-11T12:00:00Z',
+      lastSuccessfulAt: '2026-10-11T11:30:00Z', message: 'Some details could not be checked.' };
+    const fetchMock = vi.fn().mockResolvedValue({ ok: true, json: async () => ({ alerts: [alert], sourceStatus }) });
+    vi.stubGlobal('fetch', fetchMock);
+    await expect(roadAlertApi.publicList()).resolves.toEqual({ alerts: [alert], sourceStatus });
+    fetchMock.mockResolvedValueOnce({ ok: true, json: async () => ({ alerts: [alert], sourceStatus: { ...sourceStatus, candidateIds: ['private'] } }) });
+    await expect(roadAlertApi.publicList()).rejects.toThrow('Public road-alert contract mismatch');
+  });
+
   it('requires the caller token for responder operations and never falls back on failure', async () => {
     const fetchMock = vi.fn().mockResolvedValue({ ok: true, json: async () => ({ alerts: [] }) });
     vi.stubGlobal('fetch', fetchMock);

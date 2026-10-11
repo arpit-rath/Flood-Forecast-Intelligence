@@ -52,8 +52,14 @@ export interface Report {
 /** Separate v2 limited-coverage OSM evidence contract; /v1 Scenario remains unchanged. */
 export type RealRoadId = `osm:way/${number}`;
 
-/** Local-only source alerts. These are not resident photo reports. */
+/** Source alerts are separate from resident photo reports and /v1 Scenario. */
 export type RoadAlertState = "Reported / Unverified" | "Confirmed Flood Blockage" | "Cleared" | "Rejected" | "Expired";
+export interface RoadAlertSourceStatus {
+  state: "current" | "stale" | "unavailable";
+  lastCheckedAt: string | null;
+  lastSuccessfulAt: string | null;
+  message: string;
+}
 export type RoadAlertResolution = "matched_candidate" | "ambiguous" | "unlocated" | "outside_coverage" | "stale_snapshot" | "invalid_source_location";
 export interface RoadAlertProposal {
   displayLabel: string;

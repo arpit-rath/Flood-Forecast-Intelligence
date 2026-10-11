@@ -1,6 +1,6 @@
-"""Local-only, source-backed road alerts for the limited OSM preview.
+"""Source-backed road alerts for the limited OSM preview.
 
-This module never retrieves a source or changes the synthetic Scenario service.
+Normalization and candidate matching never change the synthetic Scenario service.
 """
 
 from __future__ import annotations
@@ -132,6 +132,16 @@ class RoadAlertSource(Protocol):
     def normalize(self, document: dict[str, Any], snapshot: RoadSnapshot) -> RoadAlert: ...
 
 
+class RoadAlertRepository(Protocol):
+    def import_alert(self, alert: RoadAlert) -> tuple[dict[str, Any], bool]: ...
+    def put_ingested(self, item: dict[str, Any]) -> bool: ...
+    def list(self) -> list[dict[str, Any]]: ...
+    def get(self, alert_id: str) -> dict[str, Any] | None: ...
+    def review(self, alert_id: str, expected_state: str, decision: dict[str, Any]) -> dict[str, Any]: ...
+    def get_metadata(self, key: str) -> dict[str, Any] | None: ...
+    def put_metadata(self, key: str, value: dict[str, Any]) -> None: ...
+
+
 class RoadCandidateMatcher:
     """Deterministic proposals from a pinned OSM snapshot and reviewed local context.
 
@@ -142,7 +152,10 @@ class RoadCandidateMatcher:
     def __init__(self, snapshot: RoadSnapshot, context: dict[str, Any] | None = None) -> None:
         self.snapshot = snapshot
         if context is None:
-            path = Path(__file__).resolve().parents[2] / "frontend/src/data/alert-context.json"
+            root = Path(__file__).resolve().parents[2]
+            path = root / "data/real_roads/alert-context.json"
+            if not path.is_file():
+                path = root / "frontend/src/data/alert-context.json"
             context = json.loads(path.read_text(encoding="utf-8")) if path.is_file() else {
                 "version": "0", "geometryVersion": snapshot.version, "aliases": [], "landmarks": []}
         self.context = context
@@ -390,6 +403,7 @@ class DelhiTrafficPoliceAdapter:
 class MemoryRoadAlertStore:
     def __init__(self) -> None:
         self.items: dict[str, dict[str, Any]] = {}
+        self.metadata: dict[str, dict[str, Any]] = {}
         self.lock = RLock()
 
     def import_alert(self, alert: RoadAlert) -> tuple[dict[str, Any], bool]:
@@ -406,6 +420,22 @@ class MemoryRoadAlertStore:
     def list(self) -> list[dict[str, Any]]:
         with self.lock:
             return [dict(item) for item in self.items.values()]
+
+    def put_ingested(self, item: dict[str, Any]) -> bool:
+        with self.lock:
+            if item["id"] in self.items:
+                return False
+            self.items[item["id"]] = dict(item)
+            return True
+
+    def get_metadata(self, key: str) -> dict[str, Any] | None:
+        with self.lock:
+            value = self.metadata.get(key)
+            return dict(value) if value else None
+
+    def put_metadata(self, key: str, value: dict[str, Any]) -> None:
+        with self.lock:
+            self.metadata[key] = dict(value)
 
     def get(self, alert_id: str) -> dict[str, Any] | None:
         with self.lock:
@@ -427,7 +457,7 @@ class MemoryRoadAlertStore:
 
 
 class RoadAlertWorkflow:
-    def __init__(self, snapshot: RoadSnapshot, store: MemoryRoadAlertStore,
+    def __init__(self, snapshot: RoadSnapshot, store: RoadAlertRepository,
                  source: RoadAlertSource | None = None, clock: Callable[[], datetime] | None = None) -> None:
         self.snapshot, self.store = snapshot, store
         self.source = source or DelhiTrafficPoliceAdapter()
@@ -437,6 +467,26 @@ class RoadAlertWorkflow:
         alert = self.source.normalize(document, self.snapshot)
         item, created = self.store.import_alert(alert)
         return self.private(item), created
+
+    def ingest_document(self, document: dict[str, Any], content_hash: str,
+                        parser_version: str, fetched_at: str) -> tuple[dict[str, Any], bool]:
+        """Insert one immutable source revision; manual import semantics stay unchanged."""
+        if not re.fullmatch(r"[0-9a-f]{64}", content_hash):
+            raise ValueError("content hash must be SHA-256 hex")
+        alert = self.source.normalize(document, self.snapshot)
+        revision_id = "RA-" + sha256(f"{alert.canonicalSourceUrl}\n{content_hash}".encode()).hexdigest()[:32]
+        item = {**asdict(alert), "id": revision_id, "reviewState": "Imported", "reviewHistory": [],
+                "matchedRoadId": None, "contentSha256": content_hash,
+                "parserVersion": parser_version, "fetchedAt": fetched_at,
+                "sourceAlertIdentifier": document.get("sourceIdentifier")}
+        created = self.store.put_ingested(item)
+        return self.private(self.store.get(revision_id)), created
+
+    def source_status(self) -> dict[str, Any] | None:
+        status = self.store.get_metadata("source-status")
+        if not status:
+            return None
+        return {key: status.get(key) for key in ("state", "lastCheckedAt", "lastSuccessfulAt", "message")}
 
     def freshness(self, item: dict[str, Any]) -> str:
         now = self.clock()

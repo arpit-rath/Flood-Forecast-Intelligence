@@ -1,4 +1,4 @@
-import type { PrivateRoadAlert, PublicRoadAlert, RealRoadReference } from '../../../contracts/types';
+import type { PrivateRoadAlert, PublicRoadAlert, RealRoadReference, RoadAlertSourceStatus } from '../../../contracts/types';
 
 const root = (import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000').replace(/\/$/, '');
 const publicFields = [
@@ -39,6 +39,15 @@ function publicAlert(value: unknown): value is PublicRoadAlert {
   return true;
 }
 
+function sourceStatus(value: unknown): value is RoadAlertSourceStatus {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return false;
+  const item = value as Record<string, unknown>;
+  return Object.keys(item).sort().join(',') === 'lastCheckedAt,lastSuccessfulAt,message,state'
+    && ['current', 'stale', 'unavailable'].includes(String(item.state))
+    && typeof item.message === 'string' && item.message.length <= 160
+    && [item.lastCheckedAt, item.lastSuccessfulAt].every((time) => time === null || (typeof time === 'string' && Number.isFinite(Date.parse(time))));
+}
+
 async function request<T>(path: string, method = 'GET', token?: string, body?: unknown): Promise<T> {
   const response = await fetch(`${root}${path}`, {
     method, credentials: 'omit',
@@ -51,12 +60,14 @@ async function request<T>(path: string, method = 'GET', token?: string, body?: u
 }
 
 export const roadAlertApi = {
-  async publicList(): Promise<{ alerts: PublicRoadAlert[] }> {
-    const result = await request<{ alerts: unknown }>('/v2/road-alerts');
-    if (!Array.isArray(result?.alerts) || !result.alerts.every(publicAlert)) {
+  async publicList(): Promise<{ alerts: PublicRoadAlert[]; sourceStatus?: RoadAlertSourceStatus }> {
+    const result = await request<{ alerts: unknown; sourceStatus?: unknown }>('/v2/road-alerts');
+    if (!Array.isArray(result?.alerts) || !result.alerts.every(publicAlert)
+      || (result.sourceStatus !== undefined && !sourceStatus(result.sourceStatus))) {
       throw new Error('Public road-alert contract mismatch; source conditions are unavailable.');
     }
-    return { alerts: result.alerts };
+    return result.sourceStatus === undefined ? { alerts: result.alerts } :
+      { alerts: result.alerts, sourceStatus: result.sourceStatus as RoadAlertSourceStatus };
   },
   privateList: (token: string) => request<{ alerts: PrivateRoadAlert[] }>('/v2/road-alerts/review', 'GET', token),
   importDocument: (token: string, document: Record<string, unknown>) => request<PrivateRoadAlert>('/v2/road-alerts/import', 'POST', token, document),

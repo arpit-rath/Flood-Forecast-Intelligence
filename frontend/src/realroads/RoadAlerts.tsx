@@ -21,7 +21,7 @@ export function RoadAlerts({ user, view, selectedRoadId, selectedPoint, geometry
 }) {
   const [alerts, setAlerts] = useState<PublicRoadAlert[]>([]);
   const [queue, setQueue] = useState<PrivateRoadAlert[]>([]);
-  const [status, setStatus] = useState(import.meta.env.VITE_USE_MOCKS === 'false' ? 'Checking the local road-alert feed…' : 'Road-alert API is not part of fixture/mock mode. No source alerts are shown.');
+  const [status, setStatus] = useState(import.meta.env.VITE_USE_MOCKS === 'false' ? 'Checking the official-source alert feed…' : 'Road-alert API is not part of fixture/mock mode. No source alerts are shown.');
   const [error, setError] = useState('');
   const [document, setDocument] = useState('');
   const [reason, setReason] = useState('');
@@ -35,16 +35,19 @@ export function RoadAlerts({ user, view, selectedRoadId, selectedPoint, geometry
       if (!Array.isArray(publicResult?.alerts)) throw new Error('Invalid public road-alert response.');
       setAlerts(publicResult.alerts);
       onAlertsChange?.(publicResult.alerts);
-      setStatus(publicResult.alerts.length ? 'Source-backed alerts · limited OSM coverage' : 'No source alerts imported into this local session. All mapped roads remain Unknown unless separate reviewed evidence exists.');
+      const source = publicResult.sourceStatus;
+      setStatus(source ? `Official source: ${source.state}. Last checked: ${time(source.lastCheckedAt)}. Last successful check: ${time(source.lastSuccessfulAt)}. ${source.message} Limited OSM coverage.`
+        : publicResult.alerts.length ? 'Manually imported source alerts · limited OSM coverage; automatic source checking is not configured.'
+          : 'No source alerts imported. All mapped roads remain Unknown unless separate reviewed evidence exists.');
       if (responder && user) {
         const privateResult = await roadAlertApi.privateList(user.accessToken);
         if (!Array.isArray(privateResult?.alerts)) throw new Error('Invalid private road-alert response.');
         setQueue(privateResult.alerts);
       } else setQueue([]);
     } catch (cause) {
-      setAlerts([]); setQueue([]);
+      setQueue([]);
       onAlertsChange?.([]);
-      setStatus('Road-alert feed unavailable. Do not infer current conditions; roads remain Unknown without other reviewed evidence.');
+      setStatus('Road-alert feed unavailable. Previously loaded alert text is stale; no road condition is inferred from it.');
       throw cause;
     }
   }, [onAlertsChange, responder, user]);
@@ -85,24 +88,24 @@ export function RoadAlerts({ user, view, selectedRoadId, selectedPoint, geometry
   }
 
   return <section className="real-preview__detail real-alerts" aria-label="Delhi source alerts">
-    <h2>Delhi source alerts · local review</h2>
-    <p className="detail">Manually imported Delhi Traffic Police material, not a live feed or prediction. Ground instructions, police personnel, barricades and signs take precedence. “Reported / Unverified” and proposed matches leave road condition Unknown. This feed covers only the mapped extract.</p>
-    <p className="detail" role="status">{status}</p>
+    <h2>Delhi Traffic Police source alerts</h2>
+    <p className="detail">Published alerts are checked periodically when the schedule is enabled. These are not live traffic measurements or flood predictions. Follow on-ground traffic instructions. Police personnel, barricades and signs take precedence. Automatically imported items begin as Reported / Unverified; proposed matches leave road condition Unknown. This feed covers only the mapped extract.</p>
+    <p className="detail" role="status" aria-atomic="true">{status}</p>
     {alerts.length > 0 && <ul className="real-alerts__list" aria-label="Public source alerts">{alerts.map((alert) => <li key={alert.id}>
       <h3>{alert.originalHeadline}</h3>
       <p><strong>{alert.state === 'Confirmed Flood Blockage' ? <ShieldAlert aria-hidden="true" size={16} /> : alert.state === 'Cleared' ? <CircleCheck aria-hidden="true" size={16} /> : alert.state === 'Expired' ? <Clock3 aria-hidden="true" size={16} /> : <CircleHelp aria-hidden="true" size={16} />} {alert.state}</strong> · {alert.freshness} · {alert.sourceName}</p>
       <p>Stated cause: {alert.statedCause || 'Not stated'}. Affected wording: {alert.affectedLocation || 'Not stated'}.</p>
-      <p>Published: {time(alert.publishedAt || alert.publishedAtText)}; retrieved: {time(alert.retrievedAt)}. Validity: {alert.validFromText || 'not stated'} to {alert.validUntilText || 'not stated'}.</p>
+      <p>Published: {time(alert.publishedAt || alert.publishedAtText)}; fetched: {time(alert.retrievedAt)}. Freshness: {alert.freshness}. Validity: {alert.validFromText || 'not stated'} to {alert.validUntilText || 'not stated'}.</p>
       <p>Source availability: {alert.sourceAvailability}. {alert.matchedRoadId ? `Reviewed road: ${alert.matchedRoadId}. Reviewed: ${time(alert.reviewedAt)}.` : 'No reviewed road match. Road condition remains Unknown.'}</p>
       {alert.proposal && <p className="real-alerts__proposal"><CircleHelp aria-hidden="true" size={16} /> Proposed match: {alert.proposal.displayLabel} · {alert.proposal.confidenceCategory} confidence · {alert.proposal.explanation}. Not a confirmed blockage.</p>}
       {alert.state === 'Reported / Unverified' && alert.resolutionState === 'ambiguous' && <p className="real-alerts__uncertain">Ambiguous match — responder selection required. Road condition remains Unknown.</p>}
       {alert.state === 'Reported / Unverified' && ['outside_coverage', 'stale_snapshot', 'invalid_source_location', 'unlocated'].includes(alert.resolutionState) && <p className="real-alerts__uncertain">Location resolution: {alert.resolutionState.replaceAll('_', ' ')}. No road condition inferred.</p>}
-      <p><a href={alert.advisoryUrl || alert.canonicalSourceUrl} target="_blank" rel="noopener noreferrer">Open source advisory</a></p>
+      <p><a href={alert.canonicalSourceUrl} target="_blank" rel="noopener noreferrer">Open official source alert</a></p>
     </li>)}</ul>}
     {view === 'responder' && <div className="real-alerts__review">
       <h3>Responder source review</h3>
       {!responder ? <p>Only signed-in varuna-responder members may import and review source alerts.</p> : <>
-        <p>Local session only. Paste a manually checked normalized source document; no automatic retrieval occurs. Import and review history are not durable or deployed.</p>
+        <p>Paste a manually checked normalized source document only when needed. Scheduled official-source imports remain Reported / Unverified until responder review. Review history is durable when the deployed alert table is configured.</p>
         <label htmlFor="alert-import">Normalized source-document JSON</label>
         <textarea id="alert-import" value={document} maxLength={12000} rows={5} onChange={(event) => setDocument(event.target.value)} />
         <button type="button" className="btn btn--secondary" disabled={busy || !document.trim()} onClick={() => void importSource()}>Import source for review</button>

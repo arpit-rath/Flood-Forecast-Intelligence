@@ -1,8 +1,8 @@
 # Scenario API and private photo reports
 
-`template.yaml` defines API Gateway, the Scenario Lambda, a private encrypted S3 bucket for report photos, and a DynamoDB table for durable report metadata. It has no credentials. It does not configure Live weather, AI image analysis, Delhi-wide risk, or persistent closures. `Live` requests return 503. Packaging and building create no AWS resources.
+`template.yaml` defines API Gateway, the Scenario Lambda, separate real-road evidence and official-source alert support, a private encrypted S3 bucket for report photos, and separate DynamoDB tables. It has no credentials. It does not configure Live weather, AI image analysis, Delhi-wide risk, or persistent closures. `Live` requests return 503. Packaging and building create no AWS resources. The Phase 3 schedule is disabled by default and has not been deployed by this work.
 
-The Lambda package contains only the Python backend modules needed by the handler, `data/fixture/scenario.json`, the checked-in OSM road snapshot staged as `data/real_roads/delhi-roads.json`, and `requirements.txt` for boto3 and Pillow. It does **not** stage frontend code or assets. The staging script recreates `infra/.lambda-package/` from an explicit source allowlist; it refuses to replace that directory if unexpected files are present. Both staging and SAM build output are ignored by Git.
+The Lambda package contains only the Python backend modules needed by the two handlers, `data/fixture/scenario.json`, the checked-in OSM road snapshot and reviewed alert context staged under `data/real_roads/`, and `requirements.txt` for boto3 and Pillow. It does **not** stage frontend code or assets. The staging script recreates `infra/.lambda-package/` from an explicit source allowlist; it refuses to replace that directory if unexpected files are present. Both staging and SAM build output are ignored by Git.
 
 From the repository root, with Python 3.12 and AWS SAM CLI installed, build it with these exact commands:
 
@@ -80,3 +80,52 @@ The API URL, bucket name, pilot reports table and separate real-road reports tab
 References: [Cognito self-registration settings](https://docs.aws.amazon.com/cognito/latest/developerguide/user-pool-settings-admin-create-user-policy.html), [Cognito user management](https://docs.aws.amazon.com/cognito/latest/developerguide/how-to-manage-user-accounts.html), [Cognito user-pool metrics](https://docs.aws.amazon.com/cognito/latest/developerguide/metrics-for-cognito-user-pools.html), [Cognito WAF](https://docs.aws.amazon.com/cognito/latest/developerguide/user-pool-waf.html), [HTTP API throttling](https://docs.aws.amazon.com/apigateway/latest/developerguide/http-api-throttling.html), [Cognito token endpoint and PKCE](https://docs.aws.amazon.com/cognito/latest/developerguide/token-endpoint.html), [API Gateway JWT authorizer](https://docs.aws.amazon.com/apigateway/latest/developerguide/http-api-jwt-authorizer.html), [S3 POST policy](https://docs.aws.amazon.com/AmazonS3/latest/developerguide/sigv4-HTTPPOSTConstructPolicy.html), [DynamoDB expired-item filtering](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/ttl-expired-items.html).
 
 Do not commit AWS credentials or put them in browser code. Configure budget alerts and an abuse response owner before public traffic. Cognito, API Gateway, Lambda, S3 and DynamoDB can incur charges beyond free-tier allowances.
+
+## Phase 3 official Delhi Traffic Police alerts (proposed; not deployed)
+
+The HTTP status observations below were provided by the operator; this local test run did not contact the official site.
+
+Both the EventBridge target and Lambda asynchronous invocation are configured for zero automatic retry attempts; duplicate scheduled deliveries remain harmless through deterministic document keys. SAM may synthesize an `AWS::Lambda::EventInvokeConfig` in addition to the resources listed below.
+
+This adds **one** retained, encrypted on-demand `VarunaRoadAlerts` DynamoDB table, with 30-day TTL and explicitly paid seven-day point-in-time recovery; one isolated Python ingestion Lambda; one EventBridge 30-minute rule initially `DISABLED`; and one source-ARN-scoped Lambda invoke permission. The existing API Lambda package/environment/IAM are updated to read/write only the new table; four `/v2/road-alerts` responder routes receive the existing Cognito JWT authorizer and Lambda `varuna-responder` group check. The public alert route remains public with a strict allowlist and source-health envelope. The existing Scenario routes, resident-report tables, S3 bucket, CORS origins and Cognito resources are not changed by Phase 3. SAM may synthesize execution roles, log groups and HTTP API route/integration resources; inspect the actual changeset. `RoadAlertsTable` and `RoadAlertIngestFunction` are new stack outputs. The alert table uses `Retain` on stack deletion, so arrange authorized manual export/deletion after the pilot; TTL and PITR expiry are asynchronous and billable. No VPC or unrelated service is added.
+
+The parser retrieves only `https://traffic.delhipolice.gov.in/en/news-alertadvisory/alerts` plus same-origin HTML details linked from its `<h2>` alert titles. It checks `robots.txt` before each bounded run, makes one listing request and at most ten new/changed detail requests sequentially, uses the same descriptive Varuna User-Agent and ten-second timeout, and refuses redirects, PDFs, social links, administrative paths and non-HTML responses. Per [RFC 9309 section 2.3.1](https://www.rfc-editor.org/rfc/rfc9309.html#section-2.3.1), a successfully fetched policy is obeyed; an HTTP 400–499 robots response except 429 is treated as unavailable and the **same** strict listing/detail allowlist may proceed with a non-fatal `robots_unavailable` source-health warning. A 429 defers further requests through its `Retry-After`; 5xx, network failure, malformed successful policy, uncertain rule evaluation or an applicable Disallow stops ingestion. Robots unavailability is not authorization and does not expand source scope. The adapter stores ETag/Last-Modified validators, source identifiers, text, dates when explicitly present, SHA-256 and parser version. A changed listing headline can trigger a conditional detail re-fetch and immutable revision; an unchanged listing is not a guarantee that an old detail has not changed. The adapter does **not** geocode or infer coordinates. Automatic imports begin Reported / Unverified, leave roads Unknown and cannot change `/v1` Scenario, resident reports or routing eligibility. Previous records survive source failure and carry their original timestamps; source-health state becomes stale/unavailable.
+
+Pre-activation gate: on 11 October 2026, manual checks with the declared Varuna User-Agent observed `GET /robots.txt` → HTTP 403 (`text/html`), `GET /en/news-alertadvisory/alerts` → HTTP 200 (`text/html`), and a current same-origin alert detail → HTTP 200 (`text/html`). Those results support the RFC unavailable-robots branch but do **not** validate the deployed parser, current site policy, date/time fields, actual stack configuration or operating costs. The schedule remains `DISABLED`; manually invoke one bounded run only after a reviewed deployment, inspect its source-health warning and imported records, and verify public redaction and `/v1` regression before a separate schedule-enabling update. If a later robots response contains an applicable Disallow or is 429, 5xx, malformed or unreachable, ingestion must stop/defer as above. Do not switch User-Agent, host, social/PDF mirror or administrative route to work around a denial. A locally passing synthetic fixture is not proof of live-source compatibility.
+
+Local build and inspection from the repository root (no AWS account action):
+
+```powershell
+python -m unittest discover -s backend/tests -q
+Push-Location frontend
+npm run test:unit
+npm run typecheck
+npm run lint
+npm run build
+Pop-Location
+python infra/package_lambda.py
+sam validate --template-file infra/template.yaml --lint --region ap-south-1
+sam build --template-file infra/template.yaml
+```
+
+Inspect **both** `.aws-sam/build/VarunaFixtureApi/` and `.aws-sam/build/VarunaRoadAlertIngest/` for only allowlisted runtime files plus Python dependencies. Neither may contain `frontend/`, `node_modules/`, tests, Git files, credentials or Windows `.pyd`/`.dll` binaries. A Windows-hosted SAM build may package Windows wheels; in that case it is **not deployable** and must be rebuilt with `sam build --use-container --template-file infra/template.yaml` on a Docker-capable machine, then inspected again. The build directory and staging output are ignored by Git.
+
+The following are **operator commands for a later, separately approved deployment**, not commands run as part of this implementation. Replace the three bracketed existing-stack values from the live stack; never commit them. First create and inspect a disabled changeset:
+
+```powershell
+$varunaStack = '<existing-stack-name>'
+$varunaIssuer = '<existing-CognitoJwtIssuer>'
+$varunaAudience = '<existing-CognitoJwtAudience>'
+sam deploy --template-file .aws-sam/build/template.yaml --stack-name $varunaStack --region ap-south-1 --capabilities CAPABILITY_IAM --no-execute-changeset --parameter-overrides "AllowedOrigin=https://main.d9r54jpiln4dg.amplifyapp.com" "AllowedPreviewOrigin=https://feature-delhi-hybrid-overview.d9r54jpiln4dg.amplifyapp.com" "CognitoJwtIssuer=$varunaIssuer" "CognitoJwtAudience=$varunaAudience" "RoadAlertScheduleState=DISABLED"
+```
+
+Inspect the resulting CloudFormation changeset and explicitly confirm the new table, seven-day PITR charge, isolated Lambda, disabled schedule/invoke permission, protected routes and API Lambda policy/code; no replacement or deletion of report resources. If approved, execute that exact reviewed changeset (use its ARN printed by SAM):
+
+```powershell
+aws cloudformation execute-change-set --change-set-name '<reviewed-changeset-ARN>' --stack-name $varunaStack --region ap-south-1
+aws cloudformation wait stack-update-complete --stack-name $varunaStack --region ap-south-1
+$varunaIngest = aws cloudformation describe-stacks --stack-name $varunaStack --region ap-south-1 --query "Stacks[0].Outputs[?OutputKey=='RoadAlertIngestFunction'].OutputValue | [0]" --output text
+aws lambda invoke --function-name $varunaIngest --region ap-south-1 --cli-binary-format raw-in-base64-out --payload '{}' "$env:TEMP\varuna-alert-ingest-result.json"
+```
+
+Review the returned source state, official-source request behavior, table records/revisions and public/private API redaction; verify `/v1` Scenario and resident reports again. A `current` source state is not a flood-condition claim. Only after robots/permission, live parser, budget, retention and responder checks pass, create a **second reviewed** changeset with the same parameter values but `RoadAlertScheduleState=ENABLED`, then execute its ARN as above. If any gate fails, leave `DISABLED`. Rollback is another reviewed stack update to `DISABLED` plus a feature-preview rollback if needed; preserve the retained table and audit. Do not delete the table or enable a schedule outside CloudFormation to work around an issue.
