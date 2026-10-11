@@ -3,6 +3,7 @@
 import json
 import re
 import unittest
+import boto3
 from datetime import datetime, timedelta, timezone
 from io import BytesIO
 from pathlib import Path
@@ -237,8 +238,9 @@ class AnonymousRealRoadTests(unittest.TestCase):
         store.reserve_anonymous("hash", binding, 3, expiry)
         reservation = table.meta.client.transact_write_items.call_args.kwargs["TransactItems"]
         self.assertEqual(len(reservation), 2)
-        self.assertEqual(reservation[0]["Update"]["ExpressionAttributeValues"][":limit"], {"N": "3"})
-        self.assertEqual(reservation[1]["Put"]["Item"]["id"], {"S": "P#hash"})
+        self.assertEqual(reservation[0]["Update"]["ExpressionAttributeValues"][":limit"], 3)
+        self.assertEqual(reservation[0]["Update"]["ExpressionAttributeValues"][":one"], 1)
+        self.assertEqual(reservation[1]["Put"]["Item"]["id"], "P#hash")
         table.get_item.return_value = {"Item": {"id": "P#hash", "status": "pending",
                                                 "expiresAtEpoch": expiry, "payload": json.dumps(binding)}}
         report = {"id": "RR-test", "reviewStatus": "Pending Review", "expiresAtEpoch": expiry}
@@ -246,7 +248,64 @@ class AnonymousRealRoadTests(unittest.TestCase):
         commit = table.meta.client.transact_write_items.call_args.kwargs["TransactItems"]
         self.assertEqual(len(commit), 2)
         self.assertIn("expiresAtEpoch > :now", commit[0]["Update"]["ConditionExpression"])
-        self.assertEqual(commit[1]["Put"]["Item"]["id"], {"S": "RR-test"})
+        self.assertEqual(commit[0]["Update"]["ExpressionAttributeValues"][":now"], int(datetime.now(timezone.utc).timestamp()))
+        self.assertEqual(commit[1]["Put"]["Item"]["id"], "RR-test")
+
+    def test_dynamo_transactions_serialize_numeric_operands_at_resource_boundary(self):
+        fixed = datetime(2026, 10, 12, 12, 0, tzinfo=timezone.utc)
+
+        class FixedDatetime(datetime):
+            @classmethod
+            def now(cls, tz=None):
+                return fixed if tz else fixed.replace(tzinfo=None)
+
+        # Inert credentials and a loopback endpoint avoid the real credential
+        # chain. Intercept the endpoint only after boto3 has transformed and
+        # botocore has validated/serialized the request; no network is used.
+        resource = boto3.resource("dynamodb", region_name="ap-south-1", endpoint_url="http://127.0.0.1:9",
+                                  aws_access_key_id="test", aws_secret_access_key="test")
+        table = resource.Table("test-real-road-reports")
+        store = object.__new__(DynamoRealRoadStore)
+        store.table = table
+        binding = {"road": self.reference, "imageKey": "uploads/real-road/anonymous/hash"}
+        expiry = int((fixed + timedelta(minutes=5)).timestamp())
+        quota_expiry = int(datetime(2026, 10, 14, tzinfo=timezone.utc).timestamp())
+        pending = {"id": "P#hash", "status": "pending", "expiresAtEpoch": expiry, "payload": json.dumps(binding)}
+        report = {"id": "RR-test", "reviewStatus": "Pending Review", "expiresAtEpoch": expiry}
+        item = {**report, "requestFingerprint": "fingerprint"}
+        wire_calls = []
+
+        def intercept_endpoint(operation, request):
+            if operation.name == "TransactWriteItems":
+                wire_calls.append(json.loads(request["body"]))
+                return Mock(status_code=200), {}
+            if operation.name == "GetItem":
+                return Mock(status_code=200), {"Item": {
+                    "id": {"S": pending["id"]}, "status": {"S": "pending"},
+                    "expiresAtEpoch": {"N": str(expiry)}, "payload": {"S": pending["payload"]}}}
+            self.fail(f"unexpected DynamoDB operation: {operation.name}")
+
+        with patch.object(table.meta.client._endpoint, "make_request", side_effect=intercept_endpoint) as transport, \
+                patch("backend.varuna.real_roads.datetime", FixedDatetime):
+            store.reserve_anonymous("hash", binding, 3, expiry)
+            self.assertEqual(store.commit_anonymous("hash", report, "fingerprint"), item)
+            self.assertEqual(transport.call_count, 3)
+        self.assertEqual(len(wire_calls), 2)
+        reservation, commit = (call["TransactItems"] for call in wire_calls)
+        self.assertEqual(reservation[0]["Update"]["Key"], {"id": {"S": "AQ#2026-10-12"}})
+        self.assertEqual(reservation[0]["Update"]["ExpressionAttributeValues"],
+                         {":expiry": {"N": str(quota_expiry)}, ":one": {"N": "1"}, ":limit": {"N": "3"}})
+        self.assertEqual(reservation[1]["Put"]["Item"],
+                         {"id": {"S": pending["id"]}, "status": {"S": "pending"},
+                          "expiresAtEpoch": {"N": str(expiry)}, "payload": {"S": pending["payload"]}})
+        self.assertEqual(commit[0]["Update"]["Key"], {"id": {"S": pending["id"]}})
+        self.assertEqual(commit[0]["Update"]["ExpressionAttributeValues"],
+                         {":consumed": {"S": "consumed"}, ":pending": {"S": "pending"},
+                          ":payload": {"S": json.dumps({**binding, "fingerprint": "fingerprint"})},
+                          ":now": {"N": str(int(fixed.timestamp()))}})
+        self.assertEqual(commit[1]["Put"]["Item"],
+                         {"id": {"S": report["id"]}, "reviewStatus": {"S": "Pending Review"},
+                          "expiresAtEpoch": {"N": str(expiry)}, "payload": {"S": json.dumps(item)}})
 
 
 if __name__ == "__main__":

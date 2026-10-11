@@ -82,6 +82,8 @@ class MemoryRealRoadStore(MemoryReportStore):
 
 
 class DynamoRealRoadStore(DynamoReportStore):
+    """Resource-backed table/client calls accept native Python AttributeValues."""
+
     def list(self) -> list[dict[str, Any]]:
         items: list[dict[str, Any]] = []
         args: dict[str, Any] = {"ConsistentRead": True, "Limit": 100}
@@ -113,21 +115,19 @@ class DynamoRealRoadStore(DynamoReportStore):
             raise
 
     def reserve_anonymous(self, token_hash: str, binding: dict[str, Any], limit: int, expiry: int) -> None:
-        from boto3.dynamodb.types import TypeSerializer
-        serializer = TypeSerializer()
         now = datetime.now(timezone.utc)
         tomorrow = datetime.combine(now.date() + timedelta(days=1), datetime.min.time(), timezone.utc)
         quota_id = "AQ#" + now.date().isoformat()
         pending = {"id": "P#" + token_hash, "status": "pending", "expiresAtEpoch": expiry, "payload": json.dumps(binding)}
         try:
             self.table.meta.client.transact_write_items(TransactItems=[
-                {"Update": {"TableName": self.table.name, "Key": {"id": {"S": quota_id}},
+                {"Update": {"TableName": self.table.name, "Key": {"id": quota_id},
                             "UpdateExpression": "SET expiresAtEpoch = :expiry ADD #count :one",
                             "ConditionExpression": "attribute_not_exists(#count) OR #count < :limit",
                             "ExpressionAttributeNames": {"#count": "uploadCount"},
-                            "ExpressionAttributeValues": {":expiry": {"N": str(int(tomorrow.timestamp()) + 86400)},
-                                                          ":one": {"N": "1"}, ":limit": {"N": str(limit)}}}},
-                {"Put": {"TableName": self.table.name, "Item": {key: serializer.serialize(value) for key, value in pending.items()},
+                            "ExpressionAttributeValues": {":expiry": int(tomorrow.timestamp()) + 86400,
+                                                          ":one": 1, ":limit": limit}}},
+                {"Put": {"TableName": self.table.name, "Item": pending,
                          "ConditionExpression": "attribute_not_exists(id)"}},
             ])
         except Exception as exc:
@@ -142,8 +142,6 @@ class DynamoRealRoadStore(DynamoReportStore):
         return {**json.loads(item["payload"]), "status": item["status"], "expiresAtEpoch": int(item["expiresAtEpoch"])}
 
     def commit_anonymous(self, token_hash: str, report: dict[str, Any], fingerprint: str) -> dict[str, Any]:
-        from boto3.dynamodb.types import TypeSerializer
-        serializer = TypeSerializer()
         pending = self.get_pending(token_hash)
         if not pending:
             raise SubmissionUnavailable("submission expired or unavailable; request a new upload")
@@ -155,16 +153,16 @@ class DynamoRealRoadStore(DynamoReportStore):
         item = {**report, "requestFingerprint": fingerprint}
         try:
             self.table.meta.client.transact_write_items(TransactItems=[
-                {"Update": {"TableName": self.table.name, "Key": {"id": {"S": "P#" + token_hash}},
+                {"Update": {"TableName": self.table.name, "Key": {"id": "P#" + token_hash},
                             "UpdateExpression": "SET #status = :consumed, payload = :payload",
                             "ConditionExpression": "#status = :pending AND expiresAtEpoch > :now",
                             "ExpressionAttributeNames": {"#status": "status"},
-                            "ExpressionAttributeValues": {":consumed": {"S": "consumed"}, ":pending": {"S": "pending"},
-                                                          ":payload": {"S": json.dumps({key: value for key, value in pending.items() if key not in ("status", "expiresAtEpoch")} | {"fingerprint": fingerprint})},
-                                                          ":now": {"N": str(int(datetime.now(timezone.utc).timestamp()))}}}},
+                            "ExpressionAttributeValues": {":consumed": "consumed", ":pending": "pending",
+                                                          ":payload": json.dumps({key: value for key, value in pending.items() if key not in ("status", "expiresAtEpoch")} | {"fingerprint": fingerprint}),
+                                                          ":now": int(datetime.now(timezone.utc).timestamp())}}},
                 {"Put": {"TableName": self.table.name,
-                         "Item": {key: serializer.serialize(value) for key, value in {"id": item["id"], "reviewStatus": item["reviewStatus"],
-                                                                                         "expiresAtEpoch": item["expiresAtEpoch"], "payload": json.dumps(item)}.items()},
+                         "Item": {"id": item["id"], "reviewStatus": item["reviewStatus"],
+                                  "expiresAtEpoch": item["expiresAtEpoch"], "payload": json.dumps(item)},
                          "ConditionExpression": "attribute_not_exists(id)"}},
             ])
             return item
