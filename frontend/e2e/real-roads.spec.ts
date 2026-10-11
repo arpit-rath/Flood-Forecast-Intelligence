@@ -25,15 +25,23 @@ test('resident and responder show limited real-road coverage without pilot claim
   await expect(page.getByRole('heading', { name: 'Real roads, unknown conditions.' })).toBeVisible();
   await expect(page.getByText(/OSM road overlay limited to a DTU-area extract/)).toBeVisible();
   await expect(page.getByText(/Roads elsewhere are unassessed/)).toBeVisible();
-  await expect(page.getByRole('button', { name: 'Submit a real-road photo (unavailable)' })).toBeDisabled();
+  if (process.env.VITE_USE_MOCKS === 'false') {
+    await expect(page.getByText(/Versioned real-road reporting available/)).toBeVisible();
+  } else {
+    await expect(page.getByText(/Real-road reporting unavailable/)).toBeVisible();
+  }
   await expect(page.getByRole('list', { name: 'Mapped roads' }).getByRole('button').first()).toContainText('Unknown');
   await page.getByRole('list', { name: 'Mapped roads' }).getByRole('button').first().click();
   await expect(page.getByText('Unknown flood condition')).toBeVisible();
   await expect(page.getByText(/Map geometry:/)).toContainText('osm:way/');
   await expect(page.getByRole('link', { name: /OpenStreetMap contributors/ })).toBeVisible();
   await page.getByRole('link', { name: 'Responder', exact: true }).click();
-  await expect(page.getByText('Real-road review unavailable')).toBeVisible();
-  await expect(page.getByText(/existing private pilot queue remains protected/)).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Private real-road review' })).toBeVisible();
+  if (process.env.VITE_USE_MOCKS === 'false') {
+    await expect(page.getByText(/Only varuna-responder members/)).toBeVisible();
+  } else {
+    await expect(page.getByText(/The \/v2 review service is unavailable/)).toBeVisible();
+  }
   await page.getByRole('link', { name: 'Resident', exact: true }).click();
   await expect(page.getByText('Resident road view')).toBeVisible();
   await expect(page.locator('body')).not.toContainText(/Scenario rainfall|H-\d+|Compare routes|drain intervention/i);
@@ -88,6 +96,32 @@ test('failed Standard descriptor does not imply a clear road', async ({ page }) 
   await expect(page.getByRole('alert')).toContainText('Delhi basemap unavailable');
   await expect(page.getByRole('alert')).toContainText('Roads here remain Unknown');
   await expect(page.getByRole('list', { name: 'Mapped roads' }).getByRole('button').first()).toContainText('Unknown');
+});
+
+test('failed v2 API stays read-only and never borrows pilot reports', async ({ page }) => {
+  test.skip(process.env.VITE_USE_MOCKS !== 'false', 'HTTP mode only');
+  const pilotCalls: string[] = [];
+  page.on('request', (request) => { if (/\/v1\/reports|\/v1\/snapshots/.test(request.url())) pilotCalls.push(request.url()); });
+  await page.route('http://127.0.0.1:8000/v2/**', (route) => route.abort());
+  await page.goto('/');
+  await expect(page.getByText(/Real-road \/v2 API unavailable/)).toBeVisible();
+  await expect(page.getByText(/Real-road reporting unavailable/)).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Real roads, unknown conditions.' })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Submit photo for review' })).toHaveCount(0);
+  expect(pilotCalls).toEqual([]);
+});
+
+test('an unexpected public pending payload fails closed without a map marker', async ({ page }) => {
+  test.skip(process.env.VITE_USE_MOCKS !== 'false', 'HTTP mode only');
+  await page.route('http://127.0.0.1:8000/v2/real-road-evidence', (route) => route.fulfill({
+    contentType: 'application/json',
+    body: JSON.stringify({ evidence: [{ roadId: 'osm:way/171708731', observedAt: new Date().toISOString(), reviewState: 'Pending Review' }] }),
+  }));
+  await page.goto('/');
+  await expect(page.getByText(/Real-road \/v2 API unavailable/)).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Submit photo for review' })).toHaveCount(0);
+  await expect(page.getByRole('list', { name: 'Mapped roads' }).getByRole('button').first()).toContainText('Unknown');
+  await expect(page.locator('.real-preview__panel')).not.toContainText('Pending Review');
 });
 
 test('preview has no serious accessibility violations', async ({ page }) => {

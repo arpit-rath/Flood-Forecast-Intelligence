@@ -4,11 +4,13 @@ from __future__ import annotations
 
 import json
 import os
+import re
 from dataclasses import dataclass
 from typing import Any
 
 from .models import Report
 from .reporting import DynamoReportStore, PhotoMissing, ReportConflict, ReportWorkflow, S3Media
+from .real_roads import DynamoRealRoadStore, RealRoadWorkflow, RoadSnapshot, UploadLimit
 from .service import ModeUnavailableError, SnapshotConflictError, VarunaService
 
 
@@ -51,6 +53,7 @@ def dispatch(
     headers: dict[str, str] | None = None, request_id: str = "local",
     allow_local_mutations: bool = False, operator_token: str | None = None,
     operator_claims: dict[str, Any] | None = None, reporting: ReportWorkflow | None = None,
+    real_roads: RealRoadWorkflow | None = None,
     cors_origin: str = "http://localhost:5173",
     cors_preview_origin: str | None = None,
 ) -> ApiResponse:
@@ -88,6 +91,33 @@ def dispatch(
             reporting.sync()
         if method == "GET" and path == "/health":
             return respond(200, {"status": "ok", "mode": "fixture", "synthetic": True})
+        if method == "GET" and path == "/v2/roads":
+            return respond(200, real_roads.snapshot.public()) if real_roads else error(503, "real_roads_unavailable", "Real-road reporting is not configured")
+        if method == "GET" and path == "/v2/real-road-evidence":
+            return respond(200, {"evidence": real_roads.public_evidence()}) if real_roads else error(503, "real_roads_unavailable", "Real-road evidence is not configured")
+        if path == "/v2/real-road-reports/upload-url" and method == "POST":
+            if not _authenticated(operator_claims):
+                return error(403, "forbidden", "sign-in is required to submit a report")
+            return respond(200, real_roads.prepare_upload(body, operator_claims["sub"])) if real_roads else error(503, "real_roads_unavailable", "Real-road reporting is not configured")
+        if path == "/v2/real-road-reports" and method == "POST":
+            if not _authenticated(operator_claims):
+                return error(403, "forbidden", "sign-in is required to submit a report")
+            return respond(201, real_roads.create(body, operator_claims["sub"])) if real_roads else error(503, "real_roads_unavailable", "Real-road reporting is not configured")
+        if path == "/v2/real-road-reports" and method == "GET":
+            if not _authorized(headers, None, operator_claims):
+                return error(403, "forbidden", "responder access is required")
+            return respond(200, {"reports": real_roads.list()}) if real_roads else error(503, "real_roads_unavailable", "Real-road reporting is not configured")
+        if path.startswith("/v2/real-road-reports/") and path.count("/") == 3 and method == "GET":
+            if not _authorized(headers, None, operator_claims):
+                return error(403, "forbidden", "responder access is required")
+            return respond(200, real_roads.detail(path.rsplit("/", 1)[-1])) if real_roads else error(503, "real_roads_unavailable", "Real-road reporting is not configured")
+        if path.startswith("/v2/real-road-reports/") and path.endswith("/review") and method == "PATCH":
+            if not _authorized(headers, None, operator_claims):
+                return error(403, "forbidden", "responder access is required")
+            report_id = path[len("/v2/real-road-reports/"):-len("/review")].strip("/")
+            if not re.fullmatch(r"RR-[0-9a-f]{32}", report_id):
+                raise ValueError("invalid real-road report ID")
+            return respond(200, real_roads.review(report_id, body, operator_claims["sub"])) if real_roads else error(503, "real_roads_unavailable", "Real-road reporting is not configured")
         if method == "GET" and path == "/v1/pilot":
             return respond(200, service.pilot())
         if method == "GET" and path == "/v1/snapshots/current":
@@ -166,6 +196,8 @@ def dispatch(
         return error(409, "stale_snapshot", str(exc), True)
     except ReportConflict as exc:
         return error(409, "report_conflict", str(exc))
+    except UploadLimit as exc:
+        return error(429, "upload_limit", str(exc))
     except PhotoMissing as exc:
         return error(404, "photo_missing", str(exc))
     except KeyError:
@@ -193,6 +225,7 @@ def lambda_handler(event: dict[str, Any], context: Any) -> dict[str, Any]:
         allow_local_mutations=False,
         operator_claims=((request.get("authorizer") or {}).get("jwt") or {}).get("claims"),
         reporting=_LAMBDA_REPORTING,
+        real_roads=_LAMBDA_REAL_ROADS,
         cors_origin=os.environ.get("VARUNA_CORS_ORIGIN", ""),
         cors_preview_origin=os.environ.get("VARUNA_CORS_PREVIEW_ORIGIN"),
     )
@@ -206,4 +239,8 @@ _LAMBDA_SERVICE = VarunaService()
 _LAMBDA_REPORTING = (
     ReportWorkflow(_LAMBDA_SERVICE, DynamoReportStore(os.environ["VARUNA_REPORTS_TABLE"]), S3Media(os.environ["VARUNA_MEDIA_BUCKET"]))
     if os.environ.get("VARUNA_REPORTS_TABLE") and os.environ.get("VARUNA_MEDIA_BUCKET") else None
+)
+_LAMBDA_REAL_ROADS = (
+    RealRoadWorkflow(RoadSnapshot(), DynamoRealRoadStore(os.environ["VARUNA_REAL_ROAD_REPORTS_TABLE"]), S3Media(os.environ["VARUNA_MEDIA_BUCKET"]))
+    if os.environ.get("VARUNA_REAL_ROAD_REPORTS_TABLE") and os.environ.get("VARUNA_MEDIA_BUCKET") else None
 )

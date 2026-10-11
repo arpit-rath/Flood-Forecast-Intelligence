@@ -49,7 +49,7 @@ export interface Report {
   expiresAt?: string;
 }
 
-/** Proposed v2 real-road contract. No v2 endpoint is deployed in this stage. */
+/** Separate v2 limited-coverage OSM evidence contract; /v1 Scenario remains unchanged. */
 export type RealRoadId = `osm:way/${number}`;
 export type RealRoadReviewState = "Pending Review" | "Confirmed Blockage" | "Cleared" | "Rejected";
 
@@ -69,16 +69,48 @@ export interface RealRoadReportDraft {
   note?: string;
 }
 
-export interface RealRoadEvidence {
+/** Submitter-only receipt; a retry must not expose responder review details. */
+export interface RealRoadSubmissionReceipt {
   id: string;
+  reviewStatus: RealRoadReviewState;
+}
+
+export interface RealRoadEvidence {
+  /** Internal marker identity is optional; the public feed never returns a report ID. */
+  id?: string;
   roadId: RealRoadId;
-  point: Point;
+  /** Pending/rejected states are only available in the protected responder report API. */
+  point: Point | null;
   reviewState: RealRoadReviewState;
   observedAt: string;
   reviewedAt: string | null;
+  reviewDecision?: "confirm_blockage" | "clear" | "reject" | null;
   expiresAt: string;
   source: "resident_photo" | "responder_field_check";
-  /** Only protected responder detail may return a short-lived private photo URL. */
+}
+
+/** Strict public feed: current, reviewed outcomes only, without private report fields. */
+export type PublicRealRoadEvidence = Omit<RealRoadEvidence, "id" | "point" | "reviewState" | "reviewedAt" | "reviewDecision"> & {
+  point: Point;
+  reviewState: "Confirmed Blockage" | "Cleared";
+  reviewedAt: string;
+  reviewDecision: "confirm_blockage" | "clear";
+};
+
+export interface RealRoadReport {
+  id: string;
+  roadId: RealRoadId;
+  geometryVersion: string;
+  point: Point;
+  reviewStatus: RealRoadReviewState;
+  source: "resident_photo";
+  observedAt: string;
+  createdAt: string;
+  reviewedAt: string | null;
+  evidenceExpiresAt: string;
+  expiresAt: string;
+  note: string;
+  review: { decision: "confirm_blockage" | "clear" | "reject"; reviewedAt: string; reviewer: string } | null;
   photoUrl?: string;
 }
 

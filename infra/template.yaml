@@ -1,6 +1,6 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
-Description: Varuna synthetic Scenario API with private pilot photo reports and manual review
+Description: Varuna Scenario API and separate limited-coverage real-road photo evidence
 
 Parameters:
   AllowedOrigin:
@@ -109,6 +109,24 @@ Resources:
         AttributeName: expiresAtEpoch
         Enabled: true
 
+  VarunaRealRoadReports:
+    Type: AWS::DynamoDB::Table
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: id
+          AttributeType: S
+      KeySchema:
+        - AttributeName: id
+          KeyType: HASH
+      SSESpecification:
+        SSEEnabled: true
+      TimeToLiveSpecification:
+        AttributeName: expiresAtEpoch
+        Enabled: true
+
   VarunaFixtureApi:
     Type: AWS::Serverless::Function
     Properties:
@@ -117,12 +135,13 @@ Resources:
       CodeUri: .lambda-package/
       MemorySize: 256
       Timeout: 10
-      Description: Synthetic Scenario API; private photo reports and manual review, no Live feed
+      Description: Synthetic Scenario API and separate limited OSM photo evidence; no Live feed
       Environment:
         Variables:
           VARUNA_CORS_ORIGIN: !Ref AllowedOrigin
           VARUNA_CORS_PREVIEW_ORIGIN: !Ref AllowedPreviewOrigin
           VARUNA_REPORTS_TABLE: !Ref VarunaReports
+          VARUNA_REAL_ROAD_REPORTS_TABLE: !Ref VarunaRealRoadReports
           VARUNA_MEDIA_BUCKET: !Ref VarunaPrivatePhotos
       Policies:
         - Statement:
@@ -133,6 +152,13 @@ Resources:
                 - dynamodb:UpdateItem
                 - dynamodb:Scan
               Resource: !GetAtt VarunaReports.Arn
+            - Effect: Allow
+              Action:
+                - dynamodb:GetItem
+                - dynamodb:PutItem
+                - dynamodb:UpdateItem
+                - dynamodb:Scan
+              Resource: !GetAtt VarunaRealRoadReports.Arn
             - Effect: Allow
               Action:
                 - s3:GetObject
@@ -204,6 +230,59 @@ Resources:
               Authorizer: CognitoAccessJwt
               AuthorizationScopes:
                 - openid
+        ProtectedRealRoadUploadRequest:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref VarunaHttpApi
+            Path: /v2/real-road-reports/upload-url
+            Method: POST
+            RouteSettings:
+              ThrottlingBurstLimit: 2
+              ThrottlingRateLimit: 0.5
+            Auth:
+              Authorizer: CognitoAccessJwt
+              AuthorizationScopes:
+                - openid
+        ProtectedRealRoadCreate:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref VarunaHttpApi
+            Path: /v2/real-road-reports
+            Method: POST
+            Auth:
+              Authorizer: CognitoAccessJwt
+              AuthorizationScopes:
+                - openid
+        ProtectedRealRoadList:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref VarunaHttpApi
+            Path: /v2/real-road-reports
+            Method: GET
+            Auth:
+              Authorizer: CognitoAccessJwt
+              AuthorizationScopes:
+                - openid
+        ProtectedRealRoadDetail:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref VarunaHttpApi
+            Path: /v2/real-road-reports/{id}
+            Method: GET
+            Auth:
+              Authorizer: CognitoAccessJwt
+              AuthorizationScopes:
+                - openid
+        ProtectedRealRoadReview:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref VarunaHttpApi
+            Path: /v2/real-road-reports/{id}/review
+            Method: PATCH
+            Auth:
+              Authorizer: CognitoAccessJwt
+              AuthorizationScopes:
+                - openid
 
 Outputs:
   ApiBaseUrl:
@@ -215,3 +294,6 @@ Outputs:
   ReportsTable:
     Description: Durable report metadata table
     Value: !Ref VarunaReports
+  RealRoadReportsTable:
+    Description: Separate limited-coverage real-road metadata and upload-quota table
+    Value: !Ref VarunaRealRoadReports

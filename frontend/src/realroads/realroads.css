@@ -176,6 +176,15 @@
 
 .real-preview__detail .btn { margin-top: var(--v-space-3); max-width: 100%; white-space: normal; }
 .real-preview__detail .btn:disabled { cursor: not-allowed; opacity: 0.65; }
+.real-preview__form { display: grid; gap: var(--v-space-3); margin-top: var(--v-space-3); }
+.real-preview__form label { display: grid; gap: var(--v-space-1); font: var(--v-type-detail); font-weight: 700; }
+.real-preview__form input { width: 100%; min-height: 44px; padding: var(--v-space-2); border: 1px solid var(--v-divider); border-radius: var(--v-radius-sm); font: var(--v-type-body); }
+.real-preview__form input[type='file'] { min-height: 56px; }
+.real-preview__queue { padding-left: var(--v-space-4); overflow-wrap: anywhere; }
+.real-preview__queue button, .real-preview__decision-actions button { min-height: 44px; border: 1px solid var(--v-divider); border-radius: var(--v-radius-sm); background: var(--v-surface); color: var(--v-text); cursor: pointer; }
+.real-preview__decision-actions { display: flex; flex-wrap: wrap; gap: var(--v-space-2); margin-top: var(--v-space-3); }
+.real-preview__review-detail { padding: var(--v-space-3); border: 1px solid var(--v-divider); border-radius: var(--v-radius-sm); background: var(--v-surface); }
+.real-preview__form :focus-visible, .real-preview__queue button:focus-visible, .real-preview__decision-actions button:focus-visible { outline: 3px solid var(--v-focus); outline-offset: 2px; }
 .real-preview__sources summary { min-height: 44px; cursor: pointer; font-weight: 700; }
 
 .real-road-status__badge {

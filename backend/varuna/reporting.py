@@ -208,7 +208,8 @@ class MemoryMedia:
     def prepare(self, key: str, content_type: str, size: int) -> dict[str, Any]:
         token = secrets.token_urlsafe(32)
         self.tickets[key] = (content_type, size, datetime.now(timezone.utc) + timedelta(minutes=5), token)
-        return {"url": f"{self.base_url}/v1/uploads/{key.removeprefix('uploads/')}", "fields": {"key": key, "Content-Type": content_type, "upload-token": token}}
+        path = f"/v2/uploads/{key.removeprefix('uploads/real-road/')}" if key.startswith("uploads/real-road/") else f"/v1/uploads/{key.removeprefix('uploads/')}"
+        return {"url": f"{self.base_url}{path}", "fields": {"key": key, "Content-Type": content_type, "upload-token": token}}
 
     def put_upload(self, key: str, raw: bytes, content_type: str, fields: dict[str, str]) -> None:
         ticket = self.tickets.get(key)
@@ -232,7 +233,8 @@ class MemoryMedia:
     def photo_url(self, key: str) -> str:
         token = secrets.token_urlsafe(32)
         self.capabilities[token] = (key, datetime.now(timezone.utc) + timedelta(seconds=60))
-        return f"{self.base_url}/v1/private-photo/{key.removeprefix('review/')}?token={token}"
+        path = f"/v2/private-photo/{key.removeprefix('review/real-road/')}" if key.startswith("review/real-road/") else f"/v1/private-photo/{key.removeprefix('review/')}"
+        return f"{self.base_url}{path}?token={token}"
 
     def private_photo(self, key: str, token: str) -> bytes:
         capability = self.capabilities.get(token)

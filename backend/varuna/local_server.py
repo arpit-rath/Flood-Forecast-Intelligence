@@ -16,6 +16,7 @@ from urllib.parse import parse_qs, urlsplit
 
 from .api import dispatch
 from .reporting import MAX_BYTES, MemoryMedia, MemoryReportStore, PhotoMissing, ReportWorkflow
+from .real_roads import MemoryRealRoadStore, RealRoadWorkflow, RoadSnapshot
 from .service import VarunaService
 
 
@@ -23,6 +24,7 @@ class Handler(BaseHTTPRequestHandler):
     service = VarunaService()
     operator_token = os.environ.get("VARUNA_OPERATOR_TOKEN")
     reporting: ReportWorkflow | None = None
+    real_roads: RealRoadWorkflow | None = None
     local_users: dict[str, dict] = {}
     sessions: dict[str, tuple[dict, datetime]] = {}
     sessions_lock = RLock()
@@ -64,13 +66,14 @@ class Handler(BaseHTTPRequestHandler):
             except (ValueError, TypeError, KeyError, json.JSONDecodeError):
                 self._binary(400, b'{"error":{"code":"invalid_request","message":"Invalid sign-in request.","retryable":false,"requestId":"local"}}')
             return
-        if self.reporting and self.command == "POST" and location.path.startswith("/v1/uploads/"):
+        v2_upload = location.path.startswith("/v2/uploads/")
+        if (self.real_roads if v2_upload else self.reporting) and self.command == "POST" and (v2_upload or location.path.startswith("/v1/uploads/")):
             try:
                 length = int(self.headers.get("Content-Length", "0"))
                 if not 0 < length <= MAX_BYTES + 65536:
                     self._binary(413, b'{"error":"photo exceeds 8 MB"}')
                     return
-                key = "uploads/" + location.path.rsplit("/", 1)[-1]
+                key = ("uploads/real-road/" if v2_upload else "uploads/") + location.path.rsplit("/", 1)[-1]
                 content_type = self.headers.get("Content-Type", "")
                 if not content_type.startswith("multipart/form-data;"):
                     raise ValueError("multipart form upload is required")
@@ -88,16 +91,17 @@ class Handler(BaseHTTPRequestHandler):
                 if len(files) != 1 or len(files[0]) > MAX_BYTES:
                     self._binary(413, b'{"error":"photo must be between 1 byte and 8 MB"}')
                     return
-                self.reporting.media.put_upload(key, files[0], fields.get("Content-Type", ""), fields)
+                (self.real_roads if v2_upload else self.reporting).media.put_upload(key, files[0], fields.get("Content-Type", ""), fields)
                 self._binary(204, b"")
             except ValueError as exc:
                 self._binary(400, json.dumps({"error": str(exc)}).encode())
             return
-        if self.reporting and self.command == "GET" and location.path.startswith("/v1/private-photo/"):
+        v2_photo = location.path.startswith("/v2/private-photo/")
+        if (self.real_roads if v2_photo else self.reporting) and self.command == "GET" and (v2_photo or location.path.startswith("/v1/private-photo/")):
             try:
-                key = "review/" + location.path.rsplit("/", 1)[-1]
+                key = ("review/real-road/" if v2_photo else "review/") + location.path.rsplit("/", 1)[-1]
                 token = parse_qs(location.query).get("token", [""])[-1]
-                self._binary(200, self.reporting.media.private_photo(key, token), "image/jpeg")
+                self._binary(200, (self.real_roads if v2_photo else self.reporting).media.private_photo(key, token), "image/jpeg")
             except (PermissionError, PhotoMissing):
                 self._binary(403, b'{}')
             return
@@ -123,6 +127,7 @@ class Handler(BaseHTTPRequestHandler):
             operator_token=self.operator_token,
             operator_claims=claims,
             reporting=self.reporting,
+            real_roads=self.real_roads,
         )
         payload = json.dumps(result.body, allow_nan=False).encode("utf-8")
         self.send_response(result.status)
@@ -146,6 +151,7 @@ def main() -> None:
     Handler.local_users = json.loads(os.environ.get("VARUNA_LOCAL_USERS_JSON", "{}"))
     Handler.sessions = {}
     Handler.reporting = ReportWorkflow(Handler.service, MemoryReportStore(), MemoryMedia(f"http://{args.host}:{args.port}"))
+    Handler.real_roads = RealRoadWorkflow(RoadSnapshot(), MemoryRealRoadStore(), MemoryMedia(f"http://{args.host}:{args.port}"))
     server = ThreadingHTTPServer((args.host, args.port), Handler)
     print(f"Synthetic fixture API at http://{args.host}:{args.port}", flush=True)
     server.serve_forever()

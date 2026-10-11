@@ -18,6 +18,9 @@ export interface RoadSnapshot {
     retrievedAt: string;
     queryBbox: [number, number, number, number];
     coverageNote: string;
+    geometryVersion?: string;
+    matchToleranceMeters?: number;
+    ambiguityMarginMeters?: number;
   };
   features: RoadFeature[];
 }
@@ -60,8 +63,8 @@ export function roadMidpoint(road: RoadFeature): [number, number] {
   return road.geometry.coordinates[Math.floor(road.geometry.coordinates.length / 2)];
 }
 
-export function currentRoadMarkers(evidence: RealRoadEvidence[], now = new Date()): RealRoadEvidence[] {
-  const ids = new Set(roads.features.map((road) => road.id));
-  return evidence.filter((item) => ids.has(item.roadId) && item.reviewState !== 'Rejected' &&
+export function currentRoadMarkers(evidence: RealRoadEvidence[], now = new Date(), snapshot: RoadSnapshot = roads): RealRoadEvidence[] {
+  const ids = new Set(snapshot.features.map((road) => road.id));
+  return evidence.filter((item) => ids.has(item.roadId) && item.point !== null && item.reviewState !== 'Rejected' &&
     Date.parse(item.observedAt) <= now.getTime() && Date.parse(item.expiresAt) > now.getTime());
 }

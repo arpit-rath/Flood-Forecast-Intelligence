@@ -15,17 +15,20 @@ SOURCE_PATHS = (
     "backend/varuna/models.py",
     "backend/varuna/risk.py",
     "backend/varuna/reporting.py",
+    "backend/varuna/real_roads.py",
     "backend/varuna/routing.py",
     "backend/varuna/service.py",
     "data/fixture/scenario.json",
     "requirements.txt",
 )
 SOURCES = tuple(ROOT / path for path in SOURCE_PATHS)
+ROAD_SOURCE = ROOT / "frontend/src/data/delhi-roads.json"
+ROAD_DESTINATION = "data/real_roads/delhi-roads.json"
 
 
 def main() -> None:
-    expected = {source.relative_to(ROOT).as_posix() for source in SOURCES}
-    for source in SOURCES:
+    expected = {source.relative_to(ROOT).as_posix() for source in SOURCES} | {ROAD_DESTINATION}
+    for source in (*SOURCES, ROAD_SOURCE):
         if not source.is_file() or source.is_symlink():
             raise RuntimeError(f"Missing or unsafe Lambda source: {source}")
 
@@ -46,6 +49,9 @@ def main() -> None:
         destination = OUTPUT / source.relative_to(ROOT)
         destination.parent.mkdir(parents=True, exist_ok=True)
         shutil.copy2(source, destination)
+    destination = OUTPUT / ROAD_DESTINATION
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copy2(ROAD_SOURCE, destination)
 
     actual = {path.relative_to(OUTPUT).as_posix() for path in OUTPUT.rglob("*") if path.is_file()}
     if actual != expected:

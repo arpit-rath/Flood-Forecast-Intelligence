@@ -11,6 +11,7 @@ export default defineConfig({
   timeout: 60_000,
   expect: { timeout: 10_000 },
   fullyParallel: false,
+  workers: 1,
   reporter: [['list']],
   use: {
     baseURL: `http://localhost:${port}`,
@@ -23,7 +24,7 @@ export default defineConfig({
     { name: 'wide-1920', use: { viewport: { width: 1920, height: 1080 } } },
   ],
   webServer: [
-    ...(process.env.VITE_USE_MOCKS === 'false' && process.env.VITE_REAL_ROADS_PREVIEW !== 'true' ? [{
+    ...(process.env.VITE_USE_MOCKS === 'false' ? [{
       command: 'python -m backend.varuna.local_server --host 127.0.0.1 --port 8000',
       cwd: '..',
       env: { VARUNA_LOCAL_USERS_JSON: JSON.stringify({
