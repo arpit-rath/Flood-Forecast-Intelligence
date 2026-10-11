@@ -12,7 +12,7 @@ test.beforeEach(async ({ page }) => {
   });
 });
 
-test('resident submission stays Unknown; responder confirmation and clearance use /v2 only', async ({ page }) => {
+test('anonymous resident submission stays Unknown; operator review remains separate', async ({ page }) => {
   const calls: string[] = [];
   page.on('request', (request) => {
     const path = new URL(request.url()).pathname;
@@ -25,30 +25,38 @@ test('resident submission stays Unknown; responder confirmation and clearance us
   const baselineEvidence = (await baselineFeed.json()).evidence;
   await page.getByRole('searchbox', { name: 'Find a mapped road' }).fill('osm:way/171708731');
   await page.getByRole('list', { name: 'Mapped roads' }).getByRole('button').click();
-  await page.getByLabel('Demo account').fill('resident');
-  await page.getByLabel('Password').fill('throwaway-resident-test');
-  await page.getByRole('button', { name: 'Sign in to local demo' }).click();
-  await expect(page.getByText(/Signed in as resident/)).toBeVisible();
+  await expect(page.locator('body')).not.toContainText(/sign in|sign out|create account/i);
   await page.getByLabel('Longitude (WGS84)').fill('77.11163165');
   await page.getByLabel('Latitude (WGS84)').fill('28.75816435');
   await page.getByLabel(/Photo \(JPEG/).setInputFiles({ name: 'road.png', mimeType: 'image/png', buffer: PNG });
   await page.getByRole('button', { name: 'Submit photo for review' }).click();
-  await expect(page.getByText(/submitted as Pending Review/)).toBeVisible();
-  await expect(page.getByText(/Only responders can see it until review/)).toBeVisible();
+  const firstReceipt = page.getByText(/Receipt RR-.*Pending Review/);
+  await expect(firstReceipt).toBeVisible();
+  const firstReportId = (await firstReceipt.innerText()).match(/RR-[a-f0-9]{32}/)?.[0];
+  expect(firstReportId).toBeTruthy();
+  await expect(page.getByText(/photograph remains private for responders/)).toBeVisible();
   await expect(page.getByText('Unknown flood condition')).toBeVisible();
   await expect(page.getByText(/unreviewed report/)).toHaveCount(0);
   const pendingFeed = await page.request.get('http://127.0.0.1:8000/v2/real-road-evidence');
   expect(pendingFeed.ok()).toBe(true);
   expect((await pendingFeed.json()).evidence).toEqual(baselineEvidence);
+  expect((await page.request.get('http://127.0.0.1:8000/v2/real-road-reports')).status()).toBe(403);
+  if (process.env.VITE_OPERATOR_CONSOLE_ENABLED !== 'true') {
+    await expect(page.getByRole('link', { name: 'Responder', exact: true })).toHaveCount(0);
+    await page.goto('/#/responder');
+    await expect(page.getByRole('heading', { name: 'Operator console unavailable' })).toBeVisible();
+    expect(calls).toContain('/v2/public/real-road-reports');
+    return;
+  }
   await page.getByRole('link', { name: 'Responder', exact: true }).click();
   await expect(page.getByText(/Only varuna-responder members/)).toBeVisible();
   await expect(page.getByRole('list', { name: 'Mapped roads' })).not.toContainText('H-');
-  await page.getByRole('button', { name: 'Sign out' }).click();
   await page.getByLabel('Demo account').fill('responder');
   await page.getByLabel('Password').fill('throwaway-responder-test');
   await page.getByRole('button', { name: 'Sign in to local demo' }).click();
   await expect(page.getByText(/Responder review access/)).toBeVisible();
-  await page.locator('.real-preview__queue button').first().click();
+  await page.locator('.real-preview__queue button').filter({ hasText: firstReportId! }).click();
+  await expect(page.locator('.real-preview__review-detail h3')).toContainText(`${firstReportId} · Pending Review`);
   await expect(page.getByRole('link', { name: /Open private photo/ })).toHaveAttribute('href', /\/v2\/private-photo\//);
   await expect(page.locator('.real-preview__review-detail')).toContainText('Source: resident photo. Observed');
   await expect(page.locator('.real-preview__review-detail')).toContainText('Evidence expires');
@@ -67,12 +75,35 @@ test('resident submission stays Unknown; responder confirmation and clearance us
   await page.getByLabel('Latitude (WGS84)').fill('28.75816435');
   await page.getByLabel(/Photo \(JPEG/).setInputFiles({ name: 'cleared.png', mimeType: 'image/png', buffer: PNG });
   await page.getByRole('button', { name: 'Submit photo for review' }).click();
-  await expect(page.getByText(/submitted as Pending Review/)).toBeVisible();
-  await page.locator('.real-preview__queue button').first().click();
+  const secondReceipt = page.getByText(/submitted as Pending Review/);
+  await expect(secondReceipt).toBeVisible();
+  const secondReportId = (await secondReceipt.innerText()).match(/RR-[a-f0-9]{32}/)?.[0];
+  expect(secondReportId).toBeTruthy();
+  await page.locator('.real-preview__queue button').filter({ hasText: secondReportId! }).click();
+  await expect(page.locator('.real-preview__review-detail h3')).toContainText(`${secondReportId} · Pending Review`);
   await page.getByRole('button', { name: 'Mark cleared report' }).click();
   await expect(page.getByText('Unknown flood condition')).toBeVisible();
   await expect(page.getByText(/responder-cleared report observed/)).toBeVisible();
   expect(calls.filter((path) => path.startsWith('/v1/') && path !== '/v1/auth/local-session')).toEqual([]);
   expect(calls).toContain('/v2/real-road-reports');
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+});
+
+test('public submission error keeps the photo and note for retry', async ({ page }) => {
+  await page.goto('/');
+  await expect(page.getByText(/Versioned real-road reporting available/)).toBeVisible();
+  await page.getByRole('searchbox', { name: 'Find a mapped road' }).fill('osm:way/171708731');
+  await page.getByRole('list', { name: 'Mapped roads' }).getByRole('button').click();
+  await page.getByLabel('Longitude (WGS84)').fill('77.11163165');
+  await page.getByLabel('Latitude (WGS84)').fill('28.75816435');
+  await page.getByLabel(/Photo \(JPEG/).setInputFiles({ name: 'road.png', mimeType: 'image/png', buffer: PNG });
+  await page.getByLabel('Optional observation note').fill('Retry note');
+  await page.route('http://127.0.0.1:8000/v2/public/real-road-reports/upload-url', (route) => route.fulfill({ status: 503, contentType: 'application/json', body: JSON.stringify({ error: { message: 'Temporarily unavailable' } }) }));
+  await page.getByRole('button', { name: 'Submit photo for review' }).click();
+  await expect(page.getByRole('alert')).toContainText('Temporarily unavailable');
+  await expect(page.getByLabel('Optional observation note')).toHaveValue('Retry note');
+  await expect(page.getByLabel(/Photo \(JPEG/)).toHaveJSProperty('files.length', 1);
+  await page.unroute('http://127.0.0.1:8000/v2/public/real-road-reports/upload-url');
+  await page.getByRole('button', { name: 'Submit photo for review' }).click();
+  await expect(page.getByText(/Receipt RR-.*Pending Review/)).toBeVisible();
 });

@@ -1,4 +1,4 @@
-import type { PublicRealRoadEvidence, RealRoadReport, RealRoadReportDraft, RealRoadSubmissionReceipt } from '../../../contracts/types';
+import type { AnonymousRealRoadReceipt, AnonymousRealRoadReportDraft, AnonymousRealRoadUploadTicket, PublicRealRoadEvidence, RealRoadReference, RealRoadReport, RealRoadReportDraft, RealRoadSubmissionReceipt } from '../../../contracts/types';
 import type { RoadSnapshot } from './model';
 
 export interface UploadTicket {
@@ -49,7 +49,9 @@ export const realRoadApi = {
   },
   signInLocal: (username: string, password: string) => request<{ accessToken: string; displayName: string; roles: string[]; expiresAt: string }>('/v1/auth/local-session', 'POST', { username, password }),
   uploadTicket: (token: string, idempotencyKey: string, file: File) => request<UploadTicket>('/v2/real-road-reports/upload-url', 'POST', { idempotencyKey, contentType: file.type, sizeBytes: file.size }, token),
-  async upload(ticket: UploadTicket, file: File) {
+  publicUploadTicket: (road: RealRoadReference, file: File) => request<AnonymousRealRoadUploadTicket>('/v2/public/real-road-reports/upload-url', 'POST', { road, contentType: file.type, sizeBytes: file.size }),
+  publicCreate: (draft: AnonymousRealRoadReportDraft) => request<AnonymousRealRoadReceipt>('/v2/public/real-road-reports', 'POST', draft),
+  async upload(ticket: Pick<UploadTicket, 'uploadUrl' | 'uploadFields'>, file: File) {
     const form = new FormData();
     Object.entries(ticket.uploadFields).forEach(([key, value]) => form.append(key, value));
     form.append('file', file);

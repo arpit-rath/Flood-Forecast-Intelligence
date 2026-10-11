@@ -28,21 +28,30 @@ test('resident and responder show limited real-road coverage without pilot claim
   if (process.env.VITE_USE_MOCKS === 'false') {
     await expect(page.getByText(/Versioned real-road reporting available/)).toBeVisible();
   } else {
-    await expect(page.getByText(/Real-road reporting unavailable/)).toBeVisible();
+    await expect(page.getByText(/Anonymous real-road reporting unavailable/)).toBeVisible();
   }
   await expect(page.getByRole('list', { name: 'Mapped roads' }).getByRole('button').first()).toContainText('Unknown');
   await page.getByRole('list', { name: 'Mapped roads' }).getByRole('button').first().click();
   await expect(page.getByText('Unknown flood condition')).toBeVisible();
   await expect(page.getByText(/Map geometry:/)).toContainText('osm:way/');
   await expect(page.getByRole('link', { name: /OpenStreetMap contributors/ })).toBeVisible();
-  await page.getByRole('link', { name: 'Responder', exact: true }).click();
-  await expect(page.getByRole('heading', { name: 'Private real-road review' })).toBeVisible();
-  if (process.env.VITE_USE_MOCKS === 'false') {
-    await expect(page.getByText(/Only varuna-responder members/)).toBeVisible();
+  if (process.env.VITE_OPERATOR_CONSOLE_ENABLED === 'true') {
+    await page.getByRole('link', { name: 'Responder', exact: true }).click();
+    await expect(page.getByRole('heading', { name: 'Private real-road review' })).toBeVisible();
+    if (process.env.VITE_USE_MOCKS === 'false') {
+      await expect(page.getByText(/Only varuna-responder members/)).toBeVisible();
+    } else {
+      await expect(page.getByText(/The \/v2 review service is unavailable/)).toBeVisible();
+    }
+    await page.getByRole('link', { name: 'Resident', exact: true }).click();
   } else {
-    await expect(page.getByText(/The \/v2 review service is unavailable/)).toBeVisible();
+    await expect(page.getByRole('link', { name: 'Responder', exact: true })).toHaveCount(0);
+    await page.goto('/#/responder');
+    await expect(page.getByRole('heading', { name: 'Operator console unavailable' })).toBeVisible();
+    await page.getByRole('link', { name: 'Return to the resident view' }).click();
+    await expect(page.getByRole('heading', { name: 'Real roads, unknown conditions.' })).toBeVisible();
+    await expect(page.locator('body')).not.toContainText(/sign in|sign out|create account/i);
   }
-  await page.getByRole('link', { name: 'Resident', exact: true }).click();
   await expect(page.getByText('Resident road view')).toBeVisible();
   await expect(page.locator('body')).not.toContainText(/Scenario rainfall|H-\d+|Compare routes|drain intervention/i);
   expect(pilotCalls).toEqual([]);
@@ -105,7 +114,7 @@ test('failed v2 API stays read-only and never borrows pilot reports', async ({ p
   await page.route('http://127.0.0.1:8000/v2/**', (route) => route.abort());
   await page.goto('/');
   await expect(page.getByText(/Real-road \/v2 API unavailable/)).toBeVisible();
-  await expect(page.getByText(/Real-road reporting unavailable/)).toBeVisible();
+  await expect(page.getByText(/Anonymous real-road reporting unavailable/)).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Real roads, unknown conditions.' })).toBeVisible();
   await expect(page.getByRole('button', { name: 'Submit photo for review' })).toHaveCount(0);
   expect(pilotCalls).toEqual([]);

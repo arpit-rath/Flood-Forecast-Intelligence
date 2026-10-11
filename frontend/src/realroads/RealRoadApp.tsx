@@ -7,6 +7,7 @@ import { delhiStyleUrls } from '../lib/delhiStyle';
 import { roadLabel, roads, roadCondition, type RoadSnapshot } from './model';
 import { realRoadApi } from './api';
 import { RealRoadReporting } from './RealRoadReporting';
+import { AnonymousRoadReport } from './AnonymousRoadReport';
 import { RoadAlerts } from './RoadAlerts';
 import { RealRoadMap, type CameraPosition, type StreetStyle } from './RealRoadMap';
 import { RoadStatus } from './RoadStatus';
@@ -14,9 +15,10 @@ import './realroads.css';
 
 const styleUrls = delhiStyleUrls(import.meta.env.VITE_DELHI_STANDARD_STYLE_URL, import.meta.env.VITE_DELHI_HYBRID_STYLE_URL);
 const httpMode = import.meta.env.VITE_USE_MOCKS === 'false';
+const operatorConsoleEnabled = import.meta.env.VITE_OPERATOR_CONSOLE_ENABLED === 'true';
 
-function viewFromHash(): 'resident' | 'responder' {
-  return window.location.hash.startsWith('#/responder') ? 'responder' : 'resident';
+function viewFromHash(): 'resident' | 'responder' | 'unavailable' {
+  return window.location.hash.startsWith('#/responder') ? (operatorConsoleEnabled ? 'responder' : 'unavailable') : 'resident';
 }
 
 function formatTime(value: string | null): string {
@@ -101,9 +103,10 @@ export function RealRoadApp() {
         <span className="app-header__pilot">Delhi real-road preview · not live flood monitoring</span>
         <nav aria-label="Views" className="view-nav">
           <a href="#/resident" aria-current={view === 'resident' ? 'page' : undefined}>Resident</a>
-          <a href="#/responder" aria-current={view === 'responder' ? 'page' : undefined}>Responder</a>
+          {operatorConsoleEnabled && <a href="#/responder" aria-current={view === 'responder' ? 'page' : undefined}>Responder</a>}
         </nav>
       </header>
+      {view === 'unavailable' ? <main id="real-preview-main" className="real-preview__main" tabIndex={-1}><section className="real-preview__detail"><h1>Operator console unavailable</h1><p>The submitted public site does not include responder access.</p><a href="#/resident">Return to the resident view</a></section></main> :
       <main id="real-preview-main" className="real-preview__main" tabIndex={-1}>
         <div className="real-preview__coverage" role="status">
           <MapPin aria-hidden="true" size={18} />
@@ -147,7 +150,9 @@ export function RealRoadApp() {
                 </>
               ) : <p className="detail">All roads are Unknown until a current observation is reviewed. Satellite imagery cannot confirm a blockage.</p>}
             </section>
-            <RealRoadReporting available={apiReady} roadId={selectedRoadId} point={selectedPoint} roads={roadSnapshot} view={view} onChanged={refreshEvidence} onSessionChange={setSignedInUser} />
+            {view === 'resident'
+              ? <AnonymousRoadReport available={apiReady} roadId={selectedRoadId} point={selectedPoint} roads={roadSnapshot} />
+              : <RealRoadReporting available={apiReady} roadId={selectedRoadId} point={selectedPoint} roads={roadSnapshot} view={view} onChanged={refreshEvidence} onSessionChange={setSignedInUser} />}
             <RoadAlerts user={signedInUser} view={view} selectedRoadId={selectedRoadId} selectedPoint={selectedPoint} geometryVersion={roadSnapshot.metadata.geometryVersion} onSelectCandidate={(id) => { setSelectedRoadId(id); setSelectedPoint(null); }} />
             <details className="real-preview__sources">
               <summary>Source, licence and coverage</summary>
@@ -162,7 +167,7 @@ export function RealRoadApp() {
             <p className="real-preview__camera">{camera ? `Map center ${camera.latitude.toFixed(4)}°N, ${camera.longitude.toFixed(4)}°E · zoom ${camera.zoom.toFixed(1)}` : 'Map camera unavailable until the basemap loads.'} Style changes keep the same camera, road selection and real-road markers.</p>
           </div>
         </div>
-      </main>
+      </main>}
     </div>
   );
 }

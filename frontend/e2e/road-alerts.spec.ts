@@ -7,18 +7,20 @@ test('mock preview labels unavailable source alerts without network fallback', a
   const alertRequests: string[] = [];
   page.on('request', (request) => { if (request.url().includes('/v2/road-alerts')) alertRequests.push(request.url()); });
   await page.goto('/');
-  await expect(page.getByRole('heading', { name: 'Delhi source alerts · local review' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Delhi Traffic Police source alerts' })).toBeVisible();
   await expect(page.getByText('Road-alert API is not part of fixture/mock mode. No source alerts are shown.')).toBeVisible();
-  await page.getByRole('link', { name: 'Responder', exact: true }).click();
-  await expect(page.getByText(/Only signed-in varuna-responder members may import/)).toBeVisible();
+  if (process.env.VITE_OPERATOR_CONSOLE_ENABLED === 'true') {
+    await page.getByRole('link', { name: 'Responder', exact: true }).click();
+    await expect(page.getByText(/Only signed-in varuna-responder members may import/)).toBeVisible();
+  } else await expect(page.getByRole('link', { name: 'Responder', exact: true })).toHaveCount(0);
   expect(alertRequests).toEqual([]);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
 });
 
 test('HTTP preview keeps imported source unverified and review responder-only', async ({ page, request }) => {
-  test.skip(process.env.VITE_USE_MOCKS !== 'false', 'Local API mode only');
+  test.skip(process.env.VITE_USE_MOCKS !== 'false' || process.env.VITE_OPERATOR_CONSOLE_ENABLED !== 'true', 'Local operator API mode only');
   await page.goto('/');
-  await expect(page.getByRole('heading', { name: 'Delhi source alerts · local review' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Delhi Traffic Police source alerts' })).toBeVisible();
   const api = 'http://127.0.0.1:8000';
   const residentAuth = await request.post(`${api}/v1/auth/local-session`, { data: { username: 'resident', password: 'throwaway-resident-test' } });
   const residentToken = (await residentAuth.json()).accessToken;
@@ -44,7 +46,8 @@ test('HTTP preview keeps imported source unverified and review responder-only', 
   const publicItem = publicList.locator(':scope > li').filter({ hasText: sourceDocument.originalHeadline });
   await expect(publicItem).toContainText(sourceDocument.originalHeadline);
   await expect(publicItem).toContainText('Reported / Unverified');
-  await expect(publicItem).toContainText('No reviewed road match. Road condition remains Unknown.');
+  await expect(publicItem).toContainText('This public feed does not identify a reviewed road');
+  await expect(publicItem).toContainText('Location resolution: unlocated. No road condition inferred.');
   await expect(publicList).not.toContainText('responder-only test note');
   await expect(page.getByRole('list', { name: 'Mapped roads' }).getByRole('button').first()).toContainText('Unknown');
   const privateList = page.getByRole('list', { name: 'Private source review queue' });

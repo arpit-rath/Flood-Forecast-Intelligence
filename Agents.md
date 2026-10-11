@@ -18,6 +18,8 @@ The UI should never imply that an AI agent has authority to close a road, send a
 
 ## Current report implementation
 
+**Anonymous real-road intake boundary (12 October 2026):** the public `/v2` resident form requires no account and never grants review authority. Its opaque submission token only binds one validated photo to one validated OSM way/point and yields a generic Pending Review receipt. Only authenticated `varuna-responder` members see private reports/photos or make condition decisions. Anonymous intake never modifies `/v1` Scenario, real-road condition, or route eligibility before review. The operator console is omitted from the public build; server-side JWT/group checks remain authoritative.
+
 The Observation Agent below is planned, not active in the photo-report slice. HTTP mode runs no AI image analysis. A human responder reviews the private, metadata-stripped photo and selects `none`, `possible`, `clear`, or `uncertain` visible water before accepting it. Pending Review and Rejected reports cannot enter risk. Accepted manual evidence is replayed only in the historical synthetic Scenario; actual upload time remains recorded. Mock fixture output remains labelled as a fixture response, not a model call. No agent infers depth, Live conditions, or Delhi-wide risk from this report.
 
 ## 2. Observation Agent

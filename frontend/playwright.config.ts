@@ -30,7 +30,7 @@ export default defineConfig({
       env: { VARUNA_LOCAL_USERS_JSON: JSON.stringify({
         resident: { password: 'throwaway-resident-test', sub: 'e2e-resident', groups: [] },
         responder: { password: 'throwaway-responder-test', sub: 'e2e-responder', groups: ['varuna-responder'] },
-      }) },
+      }), VARUNA_ANONYMOUS_REPORTING_ENABLED: 'true', VARUNA_ANONYMOUS_DAILY_LIMIT: '100' },
       url: 'http://127.0.0.1:8000/health',
       reuseExistingServer: true,
       timeout: 60_000,
@@ -41,6 +41,7 @@ export default defineConfig({
       // key must never cause automated checks to request live map tiles.
       env: {
         VITE_REAL_ROADS_PREVIEW: process.env.VITE_REAL_ROADS_PREVIEW ?? 'false',
+        VITE_OPERATOR_CONSOLE_ENABLED: process.env.VITE_OPERATOR_CONSOLE_ENABLED ?? 'false',
         VITE_DELHI_STANDARD_STYLE_URL: process.env.VITE_DELHI_STANDARD_STYLE_URL ?? '',
         VITE_DELHI_HYBRID_STYLE_URL: process.env.VITE_DELHI_HYBRID_STYLE_URL ?? '',
         VITE_LOCAL_AUTH: process.env.VITE_USE_MOCKS === 'false' ? 'true' : 'false',

@@ -23,6 +23,21 @@ describe('real-road HTTP adapter', () => {
     expect(String(fetchMock.mock.calls[1][0])).not.toContain('/v1/reports');
   });
 
+  it('uses only public v2 endpoints and no JWT for anonymous intake', async () => {
+    const fetchMock = vi.fn().mockResolvedValue({ ok: true, json: async () => ({ uploadUrl: 'https://example.test/upload', uploadFields: { key: 'uploads/real-road/anonymous/test' }, submissionToken: 'opaque', expiresAt: '2026-10-12T10:00:00Z', maxBytes: 8388608 }) });
+    vi.stubGlobal('fetch', fetchMock);
+    const road = { roadId: 'osm:way/171708731' as const, geometryVersion: 'sha256:test', point: [77.1, 28.7] as [number, number] };
+    const file = new File(['test'], 'road.png', { type: 'image/png' });
+    await realRoadApi.publicUploadTicket(road, file);
+    expect(String(fetchMock.mock.calls[0][0])).toContain('/v2/public/real-road-reports/upload-url');
+    expect(fetchMock.mock.calls[0][1].headers.Authorization).toBeUndefined();
+    expect(JSON.parse(fetchMock.mock.calls[0][1].body).road).toEqual(road);
+    fetchMock.mockResolvedValueOnce({ ok: true, json: async () => ({ id: 'RR-opaque', reviewStatus: 'Pending Review' }) });
+    await realRoadApi.publicCreate({ submissionToken: 'opaque', imageKey: 'uploads/real-road/anonymous/test', road, capturedAt: null, note: '' });
+    expect(String(fetchMock.mock.calls[1][0])).toContain('/v2/public/real-road-reports');
+    expect(fetchMock.mock.calls[1][1].headers.Authorization).toBeUndefined();
+  });
+
   it('fails closed if the public endpoint returns pending or private fields', async () => {
     const reviewed = {
       roadId: 'osm:way/171708731', point: [77.1116, 28.7582], reviewState: 'Confirmed Blockage',

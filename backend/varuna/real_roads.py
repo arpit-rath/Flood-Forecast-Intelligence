@@ -9,6 +9,7 @@ import json
 from math import cos, radians, sqrt
 from pathlib import Path
 import re
+import secrets
 from threading import RLock
 from typing import Any
 
@@ -23,9 +24,14 @@ AMBIGUITY_METERS = 5.0
 EVIDENCE_HOURS = 24
 MAX_UPLOADS_PER_DAY = 10
 REPORT_DAYS = 7
+ANONYMOUS_TOKEN_MINUTES = 5
 
 
 class UploadLimit(Exception):
+    pass
+
+
+class SubmissionUnavailable(Exception):
     pass
 
 
@@ -33,6 +39,8 @@ class MemoryRealRoadStore(MemoryReportStore):
     def __init__(self) -> None:
         super().__init__()
         self.grants: dict[tuple[str, str], int] = {}
+        self.anonymous_grants: dict[str, int] = {}
+        self.pending_uploads: dict[str, dict[str, Any]] = {}
 
     def consume_upload(self, owner: str) -> None:
         day = datetime.now(timezone.utc).date().isoformat()
@@ -42,6 +50,36 @@ class MemoryRealRoadStore(MemoryReportStore):
                 raise UploadLimit("daily upload-request limit reached")
             self.grants[key] = self.grants.get(key, 0) + 1
 
+    def reserve_anonymous(self, token_hash: str, binding: dict[str, Any], limit: int, expiry: int) -> None:
+        day = datetime.now(timezone.utc).date().isoformat()
+        with self.lock:
+            if self.anonymous_grants.get(day, 0) >= limit:
+                raise UploadLimit("anonymous daily upload-request limit reached")
+            self.anonymous_grants[day] = self.anonymous_grants.get(day, 0) + 1
+            self.pending_uploads[token_hash] = {"status": "pending", "expiresAtEpoch": expiry, **binding}
+
+    def get_pending(self, token_hash: str) -> dict[str, Any] | None:
+        with self.lock:
+            item = self.pending_uploads.get(token_hash)
+            return dict(item) if item and item["expiresAtEpoch"] > int(datetime.now(timezone.utc).timestamp()) else None
+
+    def commit_anonymous(self, token_hash: str, report: dict[str, Any], fingerprint: str) -> dict[str, Any]:
+        with self.lock:
+            pending = self.get_pending(token_hash)
+            if not pending:
+                raise SubmissionUnavailable("submission expired or unavailable; request a new upload")
+            if pending["status"] == "consumed":
+                existing = self.get(report["id"])
+                if existing and compare_digest(pending.get("fingerprint", ""), fingerprint):
+                    return existing
+                raise SubmissionUnavailable("submission token has already been used")
+            if report["id"] in self.items:
+                raise SubmissionUnavailable("submission token has already been used")
+            saved = {**report, "requestFingerprint": fingerprint}
+            self.items[report["id"]] = saved
+            self.pending_uploads[token_hash] = {**pending, "status": "consumed", "fingerprint": fingerprint}
+            return dict(saved)
+
 
 class DynamoRealRoadStore(DynamoReportStore):
     def list(self) -> list[dict[str, Any]]:
@@ -49,7 +87,8 @@ class DynamoRealRoadStore(DynamoReportStore):
         args: dict[str, Any] = {"ConsistentRead": True, "Limit": 100}
         while True:
             page = self.table.scan(**args)
-            items.extend(payload for item in page.get("Items", []) if "payload" in item and _active(payload := json.loads(item["payload"])))
+            items.extend(payload for item in page.get("Items", []) if item.get("id", "").startswith("RR-")
+                         and "payload" in item and _active(payload := json.loads(item["payload"])))
             if len(items) > 1000:
                 raise RuntimeError("real-road report listing exceeds configured limit")
             if "LastEvaluatedKey" not in page:
@@ -72,6 +111,71 @@ class DynamoRealRoadStore(DynamoReportStore):
             if _conditional_failure(exc):
                 raise UploadLimit("daily upload-request limit reached") from exc
             raise
+
+    def reserve_anonymous(self, token_hash: str, binding: dict[str, Any], limit: int, expiry: int) -> None:
+        from boto3.dynamodb.types import TypeSerializer
+        serializer = TypeSerializer()
+        now = datetime.now(timezone.utc)
+        tomorrow = datetime.combine(now.date() + timedelta(days=1), datetime.min.time(), timezone.utc)
+        quota_id = "AQ#" + now.date().isoformat()
+        pending = {"id": "P#" + token_hash, "status": "pending", "expiresAtEpoch": expiry, "payload": json.dumps(binding)}
+        try:
+            self.table.meta.client.transact_write_items(TransactItems=[
+                {"Update": {"TableName": self.table.name, "Key": {"id": {"S": quota_id}},
+                            "UpdateExpression": "SET expiresAtEpoch = :expiry ADD #count :one",
+                            "ConditionExpression": "attribute_not_exists(#count) OR #count < :limit",
+                            "ExpressionAttributeNames": {"#count": "uploadCount"},
+                            "ExpressionAttributeValues": {":expiry": {"N": str(int(tomorrow.timestamp()) + 86400)},
+                                                          ":one": {"N": "1"}, ":limit": {"N": str(limit)}}}},
+                {"Put": {"TableName": self.table.name, "Item": {key: serializer.serialize(value) for key, value in pending.items()},
+                         "ConditionExpression": "attribute_not_exists(id)"}},
+            ])
+        except Exception as exc:
+            if getattr(exc, "response", {}).get("Error", {}).get("Code") == "TransactionCanceledException":
+                raise UploadLimit("anonymous daily upload-request limit reached") from exc
+            raise
+
+    def get_pending(self, token_hash: str) -> dict[str, Any] | None:
+        item = self.table.get_item(Key={"id": "P#" + token_hash}, ConsistentRead=True).get("Item")
+        if not item or int(item.get("expiresAtEpoch", 0)) <= int(datetime.now(timezone.utc).timestamp()):
+            return None
+        return {**json.loads(item["payload"]), "status": item["status"], "expiresAtEpoch": int(item["expiresAtEpoch"])}
+
+    def commit_anonymous(self, token_hash: str, report: dict[str, Any], fingerprint: str) -> dict[str, Any]:
+        from boto3.dynamodb.types import TypeSerializer
+        serializer = TypeSerializer()
+        pending = self.get_pending(token_hash)
+        if not pending:
+            raise SubmissionUnavailable("submission expired or unavailable; request a new upload")
+        if pending["status"] == "consumed":
+            existing = self.get(report["id"])
+            if existing and compare_digest(pending.get("fingerprint", ""), fingerprint):
+                return existing
+            raise SubmissionUnavailable("submission token has already been used")
+        item = {**report, "requestFingerprint": fingerprint}
+        try:
+            self.table.meta.client.transact_write_items(TransactItems=[
+                {"Update": {"TableName": self.table.name, "Key": {"id": {"S": "P#" + token_hash}},
+                            "UpdateExpression": "SET #status = :consumed, payload = :payload",
+                            "ConditionExpression": "#status = :pending AND expiresAtEpoch > :now",
+                            "ExpressionAttributeNames": {"#status": "status"},
+                            "ExpressionAttributeValues": {":consumed": {"S": "consumed"}, ":pending": {"S": "pending"},
+                                                          ":payload": {"S": json.dumps({key: value for key, value in pending.items() if key not in ("status", "expiresAtEpoch")} | {"fingerprint": fingerprint})},
+                                                          ":now": {"N": str(int(datetime.now(timezone.utc).timestamp()))}}}},
+                {"Put": {"TableName": self.table.name,
+                         "Item": {key: serializer.serialize(value) for key, value in {"id": item["id"], "reviewStatus": item["reviewStatus"],
+                                                                                         "expiresAtEpoch": item["expiresAtEpoch"], "payload": json.dumps(item)}.items()},
+                         "ConditionExpression": "attribute_not_exists(id)"}},
+            ])
+            return item
+        except Exception as exc:
+            if getattr(exc, "response", {}).get("Error", {}).get("Code") != "TransactionCanceledException":
+                raise
+            current = self.get_pending(token_hash)
+            existing = self.get(report["id"])
+            if current and existing and current["status"] == "consumed" and compare_digest(current.get("fingerprint", ""), fingerprint):
+                return existing
+            raise SubmissionUnavailable("submission token has already been used") from exc
 
 
 class RoadSnapshot:
@@ -138,8 +242,13 @@ class RoadSnapshot:
 
 
 class RealRoadWorkflow:
-    def __init__(self, snapshot: RoadSnapshot, store: Any, media: Any) -> None:
+    def __init__(self, snapshot: RoadSnapshot, store: Any, media: Any, *, anonymous_enabled: bool = False,
+                 anonymous_daily_limit: int = 20) -> None:
         self.snapshot, self.store, self.media = snapshot, store, media
+        self.anonymous_enabled = anonymous_enabled
+        if not 1 <= anonymous_daily_limit <= 100:
+            raise ValueError("anonymous daily limit must be 1-100")
+        self.anonymous_daily_limit = anonymous_daily_limit
 
     @staticmethod
     def _digest(owner: str, key: Any) -> str:
@@ -155,6 +264,76 @@ class RealRoadWorkflow:
         upload = self.media.prepare(key, mime, size)
         return {"uploadUrl": upload["url"], "uploadFields": upload["fields"], "imageKey": key,
                 "expiresAt": (datetime.now(timezone.utc) + timedelta(minutes=5)).isoformat().replace("+00:00", "Z"), "maxBytes": MAX_BYTES}
+
+    def prepare_anonymous_upload(self, body: dict[str, Any]) -> dict[str, Any]:
+        if not self.anonymous_enabled:
+            raise SubmissionUnavailable("anonymous reporting is unavailable")
+        road = body.get("road")
+        road_id, snapped = self.snapshot.match(road)
+        mime, size = body.get("contentType"), body.get("sizeBytes")
+        if mime not in MIME_FORMAT or isinstance(size, bool) or not isinstance(size, int) or not 0 < size <= MAX_BYTES:
+            raise ValueError("photo must be JPEG, PNG or WebP and no larger than 8 MB")
+        token = secrets.token_urlsafe(32)
+        token_hash = sha256(token.encode()).hexdigest()
+        key = f"uploads/real-road/anonymous/{token_hash}"
+        expires = datetime.now(timezone.utc) + timedelta(minutes=ANONYMOUS_TOKEN_MINUTES)
+        upload = self.media.prepare(key, mime, size)
+        self.store.reserve_anonymous(token_hash, {"road": road, "roadId": road_id, "snapped": snapped,
+                                                  "contentType": mime, "sizeBytes": size, "imageKey": key},
+                                     self.anonymous_daily_limit, int(expires.timestamp()))
+        return {"uploadUrl": upload["url"], "uploadFields": upload["fields"], "submissionToken": token,
+                "expiresAt": expires.isoformat().replace("+00:00", "Z"), "maxBytes": MAX_BYTES}
+
+    def create_anonymous(self, body: dict[str, Any]) -> dict[str, str]:
+        if not self.anonymous_enabled:
+            raise SubmissionUnavailable("anonymous reporting is unavailable")
+        token = body.get("submissionToken")
+        if not isinstance(token, str) or not re.fullmatch(r"[A-Za-z0-9_-]{32,100}", token):
+            raise SubmissionUnavailable("submission expired or unavailable; request a new upload")
+        token_hash = sha256(token.encode()).hexdigest()
+        pending = self.store.get_pending(token_hash)
+        if not pending:
+            raise SubmissionUnavailable("submission expired or unavailable; request a new upload")
+        if body.get("road") != pending["road"] or body.get("imageKey") != pending["imageKey"]:
+            raise SubmissionUnavailable("upload and road selection do not match the submission token")
+        road_id, snapped = self.snapshot.match(body.get("road"))
+        if road_id != pending["roadId"] or snapped != pending["snapped"]:
+            raise SubmissionUnavailable("road snapshot changed; request a new upload")
+        note = body.get("note", "")
+        if not isinstance(note, str) or len(note) > 280:
+            raise ValueError("note must be 280 characters or fewer")
+        captured = body.get("capturedAt")
+        now = datetime.now(timezone.utc)
+        if captured is not None:
+            observed = utc_time(captured)
+            if observed > now or observed < now - timedelta(hours=EVIDENCE_HOURS):
+                raise ValueError("observation must be within the last 24 hours")
+        else:
+            observed = now
+        fingerprint = sha256(json.dumps({"road": pending["road"], "imageKey": pending["imageKey"],
+                                         "note": note.strip(), "capturedAt": captured}, sort_keys=True).encode()).hexdigest()
+        report_id = "RR-" + token_hash[:32]
+        if pending["status"] == "consumed":
+            existing = self.store.get(report_id)
+            if existing and compare_digest(pending.get("fingerprint", ""), fingerprint):
+                return {"id": report_id, "reviewStatus": "Pending Review"}
+            raise SubmissionUnavailable("submission token has already been used")
+        raw, mime = self.media.read(pending["imageKey"])
+        if mime != pending["contentType"] or len(raw) != pending["sizeBytes"]:
+            raise SubmissionUnavailable("uploaded photo does not match the submission request")
+        clean = sanitize_photo(raw, mime)
+        photo_key = f"review/real-road/{token_hash}-{sha256(clean).hexdigest()[:24]}.jpg"
+        self.media.save_review(photo_key, clean)
+        retention = now + timedelta(days=REPORT_DAYS)
+        item = {"id": report_id, "roadId": road_id, "geometryVersion": self.snapshot.version, "point": snapped,
+                "reviewStatus": "Pending Review", "source": "resident_photo", "observedAt": observed.isoformat().replace("+00:00", "Z"),
+                "createdAt": _now(), "reviewedAt": None, "review": None,
+                "evidenceExpiresAt": min(observed + timedelta(hours=EVIDENCE_HOURS), retention).isoformat().replace("+00:00", "Z"),
+                "expiresAt": retention.isoformat().replace("+00:00", "Z"), "expiresAtEpoch": int(retention.timestamp()),
+                "imageKey": photo_key, "note": note.strip()}
+        saved = self.store.commit_anonymous(token_hash, item, fingerprint)
+        self.media.delete_upload(pending["imageKey"])
+        return {"id": saved["id"], "reviewStatus": "Pending Review"}
 
     def create(self, body: dict[str, Any], owner: str) -> dict[str, Any]:
         digest = self._digest(owner, body.get("idempotencyKey"))

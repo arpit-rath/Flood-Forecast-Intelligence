@@ -129,6 +129,28 @@ export interface RealRoadReportDraft {
   note?: string;
 }
 
+/** Public, anonymous v2 intake is separate from the signed-in report contract. */
+export interface AnonymousRealRoadReportDraft {
+  submissionToken: string;
+  imageKey: string;
+  road: RealRoadReference;
+  capturedAt: string | null;
+  note?: string;
+}
+
+export interface AnonymousRealRoadUploadTicket {
+  uploadUrl: string;
+  uploadFields: Record<string, string>;
+  submissionToken: string;
+  expiresAt: string;
+  maxBytes: number;
+}
+
+export interface AnonymousRealRoadReceipt {
+  id: string;
+  reviewStatus: "Pending Review";
+}
+
 /** Submitter-only receipt; a retry must not expose responder review details. */
 export interface RealRoadSubmissionReceipt {
   id: string;

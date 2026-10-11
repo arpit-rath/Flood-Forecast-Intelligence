@@ -10,7 +10,7 @@ from typing import Any
 
 from .models import Report
 from .reporting import DynamoReportStore, PhotoMissing, ReportConflict, ReportWorkflow, S3Media
-from .real_roads import DynamoRealRoadStore, RealRoadWorkflow, RoadSnapshot, UploadLimit
+from .real_roads import DynamoRealRoadStore, RealRoadWorkflow, RoadSnapshot, SubmissionUnavailable, UploadLimit
 from .road_alerts import AlertConflict, RoadAlertWorkflow
 from .traffic_ingest import DynamoRoadAlertStore
 from .service import ModeUnavailableError, SnapshotConflictError, VarunaService
@@ -121,6 +121,14 @@ def dispatch(
             if method == "PATCH" and re.fullmatch(r"/v2/road-alerts/RA-[0-9a-f]{32}/review", path):
                 alert_id = path.split("/")[-2]
                 return respond(200, road_alerts.review(alert_id, body, operator_claims["sub"]))
+        if path == "/v2/public/real-road-reports/upload-url" and method == "POST":
+            if not real_roads or not real_roads.anonymous_enabled:
+                return error(503, "anonymous_reporting_unavailable", "Anonymous real-road reporting is unavailable")
+            return respond(200, real_roads.prepare_anonymous_upload(body))
+        if path == "/v2/public/real-road-reports" and method == "POST":
+            if not real_roads or not real_roads.anonymous_enabled:
+                return error(503, "anonymous_reporting_unavailable", "Anonymous real-road reporting is unavailable")
+            return respond(201, real_roads.create_anonymous(body))
         if path == "/v2/real-road-reports/upload-url" and method == "POST":
             if not _authenticated(operator_claims):
                 return error(403, "forbidden", "sign-in is required to submit a report")
@@ -226,6 +234,8 @@ def dispatch(
         return error(409, "alert_conflict", str(exc))
     except UploadLimit as exc:
         return error(429, "upload_limit", str(exc))
+    except SubmissionUnavailable as exc:
+        return error(409, "submission_unavailable", str(exc))
     except PhotoMissing as exc:
         return error(404, "photo_missing", str(exc))
     except KeyError:
@@ -270,7 +280,9 @@ _LAMBDA_REPORTING = (
     if os.environ.get("VARUNA_REPORTS_TABLE") and os.environ.get("VARUNA_MEDIA_BUCKET") else None
 )
 _LAMBDA_REAL_ROADS = (
-    RealRoadWorkflow(RoadSnapshot(), DynamoRealRoadStore(os.environ["VARUNA_REAL_ROAD_REPORTS_TABLE"]), S3Media(os.environ["VARUNA_MEDIA_BUCKET"]))
+    RealRoadWorkflow(RoadSnapshot(), DynamoRealRoadStore(os.environ["VARUNA_REAL_ROAD_REPORTS_TABLE"]), S3Media(os.environ["VARUNA_MEDIA_BUCKET"]),
+                     anonymous_enabled=os.environ.get("VARUNA_ANONYMOUS_REPORTING_ENABLED") == "true",
+                     anonymous_daily_limit=int(os.environ.get("VARUNA_ANONYMOUS_DAILY_LIMIT", "20")))
     if os.environ.get("VARUNA_REAL_ROAD_REPORTS_TABLE") and os.environ.get("VARUNA_MEDIA_BUCKET") else None
 )
 _LAMBDA_ROAD_ALERTS = (

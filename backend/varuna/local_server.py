@@ -75,7 +75,8 @@ class Handler(BaseHTTPRequestHandler):
                 if not 0 < length <= MAX_BYTES + 65536:
                     self._binary(413, b'{"error":"photo exceeds 8 MB"}')
                     return
-                key = ("uploads/real-road/" if v2_upload else "uploads/") + location.path.rsplit("/", 1)[-1]
+                key = ("uploads/real-road/" + location.path.removeprefix("/v2/uploads/")
+                       if v2_upload else "uploads/" + location.path.rsplit("/", 1)[-1])
                 content_type = self.headers.get("Content-Type", "")
                 if not content_type.startswith("multipart/form-data;"):
                     raise ValueError("multipart form upload is required")
@@ -154,7 +155,9 @@ def main() -> None:
     Handler.local_users = json.loads(os.environ.get("VARUNA_LOCAL_USERS_JSON", "{}"))
     Handler.sessions = {}
     Handler.reporting = ReportWorkflow(Handler.service, MemoryReportStore(), MemoryMedia(f"http://{args.host}:{args.port}"))
-    Handler.real_roads = RealRoadWorkflow(RoadSnapshot(), MemoryRealRoadStore(), MemoryMedia(f"http://{args.host}:{args.port}"))
+    Handler.real_roads = RealRoadWorkflow(RoadSnapshot(), MemoryRealRoadStore(), MemoryMedia(f"http://{args.host}:{args.port}"),
+                                          anonymous_enabled=os.environ.get("VARUNA_ANONYMOUS_REPORTING_ENABLED") == "true",
+                                          anonymous_daily_limit=int(os.environ.get("VARUNA_ANONYMOUS_DAILY_LIMIT", "20")))
     Handler.road_alerts = RoadAlertWorkflow(Handler.real_roads.snapshot, MemoryRoadAlertStore())
     server = ThreadingHTTPServer((args.host, args.port), Handler)
     print(f"Synthetic fixture API at http://{args.host}:{args.port}", flush=True)

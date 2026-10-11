@@ -27,6 +27,17 @@ Parameters:
       - DISABLED
       - ENABLED
     Description: Enable only after a reviewed manual ingestion and source-permission check
+  AnonymousRealRoadReportingEnabled:
+    Type: String
+    Default: 'false'
+    AllowedValues: ['false', 'true']
+    Description: Backend kill switch; enable only after quota, cost and privacy review
+  AnonymousRealRoadDailyLimit:
+    Type: Number
+    Default: 20
+    MinValue: 1
+    MaxValue: 100
+    Description: Global UTC-day anonymous upload-form quota, not a spending cap
 
 Resources:
   VarunaHttpApi:
@@ -172,6 +183,8 @@ Resources:
           VARUNA_REAL_ROAD_REPORTS_TABLE: !Ref VarunaRealRoadReports
           VARUNA_MEDIA_BUCKET: !Ref VarunaPrivatePhotos
           VARUNA_ROAD_ALERTS_TABLE: !Ref VarunaRoadAlerts
+          VARUNA_ANONYMOUS_REPORTING_ENABLED: !Ref AnonymousRealRoadReportingEnabled
+          VARUNA_ANONYMOUS_DAILY_LIMIT: !Ref AnonymousRealRoadDailyLimit
       Policies:
         - Statement:
             - Effect: Allow
@@ -193,6 +206,7 @@ Resources:
                 - dynamodb:GetItem
                 - dynamodb:PutItem
                 - dynamodb:UpdateItem
+                - dynamodb:TransactWriteItems
                 - dynamodb:Scan
               Resource: !GetAtt VarunaRealRoadReports.Arn
             - Effect: Allow
@@ -279,6 +293,24 @@ Resources:
               Authorizer: CognitoAccessJwt
               AuthorizationScopes:
                 - openid
+        PublicRealRoadUploadRequest:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref VarunaHttpApi
+            Path: /v2/public/real-road-reports/upload-url
+            Method: POST
+            RouteSettings:
+              ThrottlingBurstLimit: 1
+              ThrottlingRateLimit: 0.2
+        PublicRealRoadCreate:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref VarunaHttpApi
+            Path: /v2/public/real-road-reports
+            Method: POST
+            RouteSettings:
+              ThrottlingBurstLimit: 2
+              ThrottlingRateLimit: 0.5
         ProtectedRealRoadCreate:
           Type: HttpApi
           Properties:
