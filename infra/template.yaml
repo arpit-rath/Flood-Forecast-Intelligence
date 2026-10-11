@@ -364,7 +364,6 @@ Resources:
       CodeUri: .lambda-package/
       MemorySize: 256
       Timeout: 150
-      ReservedConcurrentExecutions: 1
       EventInvokeConfig:
         MaximumRetryAttempts: 0
       Environment:
