@@ -8,6 +8,7 @@ from hashlib import sha256
 from hmac import compare_digest
 from io import BytesIO
 import json
+import os
 import re
 import secrets
 from threading import RLock
@@ -246,8 +247,16 @@ class MemoryMedia:
 class S3Media:
     def __init__(self, bucket: str) -> None:
         import boto3
+        from botocore.config import Config
+
+        region = os.environ["AWS_REGION"]
         self.bucket = bucket
-        self.client = boto3.client("s3")
+        self.client = boto3.client(
+            "s3",
+            region_name=region,
+            endpoint_url=f"https://s3.{region}.amazonaws.com",
+            config=Config(signature_version="s3v4", s3={"addressing_style": "virtual"}),
+        )
 
     def prepare(self, key: str, content_type: str, size: int) -> dict[str, Any]:
         return self.client.generate_presigned_post(

@@ -1,6 +1,8 @@
 """Private photo intake and human-review Scenario replay tests."""
 
 import json
+import os
+import secrets
 import unittest
 from io import BytesIO
 from unittest.mock import Mock, patch
@@ -176,6 +178,27 @@ class ReportWorkflowTests(unittest.TestCase):
         params = fake.generate_presigned_post.call_args.kwargs
         self.assertIn(["content-length-range", 1, MAX_BYTES], params["Conditions"])
         self.assertEqual(params["Fields"]["Content-Type"], "image/jpeg")
+
+    def test_s3_upload_url_uses_lambda_region_and_signature_v4(self):
+        with patch.dict(os.environ, {
+            "AWS_REGION": "ap-south-1",
+            "AWS_DEFAULT_REGION": "us-east-1",
+            "AWS_ACCESS_KEY_ID": secrets.token_hex(12),
+            "AWS_SECRET_ACCESS_KEY": secrets.token_hex(32),
+            "AWS_EC2_METADATA_DISABLED": "true",
+        }):
+            upload = S3Media("varuna-regional-upload-test").prepare(
+                "uploads/example.jpg", "image/jpeg", 1024,
+            )
+
+        self.assertEqual(
+            upload["url"],
+            "https://varuna-regional-upload-test.s3.ap-south-1.amazonaws.com/",
+        )
+        self.assertNotIn("s3.amazonaws.com", upload["url"])
+        self.assertEqual(upload["fields"]["x-amz-algorithm"], "AWS4-HMAC-SHA256")
+        self.assertIn("/ap-south-1/s3/aws4_request", upload["fields"]["x-amz-credential"])
+        self.assertEqual(upload["fields"]["x-amz-server-side-encryption"], "AES256")
 
     def test_expired_metadata_is_hidden_before_ttl_cleanup_and_removed_from_risk(self):
         baseline = self.call("GET", "/v1/snapshots/current").body["id"]

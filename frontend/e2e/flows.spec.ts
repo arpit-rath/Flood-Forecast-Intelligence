@@ -50,6 +50,7 @@ test('resident: scenario banner, route comparison, segment evidence, photo repor
   const mine = page.getByRole('region', { name: 'Your reports' });
   await expect(mine.getByText('Analysis pending')).toBeVisible();
   await expect(mine.getByText('Pending review')).toBeVisible({ timeout: 15_000 });
+  await expect(mine.locator('.report-status .mono')).toContainText(' | ');
   await expect(mine.getByText('Photo analysis suggests standing water; awaiting review.')).toBeVisible();
   await expect(mine.getByText('Mock analysis: fixture response, not a model call.')).toBeVisible();
   await noHorizontalScroll(page);

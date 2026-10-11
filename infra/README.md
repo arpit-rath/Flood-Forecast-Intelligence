@@ -9,7 +9,7 @@ From the repository root, with Python 3.12 and AWS SAM CLI installed, build it w
 ```powershell
 python infra/package_lambda.py
 sam build --template-file infra/template.yaml
-sam validate --template-file infra/template.yaml --region ap-south-1
+sam validate --template-file infra/template.yaml --lint --region ap-south-1
 ```
 
 If SAM CLI is not on `PATH` but `uv` is available, use this exact alternative for the second command:
@@ -20,11 +20,36 @@ uvx --python 3.12 --from aws-sam-cli==1.167.0 sam build --template-file infra/te
 
 Inspect `.aws-sam/build/VarunaFixtureApi/` after building: it must not contain `frontend/`, `node_modules/`, tests, credentials, or `.git/`. Verify Pillow has Linux `.so` files rather than Windows `.pyd` files. If necessary, use `sam build --use-container --template-file infra/template.yaml` with Docker running. The handler and fixture paths are unchanged. Building does not deploy anything.
 
+## Main and Delhi preview CORS
+
+The existing `AllowedOrigin` parameter is the main browser origin, **without** a trailing slash: `https://main.d9r54jpiln4dg.amplifyapp.com`. The new required parameter is `AllowedPreviewOrigin=https://feature-delhi-hybrid-overview.d9r54jpiln4dg.amplifyapp.com`, also **without** a trailing slash. Supply that exact additional parameter override when updating the existing stack, and keep `AllowedOrigin=https://main.d9r54jpiln4dg.amplifyapp.com` plus the current `CognitoJwtIssuer` and `CognitoJwtAudience` values. The template constrains both origin parameters to those exact values; do not substitute a wildcard, a URL with `/`, or `http://`.
+
+The same two origins feed API Gateway HTTP API CORS, the private S3 photo bucket's POST/GET/HEAD CORS rule, and Lambda's response allowlist. API Gateway handles browser preflight and ignores integration CORS headers when its own CORS is configured; Lambda still emits no allow-origin header for missing or unapproved request origins. CORS is a browser access rule, **not** authentication or a substitute for the existing JWT, responder-group, presigned POST, 8 MB, and manual-review controls. Local loopback API testing remains separate and allows only `http://localhost:5173`.
+
+On 11 October 2026, the deployed API's unauthenticated `/health` response and the report-upload browser preflight were checked with both approved origins and an unapproved origin: they returned a matching allow-origin header only for the two approved origins. This does not independently verify the deployed S3 CORS rule, Cognito callback settings, or the current CloudFormation template and Lambda package.
+
+For the preview branch alone, use **Amplify Hosting → Environment variables → Manage variables → Add variable override** for `feature/delhi-hybrid-overview`. Do not change app-wide or `main` values:
+
+| Preview override | Value |
+| --- | --- |
+| `VITE_USE_MOCKS` | `false` |
+| `VITE_LOCAL_AUTH` | `false` |
+| `VITE_API_BASE_URL` | `https://u5o73tqvd8.execute-api.ap-south-1.amazonaws.com` |
+| `VITE_COGNITO_DOMAIN` | Existing managed-login HTTPS origin used by main |
+| `VITE_COGNITO_CLIENT_ID` | Existing public app-client ID used by main |
+| `VITE_COGNITO_REDIRECT_URI` | `https://feature-delhi-hybrid-overview.d9r54jpiln4dg.amplifyapp.com/` |
+| `VITE_PUBLIC_SIGNUP_ENABLED` | `true` while Cognito self-sign-up remains enabled; UI wording only |
+| `VITE_DELHI_HYBRID_STYLE_URL` | Existing public Hybrid descriptor URL, only if its restricted map key permits the preview referrer |
+
+Add the **exact preview URL with trailing slash** to that Cognito app client's allowed callback and sign-out URLs, retaining the existing main URLs. The slash is required for the redirect/logout URL but must **not** appear in API Gateway or S3 origin allowlists. Vite embeds these public settings at build time, so the preview branch needs a rebuild after its overrides are saved. The `VITE_API_BASE_URL` value above is the deployed API URL supplied for this stack; verify it still matches the stack's `ApiBaseUrl` output before the update. Confirm the preview app's API calls reach that URL in HTTP mode and that its Cognito callback matches exactly before relying on photo submission. If the Location key is restricted to main, add the preview referrer in its own approved configuration; that is separate from this SAM change.
+
+Before any later deployment, inspect a CloudFormation changeset rather than assuming its contents. With the intended parameter values, expect an in-place update to the HTTP API CORS list and S3 bucket CORS rule, and a Lambda environment/code update (plus any SAM-generated deployment/stage metadata). No bucket or API replacement, public S3 access, JWT change, new Cognito resource, or main frontend setting change is intended. The actual changeset and live stack state have **not** been inspected here.
+
 Before a separately authorized deployment, manually set up Cognito in the same region as the API. The hackathon uses **temporary public self-sign-up**, not invite-only enrollment:
 
 1. In the user pool, enable **self-service sign-up** only for the event and require verified email before sign-in. Use email verification, not SMS, unless you have reviewed SMS pricing and abuse controls. Configure a domain for managed login and a public browser app client **without a client secret**. Enable authorization-code grant with PKCE and the `openid` and `email` scopes. Do not enable implicit or client-credentials grant for this client. Confirm managed login displays “Create an account”; the site does not collect or store account passwords.
 2. Set exact allowed callback and sign-out URLs for each approved site origin, for example `http://localhost:5173/` and the deployed HTTPS root. Create the `varuna-responder` user-pool group. A newly self-registered user must have **no responder group**; check that no pre-sign-up/post-confirmation trigger or group-mapping automation assigns it. Have an administrator create or verify a responder account and add **only** that account to the group. Test a new account: it can submit a Pending Review photo but cannot list, view, accept or reject reports. Consider MFA and account recovery rules appropriate to the pilot.
-3. Supply `CognitoJwtIssuer=https://cognito-idp.<region>.amazonaws.com/<user-pool-id>`, `CognitoJwtAudience=<public-app-client-id>`, and `AllowedOrigin=<exact-frontend-origin>` as SAM parameters when you choose to deploy. Use the same app client ID and managed-login domain in the frontend's ignored environment file. Do not pass credentials or client secrets to the browser.
+3. Supply `CognitoJwtIssuer=https://cognito-idp.<region>.amazonaws.com/<user-pool-id>` and `CognitoJwtAudience=<public-app-client-id>`, retaining their deployed values on stack update. Supply both exact origin parameters from the preceding section. Use the same app client ID and managed-login domain in the frontend's ignored environment file. Do not pass credentials or client secrets to the browser.
 
 The protected upload-request, report-create, report-list, report-detail and review routes require an API Gateway JWT authorizer and `openid` scope. API Gateway validates signature, issuer, audience and expiry; Lambda additionally requires `token_use=access` and a subject, and checks `varuna-responder` membership for list/detail/review. Public Scenario endpoints remain public. The site uses Cognito managed login with authorization-code/PKCE; no one pastes a JWT. Cognito itself is **not** created by this SAM template.
 
@@ -40,7 +65,7 @@ The bucket blocks public access, encrypts objects, and accepts only a signed mul
 
 Both bucket and table use `Retain` on stack deletion to avoid accidental data loss. After a pilot, inspect and manually empty/delete the retained bucket and delete the retained table when authorized; confirm no legal hold or records obligation first. If upgrading a table that already contains uploads without `expiresAtEpoch`, the app hides those legacy records but DynamoDB cannot TTL-delete them; inspect and manually remove or backfill them under an approved migration. Delete the separately created Cognito users, group, app client, domain and pool only when no longer needed. The table does **not** request paid point-in-time recovery: this short, reproducible demo does not justify the additional cost. If updating a table where PITR was already enabled, inspect its actual post-update setting and charges instead of assuming template removal turns it off. Reassess PITR and backup/retention obligations before using real resident evidence or a longer-lived pilot. S3/DynamoDB lifecycle/TTL are not an immediate deletion guarantee.
 
-The API URL, bucket name, and reports table name are stack outputs. To use a deployed API, set `VITE_USE_MOCKS=false`, `VITE_API_BASE_URL=<ApiBaseUrl>`, `VITE_COGNITO_DOMAIN=https://<pool-domain>`, `VITE_COGNITO_CLIENT_ID=<public-app-client-id>`, and `VITE_COGNITO_REDIRECT_URI=<allowed-callback-url>` in ignored `frontend/.env.local`. Leave `VITE_LOCAL_AUTH=false` in deployed builds. Review origin, retention, budget, consent and privacy before deployment.
+The API URL, bucket name, and reports table name are stack outputs. To use a deployed API locally, set `VITE_USE_MOCKS=false`, `VITE_API_BASE_URL=<existing ApiBaseUrl output>`, `VITE_COGNITO_DOMAIN=https://<pool-domain>`, `VITE_COGNITO_CLIENT_ID=<public-app-client-id>`, and `VITE_COGNITO_REDIRECT_URI=<allowed-callback-url>` in ignored `frontend/.env.local`. Leave `VITE_LOCAL_AUTH=false` in deployed builds. For Amplify, apply the branch-only overrides above instead of changing main. Review origin, retention, budget, consent and privacy before deployment.
 
 References: [Cognito self-registration settings](https://docs.aws.amazon.com/cognito/latest/developerguide/user-pool-settings-admin-create-user-policy.html), [Cognito user management](https://docs.aws.amazon.com/cognito/latest/developerguide/how-to-manage-user-accounts.html), [Cognito user-pool metrics](https://docs.aws.amazon.com/cognito/latest/developerguide/metrics-for-cognito-user-pools.html), [Cognito WAF](https://docs.aws.amazon.com/cognito/latest/developerguide/user-pool-waf.html), [HTTP API throttling](https://docs.aws.amazon.com/apigateway/latest/developerguide/http-api-throttling.html), [Cognito token endpoint and PKCE](https://docs.aws.amazon.com/cognito/latest/developerguide/token-endpoint.html), [API Gateway JWT authorizer](https://docs.aws.amazon.com/apigateway/latest/developerguide/http-api-jwt-authorizer.html), [S3 POST policy](https://docs.aws.amazon.com/AmazonS3/latest/developerguide/sigv4-HTTPPOSTConstructPolicy.html), [DynamoDB expired-item filtering](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/ttl-expired-items.html).
 

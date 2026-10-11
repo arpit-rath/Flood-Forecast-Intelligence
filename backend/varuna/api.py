@@ -52,6 +52,7 @@ def dispatch(
     allow_local_mutations: bool = False, operator_token: str | None = None,
     operator_claims: dict[str, Any] | None = None, reporting: ReportWorkflow | None = None,
     cors_origin: str = "http://localhost:5173",
+    cors_preview_origin: str | None = None,
 ) -> ApiResponse:
     """Handle one request; deployed report operations use durable storage and JWT claims."""
     query = query or {}
@@ -59,11 +60,15 @@ def dispatch(
     headers = {key.lower(): value for key, value in (headers or {}).items()}
     response_headers = {
         "content-type": "application/json; charset=utf-8",
-        "access-control-allow-origin": cors_origin,
-        "access-control-allow-methods": "GET,POST,PATCH,PUT,OPTIONS",
-        "access-control-allow-headers": "content-type,authorization",
         "vary": "Origin",
     }
+    request_origin = headers.get("origin")
+    if request_origin and request_origin in (cors_origin, cors_preview_origin):
+        response_headers.update({
+            "access-control-allow-origin": request_origin,
+            "access-control-allow-methods": "GET,POST,PATCH,PUT,OPTIONS",
+            "access-control-allow-headers": "content-type,authorization",
+        })
 
     def respond(status: int, payload: dict[str, Any]) -> ApiResponse:
         return ApiResponse(status, payload, response_headers)
@@ -188,7 +193,8 @@ def lambda_handler(event: dict[str, Any], context: Any) -> dict[str, Any]:
         allow_local_mutations=False,
         operator_claims=((request.get("authorizer") or {}).get("jwt") or {}).get("claims"),
         reporting=_LAMBDA_REPORTING,
-        cors_origin=os.environ.get("VARUNA_CORS_ORIGIN", "http://localhost:5173"),
+        cors_origin=os.environ.get("VARUNA_CORS_ORIGIN", ""),
+        cors_preview_origin=os.environ.get("VARUNA_CORS_PREVIEW_ORIGIN"),
     )
     return {
         "statusCode": response.status, "headers": response.headers,

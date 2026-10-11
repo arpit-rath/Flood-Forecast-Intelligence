@@ -92,11 +92,11 @@ export function ReportForm({ headingRef }: { headingRef?: React.Ref<HTMLHeadingE
     const point: [number, number] = [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2];
 
     try {
-      setPhase({ kind: 'uploading', step: 'Preparing uploadâ€¦' });
+      setPhase({ kind: 'uploading', step: 'Preparing upload...' });
       const upload = await api.requestUploadUrl({ contentType: file.type, sizeBytes: file.size, idempotencyKey: idempotencyKey.current });
-      setPhase({ kind: 'uploading', step: 'Uploading photoâ€¦' });
+      setPhase({ kind: 'uploading', step: 'Uploading photo...' });
       await api.uploadImage(upload, file);
-      setPhase({ kind: 'uploading', step: 'Sending reportâ€¦' });
+      setPhase({ kind: 'uploading', step: 'Sending report...' });
       const report = await api.createReport({
         imageKey: upload.imageKey,
         segmentId,
@@ -250,7 +250,7 @@ function ReportStatusItem({ report: r }: { report: Report }) {
       <div className="evidence-list__row">
         <ReviewBadge status={r.reviewStatus} />
         <span className="mono detail">
-          {r.id} Â· <time dateTime={r.createdAt}>{formatTimeIST(r.createdAt)}</time>
+          {r.id} | <time dateTime={r.createdAt}>{formatTimeIST(r.createdAt)}</time>
         </span>
       </div>
       <p className="detail">{segmentsById.get(r.segmentId)?.name ?? r.segmentId}</p>
