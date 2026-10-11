@@ -1,10 +1,10 @@
 import { CircleCheck, CircleHelp, Clock3, MapPin, ShieldAlert } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import type { PublicRoadAlert, RealRoadEvidence, RealRoadId } from '../../../contracts/types';
+import type { RealRoadEvidence, RealRoadId } from '../../../contracts/types';
 import { BrandMark } from '../components/AppHeader';
 import type { SignedInUser } from '../auth/cognito';
 import { delhiStyleUrls } from '../lib/delhiStyle';
-import { currentConfirmedAlert, roadLabel, roads, roadCondition, type RoadSnapshot } from './model';
+import { roadLabel, roads, roadCondition, type RoadSnapshot } from './model';
 import { realRoadApi } from './api';
 import { RealRoadReporting } from './RealRoadReporting';
 import { RoadAlerts } from './RoadAlerts';
@@ -38,8 +38,6 @@ export function RealRoadApp() {
   const [selectedPoint, setSelectedPoint] = useState<[number, number] | null>(null);
   const [lastEvidenceFetch, setLastEvidenceFetch] = useState<Date | null>(null);
   const [signedInUser, setSignedInUser] = useState<SignedInUser | null>(null);
-  const [roadAlerts, setRoadAlerts] = useState<PublicRoadAlert[]>([]);
-  const mappedAlerts = apiReady ? roadAlerts : [];
 
   useEffect(() => {
     if (!httpMode) return;
@@ -132,8 +130,8 @@ export function RealRoadApp() {
               {matches.map((road) => (
                 <li key={road.id}>
                   <button type="button" aria-pressed={selectedRoadId === road.id} onClick={() => { setSelectedRoadId(road.id); setSelectedPoint(null); }}>
-                    {currentConfirmedAlert(road.id, mappedAlerts) || roadCondition(road.id, realRoadEvidence, now).kind === 'confirmed_blockage' ? <ShieldAlert aria-hidden="true" size={17} /> : roadCondition(road.id, realRoadEvidence, now).pending.length ? <Clock3 aria-hidden="true" size={17} /> : roadCondition(road.id, realRoadEvidence, now).latestReviewed?.reviewState === 'Cleared' ? <CircleCheck aria-hidden="true" size={17} /> : <CircleHelp aria-hidden="true" size={17} />}
-                    <span>{roadLabel(road)}<small>{road.id} · {currentConfirmedAlert(road.id, mappedAlerts) ? 'Responder-confirmed flood blockage · source alert' : roadCondition(road.id, realRoadEvidence, now).kind === 'confirmed_blockage' ? 'Responder-confirmed blockage' : roadCondition(road.id, realRoadEvidence, now).pending.length ? 'Unknown · Pending Review' : roadCondition(road.id, realRoadEvidence, now).latestReviewed?.reviewState === 'Cleared' ? 'Unknown · responder-cleared report' : 'Unknown'}</small></span>
+                    {roadCondition(road.id, realRoadEvidence, now).kind === 'confirmed_blockage' ? <ShieldAlert aria-hidden="true" size={17} /> : roadCondition(road.id, realRoadEvidence, now).pending.length ? <Clock3 aria-hidden="true" size={17} /> : roadCondition(road.id, realRoadEvidence, now).latestReviewed?.reviewState === 'Cleared' ? <CircleCheck aria-hidden="true" size={17} /> : <CircleHelp aria-hidden="true" size={17} />}
+                    <span>{roadLabel(road)}<small>{road.id} · {roadCondition(road.id, realRoadEvidence, now).kind === 'confirmed_blockage' ? 'Responder-confirmed blockage' : roadCondition(road.id, realRoadEvidence, now).pending.length ? 'Unknown · Pending Review' : roadCondition(road.id, realRoadEvidence, now).latestReviewed?.reviewState === 'Cleared' ? 'Unknown · responder-cleared report' : 'Unknown'}</small></span>
                   </button>
                 </li>
               ))}
@@ -143,14 +141,14 @@ export function RealRoadApp() {
               <h2>{selectedRoad ? roadLabel(selectedRoad) : 'Select a mapped road'}</h2>
               {selectedRoad ? (
                 <>
-                  <RoadStatus road={selectedRoad} evidence={realRoadEvidence} alerts={mappedAlerts} now={now} />
+                  <RoadStatus road={selectedRoad} evidence={realRoadEvidence} now={now} />
                   <p className="detail">Map geometry: <a href={`https://www.openstreetmap.org/way/${selectedRoad.id.split('/')[1]}`} target="_blank" rel="noopener noreferrer">{selectedRoad.id} on OpenStreetMap</a> ({selectedRoad.properties.highway}).</p>
                   <p className="detail">OSM way last edited {formatTime(selectedRoad.properties.osmEditedAt)}; extract retrieved {formatTime(roadSnapshot.metadata.retrievedAt)}. These are map-data times, not flood observation times.</p>
                 </>
               ) : <p className="detail">All roads are Unknown until a current observation is reviewed. Satellite imagery cannot confirm a blockage.</p>}
             </section>
             <RealRoadReporting available={apiReady} roadId={selectedRoadId} point={selectedPoint} roads={roadSnapshot} view={view} onChanged={refreshEvidence} onSessionChange={setSignedInUser} />
-            <RoadAlerts user={signedInUser} view={view} selectedRoadId={selectedRoadId} selectedPoint={selectedPoint} geometryVersion={roadSnapshot.metadata.geometryVersion} onAlertsChange={setRoadAlerts} onSelectCandidate={(id) => { setSelectedRoadId(id); setSelectedPoint(null); }} />
+            <RoadAlerts user={signedInUser} view={view} selectedRoadId={selectedRoadId} selectedPoint={selectedPoint} geometryVersion={roadSnapshot.metadata.geometryVersion} onSelectCandidate={(id) => { setSelectedRoadId(id); setSelectedPoint(null); }} />
             <details className="real-preview__sources">
               <summary>Source, licence and coverage</summary>
               <p>{roadSnapshot.metadata.coverageNote}</p>
@@ -160,7 +158,7 @@ export function RealRoadApp() {
             </details>
           </aside>
           <div className="real-preview__map-column">
-            <RealRoadMap style={style} urls={styleUrls} selectedRoadId={selectedRoadId} evidence={realRoadEvidence} alerts={mappedAlerts} roads={roadSnapshot} now={now} onSelect={(id, location) => { setSelectedRoadId(id); setSelectedPoint(location); }} onCameraChange={setCamera} />
+            <RealRoadMap style={style} urls={styleUrls} selectedRoadId={selectedRoadId} evidence={realRoadEvidence} roads={roadSnapshot} now={now} onSelect={(id, location) => { setSelectedRoadId(id); setSelectedPoint(location); }} onCameraChange={setCamera} />
             <p className="real-preview__camera">{camera ? `Map center ${camera.latitude.toFixed(4)}°N, ${camera.longitude.toFixed(4)}°E · zoom ${camera.zoom.toFixed(1)}` : 'Map camera unavailable until the basemap loads.'} Style changes keep the same camera, road selection and real-road markers.</p>
           </div>
         </div>

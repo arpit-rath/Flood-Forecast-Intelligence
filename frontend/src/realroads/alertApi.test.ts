@@ -10,7 +10,7 @@ const alert: PublicRoadAlert = {
   publishedAt: '2026-10-11T10:00:00Z', publishedPrecision: 'datetime', retrievedAt: '2026-10-11T10:05:00Z',
   originalHeadline: 'Fixture headline', statedCause: 'waterlogging', affectedLocation: null,
   validFromText: null, validUntilText: null, sourceAvailability: 'available', freshness: 'Current',
-  state: 'Reported / Unverified', resolutionState: 'unlocated', proposal: null, matchedRoadId: null, reviewedAt: null,
+  state: 'Reported / Unverified', resolutionState: 'unlocated', proposal: null,
 };
 
 describe('local source alert HTTP boundary', () => {
@@ -21,7 +21,7 @@ describe('local source alert HTTP boundary', () => {
     expect(fetchMock.mock.calls[0][1].headers.Authorization).toBeUndefined();
     for (const changed of [
       { ...alert, sourceError: 'private' }, { ...alert, reviewerSub: 'private' },
-      { ...alert, state: 'Confirmed Flood Blockage' }, { ...alert, matchedRoadId: 'osm:way/171708731' },
+      { ...alert, matchedRoadId: 'osm:way/171708731' }, { ...alert, reviewedAt: null },
       { ...alert, candidateRoads: [{ roadId: 'osm:way/171708731' }] },
       { ...alert, proposal: { displayLabel: 'Test', method: 'reviewed_alias', confidenceCategory: 'high', explanation: 'alias', roadId: 'osm:way/171708731' } },
       { ...alert, resolutionState: 'made_up' },
@@ -29,6 +29,12 @@ describe('local source alert HTTP boundary', () => {
       fetchMock.mockResolvedValueOnce({ ok: true, json: async () => ({ alerts: [changed] }) });
       await expect(roadAlertApi.publicList()).rejects.toThrow('Public road-alert contract mismatch');
     }
+  });
+
+  it('accepts a reviewed outcome without private road or reviewer keys', async () => {
+    const reviewed = { ...alert, state: 'Confirmed Flood Blockage' as const };
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true, json: async () => ({ alerts: [reviewed] }) }));
+    await expect(roadAlertApi.publicList()).resolves.toEqual({ alerts: [reviewed] });
   });
 
   it('accepts a bounded public proposal without a candidate road ID', async () => {
@@ -45,6 +51,8 @@ describe('local source alert HTTP boundary', () => {
     const fetchMock = vi.fn().mockResolvedValue({ ok: true, json: async () => ({ alerts: [alert], sourceStatus }) });
     vi.stubGlobal('fetch', fetchMock);
     await expect(roadAlertApi.publicList()).resolves.toEqual({ alerts: [alert], sourceStatus });
+    fetchMock.mockResolvedValueOnce({ ok: true, json: async () => ({ alerts: [alert], sourceStatus: { ...sourceStatus, state: 'degraded' } }) });
+    await expect(roadAlertApi.publicList()).resolves.toEqual({ alerts: [alert], sourceStatus: { ...sourceStatus, state: 'degraded' } });
     fetchMock.mockResolvedValueOnce({ ok: true, json: async () => ({ alerts: [alert], sourceStatus: { ...sourceStatus, candidateIds: ['private'] } }) });
     await expect(roadAlertApi.publicList()).rejects.toThrow('Public road-alert contract mismatch');
   });

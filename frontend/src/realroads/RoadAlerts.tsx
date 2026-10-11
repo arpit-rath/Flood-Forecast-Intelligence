@@ -10,13 +10,12 @@ function time(value: string | null): string {
     : value || 'Not stated';
 }
 
-export function RoadAlerts({ user, view, selectedRoadId, selectedPoint, geometryVersion, onAlertsChange, onSelectCandidate }: {
+export function RoadAlerts({ user, view, selectedRoadId, selectedPoint, geometryVersion, onSelectCandidate }: {
   user: SignedInUser | null;
   view: 'resident' | 'responder';
   selectedRoadId: RealRoadId | null;
   selectedPoint: [number, number] | null;
   geometryVersion: string | undefined;
-  onAlertsChange?: (alerts: PublicRoadAlert[]) => void;
   onSelectCandidate?: (roadId: RealRoadId) => void;
 }) {
   const [alerts, setAlerts] = useState<PublicRoadAlert[]>([]);
@@ -34,7 +33,6 @@ export function RoadAlerts({ user, view, selectedRoadId, selectedPoint, geometry
       const publicResult = await roadAlertApi.publicList();
       if (!Array.isArray(publicResult?.alerts)) throw new Error('Invalid public road-alert response.');
       setAlerts(publicResult.alerts);
-      onAlertsChange?.(publicResult.alerts);
       const source = publicResult.sourceStatus;
       setStatus(source ? `Official source: ${source.state}. Last checked: ${time(source.lastCheckedAt)}. Last successful check: ${time(source.lastSuccessfulAt)}. ${source.message} Limited OSM coverage.`
         : publicResult.alerts.length ? 'Manually imported source alerts · limited OSM coverage; automatic source checking is not configured.'
@@ -46,11 +44,10 @@ export function RoadAlerts({ user, view, selectedRoadId, selectedPoint, geometry
       } else setQueue([]);
     } catch (cause) {
       setQueue([]);
-      onAlertsChange?.([]);
       setStatus('Road-alert feed unavailable. Previously loaded alert text is stale; no road condition is inferred from it.');
       throw cause;
     }
-  }, [onAlertsChange, responder, user]);
+  }, [responder, user]);
 
   useEffect(() => {
     if (!enabled) return;
@@ -96,7 +93,7 @@ export function RoadAlerts({ user, view, selectedRoadId, selectedPoint, geometry
       <p><strong>{alert.state === 'Confirmed Flood Blockage' ? <ShieldAlert aria-hidden="true" size={16} /> : alert.state === 'Cleared' ? <CircleCheck aria-hidden="true" size={16} /> : alert.state === 'Expired' ? <Clock3 aria-hidden="true" size={16} /> : <CircleHelp aria-hidden="true" size={16} />} {alert.state}</strong> · {alert.freshness} · {alert.sourceName}</p>
       <p>Stated cause: {alert.statedCause || 'Not stated'}. Affected wording: {alert.affectedLocation || 'Not stated'}.</p>
       <p>Published: {time(alert.publishedAt || alert.publishedAtText)}; fetched: {time(alert.retrievedAt)}. Freshness: {alert.freshness}. Validity: {alert.validFromText || 'not stated'} to {alert.validUntilText || 'not stated'}.</p>
-      <p>Source availability: {alert.sourceAvailability}. {alert.matchedRoadId ? `Reviewed road: ${alert.matchedRoadId}. Reviewed: ${time(alert.reviewedAt)}.` : 'No reviewed road match. Road condition remains Unknown.'}</p>
+      <p>Source availability: {alert.sourceAvailability}. This public feed does not identify a reviewed road; mapped condition is shown only from the separate reviewed road-evidence feed.</p>
       {alert.proposal && <p className="real-alerts__proposal"><CircleHelp aria-hidden="true" size={16} /> Proposed match: {alert.proposal.displayLabel} · {alert.proposal.confidenceCategory} confidence · {alert.proposal.explanation}. Not a confirmed blockage.</p>}
       {alert.state === 'Reported / Unverified' && alert.resolutionState === 'ambiguous' && <p className="real-alerts__uncertain">Ambiguous match — responder selection required. Road condition remains Unknown.</p>}
       {alert.state === 'Reported / Unverified' && ['outside_coverage', 'stale_snapshot', 'invalid_source_location', 'unlocated'].includes(alert.resolutionState) && <p className="real-alerts__uncertain">Location resolution: {alert.resolutionState.replaceAll('_', ' ')}. No road condition inferred.</p>}

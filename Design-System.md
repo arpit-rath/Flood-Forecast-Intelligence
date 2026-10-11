@@ -95,6 +95,8 @@ In the feature preview, make Standard street map the default and Hybrid the labe
 
 Local source alerts use a separate, text-first panel in the real-road preview. Show source link, publication and retrieval times, stated cause and affected wording, freshness, and a persistent **Reported / Unverified** label for uncertain candidates. A unique proposal may show an OSM-derived or contextual unnamed-road label, confidence category and reason; ambiguous results must say **Ambiguous match — responder selection required**. Never style a candidate as a blockage or an official road name. Use an icon plus text, not hazard colour alone. Do not draw candidate road lines as blocked or expose reviewer identity/reason publicly. A responder's confirmation is a separately labelled state with a visible decision time; only confirmed flood blockage may affect the local route-eligibility check. Show unavailable, invalid and stale source-location states explicitly, and retain on-ground-instructions precedence. Preserve the existing 44 px controls, focus rings, OSM attribution and mobile single-column layout.
 
+For the Phase 3 public alert feed, show a **degraded** source-health message when labelled detail parsing fails; retain the clean listing title and explicitly say the body could not be verified. Public alert cards receive no road IDs or review timestamps, even for reviewed outcomes, so they cannot colour a specific map way. The responder-only review queue may show decision time and candidate road IDs. The separate reviewed real-road evidence feed remains the map's condition source; otherwise roads stay **Unknown**.
+
 ## 5. Layouts
 
 ### Resident view

@@ -1,4 +1,4 @@
-import type { PublicRoadAlert, RealRoadEvidence, RealRoadId } from '../../../contracts/types';
+import type { RealRoadEvidence, RealRoadId } from '../../../contracts/types';
 import snapshot from '../data/delhi-roads.json';
 
 export interface RoadFeature {
@@ -26,10 +26,6 @@ export interface RoadSnapshot {
 }
 
 export const roads = snapshot as RoadSnapshot;
-
-export function currentConfirmedAlert(roadId: RealRoadId, alerts: PublicRoadAlert[]): PublicRoadAlert | null {
-  return alerts.find((alert) => alert.matchedRoadId === roadId && alert.state === 'Confirmed Flood Blockage' && alert.freshness === 'Current' && Boolean(alert.reviewedAt)) ?? null;
-}
 
 export type RoadCondition = {
   kind: 'unknown' | 'confirmed_blockage';

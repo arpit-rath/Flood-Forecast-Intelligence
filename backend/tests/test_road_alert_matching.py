@@ -164,7 +164,7 @@ class CandidateMatchingTests(unittest.TestCase):
             self.assertEqual(public.status, 200)
             item = public.body["alerts"][0]
             self.assertIn("Unnamed road near", item["proposal"]["displayLabel"])
-            self.assertIsNone(item["matchedRoadId"])
+            self.assertNotIn("matchedRoadId", item)
             for field in ("candidateRoads", "originalText", "locationHints", "reviewHistory", "sourceError", "reviewerSub"):
                 self.assertNotIn(field, item)
             self.assertNotIn("roadId", item["proposal"])

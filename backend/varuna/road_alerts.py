@@ -474,10 +474,14 @@ class RoadAlertWorkflow:
         if not re.fullmatch(r"[0-9a-f]{64}", content_hash):
             raise ValueError("content hash must be SHA-256 hex")
         alert = self.source.normalize(document, self.snapshot)
-        revision_id = "RA-" + sha256(f"{alert.canonicalSourceUrl}\n{content_hash}".encode()).hexdigest()[:32]
+        # The source revision is URL + raw hash. A new parser creates a new,
+        # immutable projection of that same source revision; it cannot mutate
+        # or inherit an earlier review decision.
+        revision_id = "RA-" + sha256(f"{alert.canonicalSourceUrl}\n{content_hash}\n{parser_version}".encode()).hexdigest()[:32]
         item = {**asdict(alert), "id": revision_id, "reviewState": "Imported", "reviewHistory": [],
                 "matchedRoadId": None, "contentSha256": content_hash,
                 "parserVersion": parser_version, "fetchedAt": fetched_at,
+                "sourceRevisionId": "RA-" + sha256(f"{alert.canonicalSourceUrl}\n{content_hash}".encode()).hexdigest()[:32],
                 "sourceAlertIdentifier": document.get("sourceIdentifier")}
         created = self.store.put_ingested(item)
         return self.private(self.store.get(revision_id)), created
@@ -492,6 +496,8 @@ class RoadAlertWorkflow:
         now = self.clock()
         if item["sourceAvailability"] != "available":
             return "Unavailable"
+        if item["validUntil"] and now >= _instant(item["validUntil"]):
+            return "Expired"
         if item["publishedPrecision"] != "datetime" or not item["validityParseable"]:
             return "Unverified time"
         published = _instant(item["publishedAt"])
@@ -516,7 +522,6 @@ class RoadAlertWorkflow:
 
     def public(self, item: dict[str, Any]) -> dict[str, Any]:
         state = self.state(item)
-        latest = item["reviewHistory"][-1] if item["reviewHistory"] else None
         proposal = None
         if (item["reviewState"] == "Imported" and self.freshness(item) == "Current"
                 and item["resolutionState"] == "matched_candidate" and len(item["candidateRoads"]) == 1):
@@ -530,7 +535,10 @@ class RoadAlertWorkflow:
                 explanation = f"{candidate['reason']}: {', '.join(candidate['matchedEvidence'])}"
             # Public summary deliberately omits road ID, internal evidence,
             # reviewer identity and the source-document text.
-            proposal = {"displayLabel": candidate["displayLabel"], "method": candidate["method"],
+            display_label = candidate["displayLabel"]
+            if re.search(r"osm:way/\d+", display_label):
+                display_label = "Unnamed mapped road (limited OSM coverage)"
+            proposal = {"displayLabel": display_label, "method": candidate["method"],
                         "confidenceCategory": candidate["confidenceCategory"],
                         "explanation": explanation}
         return {"id": item["id"], "sourceName": item["sourceName"],
@@ -542,15 +550,31 @@ class RoadAlertWorkflow:
                 "affectedLocation": item["affectedLocation"], "validFromText": item["validFromText"],
                 "validUntilText": item["validUntilText"], "sourceAvailability": item["sourceAvailability"],
                 "freshness": self.freshness(item), "state": state,
-                "resolutionState": item["resolutionState"], "proposal": proposal,
-                "matchedRoadId": item["matchedRoadId"] if state in ("Confirmed Flood Blockage", "Cleared") else None,
-                "reviewedAt": latest["reviewedAt"] if latest and state in ("Confirmed Flood Blockage", "Cleared") else None}
+                "resolutionState": item["resolutionState"], "proposal": proposal}
 
     def private(self, item: dict[str, Any]) -> dict[str, Any]:
         return {**self.public(item), **item, "freshness": self.freshness(item), "state": self.state(item)}
 
     def public_list(self) -> list[dict[str, Any]]:
-        return sorted((self.public(item) for item in self.store.list()), key=lambda item: item["retrievedAt"], reverse=True)
+        items = self.store.list()
+        # All source revisions remain in the responder audit. The public feed
+        # shows one latest projection per official detail URL, so a malformed
+        # older projection cannot linger after either a parser or page update.
+        newest: dict[str, dict[str, Any]] = {}
+        for item in items:
+            if item.get("contentSha256"):
+                key = item["canonicalSourceUrl"]
+                if key not in newest or (item.get("fetchedAt", ""), item.get("parserVersion", "")) > (
+                        newest[key].get("fetchedAt", ""), newest[key].get("parserVersion", "")):
+                    newest[key] = item
+        for url in newest:
+            metadata = self.store.get_metadata("detail#" + sha256(url.encode()).hexdigest()) or {}
+            active_id = metadata.get("activeAlertId")
+            if active_id:
+                newest[url] = next((item for item in items if item["id"] == active_id), newest[url])
+        visible = (item for item in items if not item.get("contentSha256") or
+                   newest[item["canonicalSourceUrl"]] is item)
+        return sorted((self.public(item) for item in visible), key=lambda item: item["retrievedAt"], reverse=True)
 
     def private_list(self) -> list[dict[str, Any]]:
         return sorted((self.private(item) for item in self.store.list()), key=lambda item: item["retrievedAt"], reverse=True)

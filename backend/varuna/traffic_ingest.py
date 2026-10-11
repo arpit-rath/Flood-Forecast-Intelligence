@@ -26,7 +26,7 @@ from .road_alerts import RoadAlertWorkflow
 LISTING_URL = "https://traffic.delhipolice.gov.in/en/news-alertadvisory/alerts"
 ROBOTS_URL = "https://traffic.delhipolice.gov.in/robots.txt"
 USER_AGENT = "VarunaRoadAlerts/1.0 (+https://github.com/arpit-rath; bounded public-alert research)"
-PARSER_VERSION = "dtp-html-v1"
+PARSER_VERSION = "dtp-html-v2"
 MAX_DETAILS = 10
 MAX_LISTING_LINKS = 100
 MAX_BYTES = 512 * 1024
@@ -149,63 +149,88 @@ def _parse_robots(body: bytes) -> RobotFileParser:
 
 
 class _Page(HTMLParser):
+    """Collect only alert teaser links and labelled fields inside alert nodes."""
+
+    FIELD_LABELS = {
+        "field-name-field-news-alert-advisory": "news alert/advisory",
+        "field-name-field-news-date": "news date",
+        "field-name-field-end-date": "end date",
+        "field-name-field-end-time": "end time",
+        "field-name-field-link": "link",
+    }
+
     def __init__(self) -> None:
         super().__init__(convert_charrefs=True)
-        self.stack: list[tuple[str, dict[str, str]]] = []
-        self.headline: list[str] = []
-        self.body: list[str] = []
-        self.main: list[str] = []
+        self.stack: list[tuple[str, set[str]]] = []
         self.listing_links: list[tuple[str, str]] = []
-        self.external_links: list[str] = []
-        self.published: str | None = None
-        self.end: str | None = None
-        self._anchor: tuple[str, list[str], bool] | None = None
-        self._blocked_depth = 0
+        self.fields: dict[str, dict[str, list[str]]] = {}
+        self.field_counts: dict[str, int] = {}
+        self._anchor: tuple[str, list[str]] | None = None
+
+    def _inside_alert(self, teaser: bool) -> bool:
+        return any(tag == "article" and "node-news-alert" in classes
+                   and ("node-teaser" in classes) == teaser for tag, classes in self.stack)
+
+    def _excluded(self, *, listing: bool = False) -> bool:
+        blocked = ("script", "style", "nav", "footer", "aside") if listing else (
+            "script", "style", "nav", "footer", "header", "aside")
+        return any(tag in blocked
+                   for tag, _ in self.stack)
+
+    def _field(self) -> str | None:
+        if not self._inside_alert(False) or self._excluded():
+            return None
+        return next((name for tag, classes in reversed(self.stack) if tag == "div"
+                     for name in self.FIELD_LABELS if name in classes), None)
 
     def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
         properties = {key: value or "" for key, value in attrs}
-        self.stack.append((tag, properties))
-        if tag in ("script", "style", "nav", "footer"):
-            self._blocked_depth += 1
-        if tag == "a" and not self._blocked_depth:
-            in_h2 = any(element == "h2" for element, _ in self.stack)
-            self._anchor = (properties.get("href", ""), [], in_h2)
-        if tag == "time" and not self._blocked_depth:
-            value = properties.get("datetime")
-            if value:
-                if "end" in properties.get("class", "").lower():
-                    self.end = value[:100]
-                elif self.published is None:
-                    self.published = value[:100]
+        classes = set(properties.get("class", "").split())
+        self.stack.append((tag, classes))
+        if tag == "a" and self._inside_alert(True) and not self._excluded(listing=True) and any(
+                ancestor == "h2" for ancestor, _ in self.stack):
+            self._anchor = (properties.get("href", ""), [])
+        field = self._field()
+        if field:
+            self.fields.setdefault(field, {"labels": [], "values": []})
+            if tag == "div" and field in classes:
+                self.field_counts[field] = self.field_counts.get(field, 0) + 1
 
     def handle_data(self, data: str) -> None:
-        if self._blocked_depth or not data.strip():
+        if self._excluded(listing=bool(self._anchor)) or not data.strip():
             return
-        if any(tag == "h1" for tag, _ in self.stack):
-            self.headline.append(data.strip())
-        if any(tag == "article" or "field--name-body" in attrs.get("class", "")
-               for tag, attrs in self.stack):
-            self.body.append(data.strip())
-        if any(tag == "main" for tag, _ in self.stack):
-            self.main.append(data.strip())
         if self._anchor:
             self._anchor[1].append(data.strip())
+        field = self._field()
+        if not field:
+            return
+        classes = [classes for _, classes in self.stack]
+        if any("field-label" in value for value in classes):
+            self.fields[field]["labels"].append(data.strip())
+        elif any("field-item" in value for value in classes) and any("field-items" in value for value in classes):
+            self.fields[field]["values"].append(data.strip())
 
     def handle_endtag(self, tag: str) -> None:
         if tag == "a" and self._anchor:
-            href, words, in_h2 = self._anchor
-            label = " ".join(words).strip()
-            if in_h2 and label:
+            href, words = self._anchor
+            label = " ".join(" ".join(words).split())
+            if label:
                 self.listing_links.append((href, label))
-            elif href.startswith("https://") and urlsplit(href).hostname != "traffic.delhipolice.gov.in":
-                self.external_links.append(href)
             self._anchor = None
-        if tag in ("script", "style", "nav", "footer") and self._blocked_depth:
-            self._blocked_depth -= 1
         for index in range(len(self.stack) - 1, -1, -1):
             if self.stack[index][0] == tag:
                 del self.stack[index:]
                 break
+
+    def value(self, field: str) -> str | None:
+        record = self.fields.get(field)
+        if not record or self.field_counts.get(field) != 1:
+            return None
+        label = " ".join(" ".join(record["labels"]).replace("\xa0", " ").rstrip(": ").casefold().split())
+        if label != self.FIELD_LABELS[field]:
+            return None
+        value = " ".join(" ".join(record["values"]).split())
+        return value or None
 
 
 def parse_listing(body: bytes) -> list[tuple[str, str]]:
@@ -224,19 +249,35 @@ def parse_listing(body: bytes) -> list[tuple[str, str]]:
 def parse_detail(url: str, body: bytes, fallback_headline: str, fetched_at: str) -> dict[str, Any]:
     page = _Page()
     page.feed(body.decode("utf-8", errors="replace"))
-    headline = " ".join(page.headline).strip() or fallback_headline
-    text = " ".join(page.body).strip()
-    if not text or len(text) < 15 or not headline:
-        raise ValueError("official detail structure has no usable alert text")
-    text = " ".join(text.split())[:2000]
-    cause_match = re.search(r"\b(waterlogging|flooding|inundation|sewer work|construction|congestion|road work)\b", text, re.I)
+    headline = " ".join(fallback_headline.split())
+    if not headline or len(headline) > 200:
+        raise ValueError("listing alert headline is missing or oversized")
+    text = page.value("field-name-field-news-alert-advisory")
+    contaminated = bool(text and re.search(r"\bInformation\s+Help\s+Other\s+Numbers\b", text, re.I))
+    warning = not text or len(text) > 2000 or contaminated
+    if warning:
+        # The listing headline is the only trusted source wording when the
+        # labelled detail field is missing or polluted. Never use page text.
+        text = headline
+    cause_match = re.search(r"\bdue to\s+([A-Za-z][A-Za-z0-9 /'-]{2,120}?)(?:[;.!?]|$)", text, re.I)
+    location_match = re.search(r"\b(?:on|between|near)\s+([A-Za-z][A-Za-z0-9 .,&/-]{2,120})", headline, re.I)
+    end_date = page.value("field-name-field-end-date")
+    end_time = page.value("field-name-field-end-time")
+    if end_date and end_time:
+        # Preserve the site's clock wording without inventing a timezone.
+        end_date = f"{end_date} {end_time}"
+    link = page.value("field-name-field-link")
+    if link and (not link.startswith("https://") or len(link) > 500):
+        link = None
     return {"canonicalSourceUrl": url, "sourceIdentifier": urlsplit(url).path[-160:],
-            "sourceType": "traffic_alert", "publishedAtText": page.published,
+            "sourceType": "traffic_alert", "publishedAtText": page.value("field-name-field-news-date"),
             "retrievedAt": fetched_at, "originalHeadline": headline[:200], "originalText": text,
-            "statedCause": cause_match.group(0) if cause_match else None,
-            "affectedLocation": None, "validUntilText": page.end,
-            "advisoryUrl": page.external_links[0] if page.external_links else None,
-            "sourceAvailability": "available", "locationHints": {}}
+            "statedCause": cause_match.group(1).strip() if cause_match else None,
+            "affectedLocation": location_match.group(1).strip(" .,-") if location_match else None,
+            "validUntilText": end_date, "advisoryUrl": link,
+            "sourceAvailability": "error" if warning else "available",
+            "sourceError": "parser_warning: labelled alert detail field missing or contaminated" if warning else None,
+            "locationHints": {}}
 
 
 class DynamoRoadAlertStore:
@@ -295,7 +336,7 @@ class DynamoRoadAlertStore:
     def list(self) -> list[dict[str, Any]]:
         from boto3.dynamodb.conditions import Attr
         items: list[dict[str, Any]] = []
-        options: dict[str, Any] = {"FilterExpression": Attr("kind").eq("alert"),
+        options: dict[str, Any] = {"FilterExpression": Attr("kind").eq("alert"), "ConsistentRead": True,
                                   "ProjectionExpression": "id,payload,expiresAtEpoch"}
         while True:
             page = self.table.scan(**options)
@@ -384,6 +425,7 @@ class DelhiTrafficPoliceIngestor:
         imported = 0
         checked = 0
         failed_details = 0
+        parser_warnings = 0
         try:
             now_utc = _utc(now)
             retry_meta = self.store.get_metadata("robots-retry-after") or {}
@@ -413,23 +455,33 @@ class DelhiTrafficPoliceIngestor:
                     key = "detail#" + sha256(url.encode()).hexdigest()
                     prior = self.store.get_metadata(key) or {}
                     listing_hash = sha256(headline.encode()).hexdigest()
-                    if prior.get("listingHash") == listing_hash:
+                    if prior.get("listingHash") == listing_hash and prior.get("parserVersion") == PARSER_VERSION and not prior.get("parserWarning"):
                         continue
                     checked += 1
                     try:
-                        detail_status, detail_body, detail_headers = self._request(url, prior)
+                        # A parser upgrade needs the actual body, not a 304
+                        # against a document parsed by an older version.
+                        detail_status, detail_body, detail_headers = self._request(
+                            url, prior if prior.get("parserVersion") == PARSER_VERSION
+                            and not prior.get("parserWarning") else None)
                         if detail_status == 304:
-                            self.store.put_metadata(key, {**prior, "listingHash": listing_hash})
+                            self.store.put_metadata(key, {**prior, "listingHash": listing_hash,
+                                                          "parserVersion": PARSER_VERSION})
                             continue
                         if detail_status != 200:
                             raise ValueError("detail returned a non-success status")
                         document = parse_detail(url, detail_body, headline, now)
                         content_hash = sha256(detail_body).hexdigest()
-                        _, created = self.workflow.ingest_document(document, content_hash, PARSER_VERSION, now)
+                        ingested, created = self.workflow.ingest_document(document, content_hash, PARSER_VERSION, now)
                         imported += int(created)
+                        if document.get("sourceError"):
+                            parser_warnings += 1
+                            failed_details += 1
                         self.store.put_metadata(key, {"listingHash": listing_hash,
                             "etag": detail_headers.get("etag"), "lastModified": detail_headers.get("last-modified"),
-                            "contentSha256": content_hash})
+                            "contentSha256": content_hash, "parserVersion": PARSER_VERSION,
+                            "parserWarning": bool(document.get("sourceError")),
+                            "activeAlertId": ingested["id"]})
                     except (HTTPError, URLError, TimeoutError, OSError, UnicodeError, ValueError):
                         # Do not discard prior alerts or advance the failed detail cursor.
                         failed_details += 1
@@ -441,8 +493,10 @@ class DelhiTrafficPoliceIngestor:
                               message="Official listing checked; alert text remains unverified road evidence."
                               if status == 200 else "Official listing unchanged; previous records retained.")
                 if failed_details:
-                    result.update(state="stale", lastSuccessfulAt=prior_status.get("lastSuccessfulAt"),
-                                  message="Some official details could not be checked; previous records retained.")
+                    result.update(state="degraded" if parser_warnings else "stale",
+                                  lastSuccessfulAt=prior_status.get("lastSuccessfulAt"),
+                                  message="Official detail layout could not be fully parsed; listing headlines retained."
+                                  if parser_warnings else "Some official details could not be checked; previous records retained.")
         except RobotsRateLimited:
             result["message"] = "Robots request rate-limited; retrieval deferred until Retry-After."
         except (HTTPError, URLError, TimeoutError, OSError, UnicodeError, ValueError):
@@ -452,7 +506,7 @@ class DelhiTrafficPoliceIngestor:
         result["message"] = result["message"][:160]
         self.store.put_metadata("source-status", result)
         return {**result, "detailPagesChecked": checked, "detailFailures": failed_details,
-                "newRevisions": imported}
+                "parserWarnings": parser_warnings, "newRevisions": imported}
 
 
 def lambda_handler(event: dict[str, Any], context: Any) -> dict[str, Any]:

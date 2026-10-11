@@ -105,6 +105,7 @@ class RoadAlertTests(unittest.TestCase):
         self.assertEqual(imported.status, 201)
         self.assertIn(ref["roadId"], [candidate["roadId"] for candidate in imported.body["candidateRoads"]])
         self.assertTrue(self.workflow.route_eligible(ref["roadId"]))
+        self.assertNotIn(ref["roadId"], str(self.call("GET", "/v2/road-alerts").body["alerts"][0]))
         path = f"/v2/road-alerts/{imported.body['id']}/review"
         body = {"decision": "confirm_flood_blockage", "reason": "Flood-related closure verified against source", "road": ref}
         self.assertEqual(self.call("PATCH", path, body, self.resident).status, 403)
@@ -118,7 +119,8 @@ class RoadAlertTests(unittest.TestCase):
         other = next(road for road in self.snapshot.roads if road != ref["roadId"])
         self.assertTrue(self.workflow.route_eligible(other))
         public = self.call("GET", "/v2/road-alerts").body["alerts"][0]
-        self.assertEqual(public["matchedRoadId"], ref["roadId"])
+        self.assertNotIn("matchedRoadId", public)
+        self.assertNotIn("reviewedAt", public)
         self.assertNotIn("reviewHistory", public)
         cleared = self.call("PATCH", path, {"decision": "clear", "reason": "Responder verified clearance on ground"}, self.responder)
         self.assertEqual(cleared.body["state"], "Cleared")
@@ -143,7 +145,7 @@ class RoadAlertTests(unittest.TestCase):
         self.assertTrue(self.workflow.route_eligible(ref["roadId"]))
         public = self.call("GET", "/v2/road-alerts").body["alerts"]
         self.assertTrue(all(item["state"] == "Expired" for item in public))
-        self.assertTrue(all(item["matchedRoadId"] is None for item in public))
+        self.assertTrue(all("matchedRoadId" not in item and "reviewedAt" not in item for item in public))
 
     def test_confirmation_cannot_invent_flood_cause_or_overrule_unavailable_source(self):
         ref = self.reference()
@@ -167,7 +169,7 @@ class RoadAlertTests(unittest.TestCase):
         imported = self.call("POST", "/v2/road-alerts/import", document, self.responder).body
         self.assertEqual(imported["matchAmbiguity"], "multiple_candidates")
         self.assertEqual(imported["state"], "Reported / Unverified")
-        self.assertIsNone(self.call("GET", "/v2/road-alerts").body["alerts"][0]["matchedRoadId"])
+        self.assertNotIn("matchedRoadId", self.call("GET", "/v2/road-alerts").body["alerts"][0])
         outside = self.call("POST", "/v2/road-alerts/import", self.source(advisoryUrl="https://example.org/outside",
                             locationHints={"roadNames": ["Not in this extract"]}), self.responder).body
         self.assertEqual(outside["matchAmbiguity"], "unlocated")

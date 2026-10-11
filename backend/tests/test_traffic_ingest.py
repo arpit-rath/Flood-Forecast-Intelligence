@@ -17,15 +17,16 @@ from backend.varuna.traffic_ingest import (
 
 
 NOW = "2026-10-11T12:00:00Z"
-DETAIL = b'''<html><main><article><h1>Waterlogging reported near Delhi Technological University</h1>
-<time datetime="2026-10-11T11:30:00Z">Today</time>
-<div class="field--name-body"><p>Waterlogging reported near Delhi Technological University.
-Follow on-ground instructions.</p><a href="https://example.org/reference">External reference</a></div>
-</article></main></html>'''
+DETAIL = b'''<html><header><h1>Information</h1></header><main>
+<article class="node node-news-alert">
+<div class="field field-name-field-news-alert-advisory"><div class="field-label">News alert/advisory:&nbsp;</div><div class="field-items"><div class="field-item">Waterlogging near Delhi Technological University due to drain obstruction; follow on-ground instructions.</div></div></div>
+<div class="field field-name-field-news-date"><div class="field-label">News Date:</div><div class="field-items"><div class="field-item">11-Oct-2026</div></div></div>
+<div class="field field-name-field-link"><div class="field-label">Link:</div><div class="field-items"><div class="field-item">https://example.org/reference</div></div></div>
+</article></main><footer><h1>Help</h1><h1>Other Numbers</h1></footer></html>'''
 
 
 def listing(items):
-    return ("<html><main>" + "".join(f'<h2><a href="/en/alert-{i}">{title}</a></h2>'
+    return ("<html><main>" + "".join(f'<article class="node node-news-alert node-teaser"><header><h2><a href="/en/alert-{i}">{title}</a></h2></header></article>'
                                       for i, title in items) + "</main></html>").encode()
 
 
@@ -79,11 +80,84 @@ class TrafficIngestTests(unittest.TestCase):
         self.assertEqual(canonical_detail("/en/alert-1#fragment"), url)
         document = parse_detail(url, DETAIL, title, NOW)
         self.assertEqual(document["sourceIdentifier"], "/en/alert-1")
-        self.assertEqual(document["publishedAtText"], "2026-10-11T11:30:00Z")
-        self.assertEqual(document["statedCause"], "Waterlogging")
+        self.assertEqual(document["publishedAtText"], "11-Oct-2026")
+        self.assertEqual(document["statedCause"], "drain obstruction")
+        self.assertEqual(document["affectedLocation"], "a named road")
         self.assertEqual(document["advisoryUrl"], "https://example.org/reference")
-        self.assertIn("Follow on-ground", document["originalText"])
+        self.assertIn("follow on-ground", document["originalText"])
         self.assertEqual(sha256(DETAIL).hexdigest(), sha256(DETAIL).hexdigest())
+
+    def test_listing_h2_is_authoritative_and_only_labelled_detail_fields_count(self):
+        headline = "Congestion on North Connector"
+        url, found = parse_listing(listing([(1, headline)]))[0]
+        self.assertEqual(found, headline)
+        detail = b'''<html><main><h1>Information Help Other Numbers</h1>
+<article class="node node-news-alert"><header><h1>Wrong article heading</h1></header>
+<div class="field field-name-field-news-alert-advisory"><div class="field-label">News alert/advisory:</div><div class="field-items"><div class="field-item">Queues due to signal maintenance; follow local directions.</div></div></div>
+<div class="field field-name-field-news-date"><div class="field-label">News Date:</div><div class="field-items"><div class="field-item">09-Oct-2026</div></div></div>
+<div class="field field-name-field-end-date"><div class="field-label">End Date:</div><div class="field-items"><div class="field-item">2026-10-11</div></div></div>
+<div class="field field-name-field-end-time"><div class="field-label">End Time:</div><div class="field-items"><div class="field-item">23:00</div></div></div>
+</article></main><footer>Information Help Other Numbers</footer></html>'''
+        document = parse_detail(url, detail, found, NOW)
+        self.assertEqual(document["originalHeadline"], headline)
+        self.assertEqual(document["originalText"], "Queues due to signal maintenance; follow local directions.")
+        self.assertEqual(document["publishedAtText"], "09-Oct-2026")
+        self.assertEqual(document["validUntilText"], "2026-10-11 23:00")
+        self.assertEqual(document["statedCause"], "signal maintenance")
+        self.assertEqual(document["affectedLocation"], "North Connector")
+        self.assertIsNone(document["advisoryUrl"])
+        self.assertEqual(document["sourceAvailability"], "available")
+
+    def test_missing_or_contaminated_fields_retain_listing_title_and_degrade(self):
+        url = "https://traffic.delhipolice.gov.in/en/alert-1"
+        for detail in (b"<html><article><h1>Information Help Other Numbers</h1></article></html>",
+                       DETAIL.replace(b"Waterlogging near Delhi Technological University due to drain obstruction; follow on-ground instructions.",
+                                      b"Information Help Other Numbers")):
+            with self.subTest(detail=detail[:30]):
+                self.fetch.calls.clear()
+                self.store = MemoryRoadAlertStore()
+                self.workflow = RoadAlertWorkflow(RoadSnapshot(), self.store,
+                    clock=lambda: datetime(2026, 10, 11, 12, tzinfo=timezone.utc))
+                self.fetch.details["one"] = detail
+                self.ingestor = DelhiTrafficPoliceIngestor(self.workflow, self.fetch, clock=lambda: NOW)
+                result = self.ingestor.run()
+                self.assertEqual(result["state"], "degraded")
+                self.assertEqual(result["parserWarnings"], 1)
+                self.assertEqual(self.workflow.source_status()["state"], "degraded")
+                item = self.store.list()[0]
+                self.assertEqual(item["originalHeadline"], self.fetch.links[0][1])
+                self.assertEqual(item["originalText"], self.fetch.links[0][1])
+                self.assertEqual(item["sourceAvailability"], "error")
+                self.assertEqual(item["canonicalSourceUrl"], url)
+                self.assertEqual(item["publishedAtText"], None if detail.startswith(b"<html><article>") else "11-Oct-2026")
+                self.assertIsNone(item["validUntilText"])
+                self.assertIsNone(item["statedCause"])
+                self.assertNotIn("Information Help Other Numbers", str(self.workflow.public(item)))
+                self.assertEqual(self.ingestor.run()["newRevisions"], 0)
+                self.assertEqual(self.workflow.source_status()["state"], "degraded")
+                self.assertEqual(len(self.store.list()), 1)
+
+    def test_parser_upgrade_refetches_same_raw_document_and_supersedes_public_projection(self):
+        url = "https://traffic.delhipolice.gov.in/en/alert-1"
+        raw_hash = sha256(DETAIL).hexdigest()
+        old_doc = parse_detail(url, DETAIL, "Information Help Other Numbers", NOW)
+        old, _ = self.workflow.ingest_document(old_doc, raw_hash, "dtp-html-v1", NOW)
+        self.store.put_metadata("listing", {"etag": '"listing-v1"', "links": [(url, self.fetch.links[0][1])]})
+        self.store.put_metadata("detail#" + sha256(url.encode()).hexdigest(), {
+            "listingHash": sha256(self.fetch.links[0][1].encode()).hexdigest(),
+            "etag": '"detail-v1"', "contentSha256": raw_hash})
+        result = self.ingestor.run()
+        self.assertEqual(result["newRevisions"], 1)
+        self.assertEqual(result["state"], "current")
+        self.assertEqual(self.fetch.calls[-1], (url, {}))
+        self.assertEqual(len(self.workflow.private_list()), 2)
+        self.assertEqual(len(self.workflow.public_list()), 1)
+        fresh = self.workflow.public_list()[0]
+        self.assertNotEqual(fresh["id"], old["id"])
+        self.assertEqual(fresh["originalHeadline"], self.fetch.links[0][1])
+        self.assertEqual(self.store.get(old["id"])["originalHeadline"], "Information Help Other Numbers")
+        self.assertEqual(self.ingestor.run()["newRevisions"], 0)
+        self.assertEqual(len(self.store.list()), 2)
 
     def test_transport_timeout_user_agent_conditional_and_no_redirect(self):
         class Response:
@@ -139,7 +213,7 @@ class TrafficIngestTests(unittest.TestCase):
         self.assertEqual(self.fetch.calls[-1][1]["If-Modified-Since"], "Sun, 11 Oct 2026 11:00:00 GMT")
         self.fetch.details["force_listing"] = True
         self.fetch.links = [(1, "Updated waterlogging alert near Delhi Technological University")]
-        self.fetch.details["one"] = DETAIL.replace(b"Follow on-ground", b"Updated: follow on-ground")
+        self.fetch.details["one"] = DETAIL.replace(b"follow on-ground", b"updated: follow on-ground")
         updated = self.ingestor.run()
         self.assertEqual(updated["newRevisions"], 1)
         self.assertEqual(len(self.store.list()), 2)
@@ -148,6 +222,8 @@ class TrafficIngestTests(unittest.TestCase):
         self.assertEqual({item["contentSha256"] for item in self.store.list()},
                          {sha256(DETAIL).hexdigest(), sha256(self.fetch.details["one"]).hexdigest()})
         self.assertTrue(all(item["reviewState"] == "Imported" for item in self.store.list()))
+        self.assertEqual(len(self.workflow.public_list()), 1)
+        self.assertEqual(self.workflow.public_list()[0]["originalHeadline"], self.fetch.links[0][1])
 
     def test_at_most_ten_details_and_no_cross_origin_fetch(self):
         self.fetch.links = [(i, f"Alert {i}") for i in range(20)]
@@ -219,9 +295,12 @@ class TrafficIngestTests(unittest.TestCase):
                 self.assertEqual(self.store.list(), [])
 
     def test_detail_failure_stale_and_public_redaction_auth_and_v1(self):
-        self.fetch.details["one"] = b"<html>layout changed</html>"
-        self.assertEqual(self.ingestor.run()["state"], "stale")
-        self.assertEqual(self.store.list(), [])
+        self.fetch.details["one"] = b"<html><footer>Information Help Other Numbers</footer></html>"
+        degraded = self.ingestor.run()
+        self.assertEqual(degraded["state"], "degraded")
+        self.assertEqual(degraded["parserWarnings"], 1)
+        self.assertEqual(self.store.list()[0]["originalHeadline"], self.fetch.links[0][1])
+        self.assertEqual(self.store.list()[0]["sourceAvailability"], "error")
         self.fetch.details["one"] = DETAIL
         self.assertEqual(self.ingestor.run()["newRevisions"], 1)
         service = VarunaService()
@@ -233,8 +312,7 @@ class TrafficIngestTests(unittest.TestCase):
             self.assertEqual(response.status, 200)
             public = response.body["alerts"][0]
             self.assertEqual(public["state"], "Reported / Unverified")
-            self.assertIsNone(public["matchedRoadId"])
-            for private in ("candidateRoads", "sourceAlertIdentifier", "reviewHistory", "reviewerSub", "originalText", "sourceError", "contentSha256"):
+            for private in ("matchedRoadId", "reviewedAt", "candidateRoads", "sourceAlertIdentifier", "reviewHistory", "reviewerSub", "originalText", "sourceError", "contentSha256"):
                 self.assertNotIn(private, public)
             self.assertIn("sourceStatus", response.body)
         self.assertEqual(dispatch(service, "GET", "/v2/road-alerts/review", operator_claims=resident,
@@ -245,12 +323,14 @@ class TrafficIngestTests(unittest.TestCase):
 
     def test_end_date_and_ambiguous_or_unlocated_match(self):
         url = "https://traffic.delhipolice.gov.in/en/alert-1"
-        ended = DETAIL.replace(b'<time datetime="2026-10-11T11:30:00Z">',
-                               b'<time class="end" datetime="2026-10-11T10:00:00Z"></time><time datetime="2026-10-11T11:30:00Z">')
+        ended = DETAIL.replace(b'</article>',
+            b'<div class="field field-name-field-end-date"><div class="field-label">End Date:</div><div class="field-items"><div class="field-item">2026-10-11</div></div></div><div class="field field-name-field-end-time"><div class="field-label">End Time:</div><div class="field-items"><div class="field-item">10:00</div></div></div></article>')
         doc = parse_detail(url, ended, "Alert", NOW)
+        self.assertEqual(doc["validUntilText"], "2026-10-11 10:00")
+        self.assertIsNone(self.workflow.source.normalize(doc, self.workflow.snapshot).validUntil)
         doc["originalHeadline"] = "Traffic alert at an unspecified road"
         doc["originalText"] = "Traffic disruption reported; location not specified."
-        self.assertEqual(doc["validUntilText"], "2026-10-11T10:00:00Z")
+        doc["validUntilText"] = "2026-10-10"
         self.workflow.ingest_document(doc, sha256(ended).hexdigest(), "test-v1", NOW)
         self.assertEqual(self.workflow.public_list()[0]["freshness"], "Expired")
         self.assertEqual(self.workflow.public_list()[0]["resolutionState"], "unlocated")
@@ -263,7 +343,7 @@ class TrafficIngestTests(unittest.TestCase):
         item, _ = self.workflow.ingest_document(ambiguous, sha256(b"ambiguity").hexdigest(), "test-v1", NOW)
         self.assertEqual(item["resolutionState"], "ambiguous")
         self.assertEqual(item["state"], "Reported / Unverified")
-        self.assertIsNone(self.workflow.public(item)["matchedRoadId"])
+        self.assertNotIn("matchedRoadId", self.workflow.public(item))
 
     def test_dynamo_repository_contract_with_no_aws_calls(self):
         class ConditionalFailure(Exception):

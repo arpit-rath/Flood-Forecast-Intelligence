@@ -2,9 +2,9 @@ import type { PrivateRoadAlert, PublicRoadAlert, RealRoadReference, RoadAlertSou
 
 const root = (import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000').replace(/\/$/, '');
 const publicFields = [
-  'advisoryUrl', 'affectedLocation', 'canonicalSourceUrl', 'freshness', 'id', 'matchedRoadId',
+  'advisoryUrl', 'affectedLocation', 'canonicalSourceUrl', 'freshness', 'id',
   'originalHeadline', 'publishedAt', 'publishedAtText', 'publishedPrecision', 'retrievedAt',
-  'resolutionState', 'proposal', 'reviewedAt', 'sourceAvailability', 'sourceName', 'sourceType', 'statedCause', 'state',
+  'resolutionState', 'proposal', 'sourceAvailability', 'sourceName', 'sourceType', 'statedCause', 'state',
   'validFromText', 'validUntilText',
 ].sort();
 
@@ -31,11 +31,7 @@ function publicAlert(value: unknown): value is PublicRoadAlert {
       || !['high', 'moderate', 'low'].includes(String(proposal.confidenceCategory))) return false;
   }
   if (!['traffic_alert', 'traffic_advisory'].includes(String(item.sourceType))) return false;
-  if (item.state === 'Confirmed Flood Blockage' || item.state === 'Cleared') {
-    if (item.state === 'Confirmed Flood Blockage' && item.freshness !== 'Current') return false;
-    if (typeof item.matchedRoadId !== 'string' || !/^osm:way\/[1-9]\d*$/.test(item.matchedRoadId)) return false;
-    if (typeof item.reviewedAt !== 'string' || !Number.isFinite(Date.parse(item.reviewedAt))) return false;
-  } else if (item.matchedRoadId !== null || item.reviewedAt !== null) return false;
+  if (item.state === 'Confirmed Flood Blockage' && item.freshness !== 'Current') return false;
   return true;
 }
 
@@ -43,7 +39,7 @@ function sourceStatus(value: unknown): value is RoadAlertSourceStatus {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return false;
   const item = value as Record<string, unknown>;
   return Object.keys(item).sort().join(',') === 'lastCheckedAt,lastSuccessfulAt,message,state'
-    && ['current', 'stale', 'unavailable'].includes(String(item.state))
+    && ['current', 'degraded', 'stale', 'unavailable'].includes(String(item.state))
     && typeof item.message === 'string' && item.message.length <= 160
     && [item.lastCheckedAt, item.lastSuccessfulAt].every((time) => time === null || (typeof time === 'string' && Number.isFinite(Date.parse(time))));
 }

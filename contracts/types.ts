@@ -55,7 +55,7 @@ export type RealRoadId = `osm:way/${number}`;
 /** Source alerts are separate from resident photo reports and /v1 Scenario. */
 export type RoadAlertState = "Reported / Unverified" | "Confirmed Flood Blockage" | "Cleared" | "Rejected" | "Expired";
 export interface RoadAlertSourceStatus {
-  state: "current" | "stale" | "unavailable";
+  state: "current" | "degraded" | "stale" | "unavailable";
   lastCheckedAt: string | null;
   lastSuccessfulAt: string | null;
   message: string;
@@ -99,10 +99,9 @@ export interface PublicRoadAlert {
   resolutionState: RoadAlertResolution;
   /** Only a current unique proposal; no road ID or private source/review fields. */
   proposal: RoadAlertProposal | null;
-  matchedRoadId: RealRoadId | null;
-  reviewedAt: string | null;
 }
 export interface PrivateRoadAlert extends PublicRoadAlert {
+  matchedRoadId: RealRoadId | null;
   originalText: string;
   sourceIdentifier: string | null;
   sourceError: string | null;
