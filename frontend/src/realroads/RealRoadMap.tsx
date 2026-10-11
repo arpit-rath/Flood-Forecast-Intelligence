@@ -8,7 +8,7 @@ import {
 import 'maplibre-gl/dist/maplibre-gl.css';
 import maplibreWorkerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?url';
 import { useEffect, useRef, useState } from 'react';
-import type { RealRoadEvidence, RealRoadId } from '../../../contracts/types';
+import type { PublicRoadAlert, RealRoadEvidence, RealRoadId } from '../../../contracts/types';
 import { readToken, usePrefersReducedMotion } from '../lib/hooks';
 import { roadMidpoint, type RoadSnapshot } from './model';
 import { reportOverlay, roadOverlay } from './overlay';
@@ -26,6 +26,7 @@ export function RealRoadMap({
   urls,
   selectedRoadId,
   evidence,
+  alerts,
   roads,
   now,
   onSelect,
@@ -35,6 +36,7 @@ export function RealRoadMap({
   urls: Record<StreetStyle, string> | null;
   selectedRoadId: RealRoadId | null;
   evidence: RealRoadEvidence[];
+  alerts: PublicRoadAlert[];
   roads: RoadSnapshot;
   now: Date;
   onSelect: (id: RealRoadId, point: [number, number]) => void;
@@ -44,14 +46,14 @@ export function RealRoadMap({
   const mapRef = useRef<MapLibreMap | null>(null);
   const styleRef = useRef<StreetStyle>('Standard');
   const pendingCamera = useRef<{ center: [number, number]; zoom: number; bearing: number; pitch: number } | null>(null);
-  const inputs = useRef({ selectedRoadId, evidence, roads, now, onSelect, onCameraChange });
+  const inputs = useRef({ selectedRoadId, evidence, alerts, roads, now, onSelect, onCameraChange });
   const timeoutRef = useRef<number | null>(null);
   const [state, setState] = useState<'loading' | 'ready' | 'unavailable'>(urls && !staticMapRequested ? 'loading' : 'unavailable');
   const reducedMotion = usePrefersReducedMotion();
 
   useEffect(() => {
-    inputs.current = { selectedRoadId, evidence, roads, now, onSelect, onCameraChange };
-  }, [selectedRoadId, evidence, roads, now, onSelect, onCameraChange]);
+    inputs.current = { selectedRoadId, evidence, alerts, roads, now, onSelect, onCameraChange };
+  }, [selectedRoadId, evidence, alerts, roads, now, onSelect, onCameraChange]);
 
   useEffect(() => {
     if (!urls || !containerRef.current || staticMapRequested) return;
@@ -88,7 +90,7 @@ export function RealRoadMap({
         map.jumpTo(pendingCamera.current);
         pendingCamera.current = null;
       }
-      if (!map.getSource('real-roads')) map.addSource('real-roads', { type: 'geojson', data: roadOverlay(inputs.current.selectedRoadId, inputs.current.evidence, inputs.current.now, inputs.current.roads) });
+      if (!map.getSource('real-roads')) map.addSource('real-roads', { type: 'geojson', data: roadOverlay(inputs.current.selectedRoadId, inputs.current.evidence, inputs.current.now, inputs.current.roads, inputs.current.alerts) });
       if (!map.getSource('real-road-reports')) map.addSource('real-road-reports', { type: 'geojson', data: reportOverlay(inputs.current.evidence, inputs.current.now, inputs.current.roads) });
       const unknown = readToken('--v-status-unknown', '#697B82');
       const blocked = readToken('--v-status-high', '#B33A32');
@@ -128,7 +130,7 @@ export function RealRoadMap({
           'circle-stroke-width': 3,
         },
       });
-      (map.getSource('real-roads') as GeoJSONSource).setData(roadOverlay(inputs.current.selectedRoadId, inputs.current.evidence, inputs.current.now, inputs.current.roads));
+      (map.getSource('real-roads') as GeoJSONSource).setData(roadOverlay(inputs.current.selectedRoadId, inputs.current.evidence, inputs.current.now, inputs.current.roads, inputs.current.alerts));
       (map.getSource('real-road-reports') as GeoJSONSource).setData(reportOverlay(inputs.current.evidence, inputs.current.now, inputs.current.roads));
       if (timeoutRef.current !== null) window.clearTimeout(timeoutRef.current);
       map.resize();
@@ -167,13 +169,13 @@ export function RealRoadMap({
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !map.getSource('real-roads')) return;
-    (map.getSource('real-roads') as GeoJSONSource).setData(roadOverlay(selectedRoadId, evidence, now, roads));
+    (map.getSource('real-roads') as GeoJSONSource).setData(roadOverlay(selectedRoadId, evidence, now, roads, alerts));
     (map.getSource('real-road-reports') as GeoJSONSource).setData(reportOverlay(evidence, now, roads));
     const selectedRoad = roads.features.find((road) => road.id === selectedRoadId);
     if (selectedRoad && !map.getBounds().contains(roadMidpoint(selectedRoad))) {
       map.easeTo({ center: roadMidpoint(selectedRoad), zoom: Math.max(map.getZoom(), 15), duration: reducedMotion ? 0 : 500 });
     }
-  }, [selectedRoadId, evidence, roads, now, reducedMotion]);
+  }, [selectedRoadId, evidence, alerts, roads, now, reducedMotion]);
 
   const fitCoveredRoads = () => {
     const map = mapRef.current;

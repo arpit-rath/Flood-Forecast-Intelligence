@@ -10,15 +10,17 @@ function formatTime(value: string | null): string {
   return value ? new Date(value).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', dateStyle: 'medium', timeStyle: 'short' }) + ' IST' : 'Not recorded';
 }
 
-export function RealRoadReporting({ available, roadId, point, roads, view, onChanged }: {
+export function RealRoadReporting({ available, roadId, point, roads, view, onChanged, onSessionChange }: {
   available: boolean;
   roadId: RealRoadId | null;
   point: [number, number] | null;
   roads: RoadSnapshot;
   view: 'resident' | 'responder';
   onChanged: () => Promise<void>;
+  onSessionChange?: (user: SignedInUser | null) => void;
 }) {
   const [user, setUser] = useState<SignedInUser | null>(null);
+  useEffect(() => { onSessionChange?.(user); }, [onSessionChange, user]);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [file, setFile] = useState<File | null>(null);

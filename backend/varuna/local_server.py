@@ -17,6 +17,7 @@ from urllib.parse import parse_qs, urlsplit
 from .api import dispatch
 from .reporting import MAX_BYTES, MemoryMedia, MemoryReportStore, PhotoMissing, ReportWorkflow
 from .real_roads import MemoryRealRoadStore, RealRoadWorkflow, RoadSnapshot
+from .road_alerts import MemoryRoadAlertStore, RoadAlertWorkflow
 from .service import VarunaService
 
 
@@ -25,6 +26,7 @@ class Handler(BaseHTTPRequestHandler):
     operator_token = os.environ.get("VARUNA_OPERATOR_TOKEN")
     reporting: ReportWorkflow | None = None
     real_roads: RealRoadWorkflow | None = None
+    road_alerts: RoadAlertWorkflow | None = None
     local_users: dict[str, dict] = {}
     sessions: dict[str, tuple[dict, datetime]] = {}
     sessions_lock = RLock()
@@ -128,6 +130,7 @@ class Handler(BaseHTTPRequestHandler):
             operator_claims=claims,
             reporting=self.reporting,
             real_roads=self.real_roads,
+            road_alerts=self.road_alerts,
         )
         payload = json.dumps(result.body, allow_nan=False).encode("utf-8")
         self.send_response(result.status)
@@ -152,6 +155,7 @@ def main() -> None:
     Handler.sessions = {}
     Handler.reporting = ReportWorkflow(Handler.service, MemoryReportStore(), MemoryMedia(f"http://{args.host}:{args.port}"))
     Handler.real_roads = RealRoadWorkflow(RoadSnapshot(), MemoryRealRoadStore(), MemoryMedia(f"http://{args.host}:{args.port}"))
+    Handler.road_alerts = RoadAlertWorkflow(Handler.real_roads.snapshot, MemoryRoadAlertStore())
     server = ThreadingHTTPServer((args.host, args.port), Handler)
     print(f"Synthetic fixture API at http://{args.host}:{args.port}", flush=True)
     server.serve_forever()

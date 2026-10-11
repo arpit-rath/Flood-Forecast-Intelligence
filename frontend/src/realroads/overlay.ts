@@ -1,7 +1,7 @@
-import type { RealRoadEvidence, RealRoadId } from '../../../contracts/types';
-import { currentRoadMarkers, roadCondition, roads, type RoadSnapshot } from './model';
+import type { PublicRoadAlert, RealRoadEvidence, RealRoadId } from '../../../contracts/types';
+import { currentConfirmedAlert, currentRoadMarkers, roadCondition, roads, type RoadSnapshot } from './model';
 
-export function roadOverlay(selectedRoadId: RealRoadId | null, evidence: RealRoadEvidence[], now: Date, snapshot: RoadSnapshot = roads) {
+export function roadOverlay(selectedRoadId: RealRoadId | null, evidence: RealRoadEvidence[], now: Date, snapshot: RoadSnapshot = roads, alerts: PublicRoadAlert[] = []) {
   return {
     type: 'FeatureCollection' as const,
     features: snapshot.features.map((road) => ({
@@ -10,7 +10,7 @@ export function roadOverlay(selectedRoadId: RealRoadId | null, evidence: RealRoa
       geometry: road.geometry,
       properties: {
         roadId: road.id,
-        condition: roadCondition(road.id, evidence, now).kind,
+        condition: currentConfirmedAlert(road.id, alerts) ? 'confirmed_blockage' : roadCondition(road.id, evidence, now).kind,
         selected: road.id === selectedRoadId,
       },
     })),

@@ -51,6 +51,61 @@ export interface Report {
 
 /** Separate v2 limited-coverage OSM evidence contract; /v1 Scenario remains unchanged. */
 export type RealRoadId = `osm:way/${number}`;
+
+/** Local-only source alerts. These are not resident photo reports. */
+export type RoadAlertState = "Reported / Unverified" | "Confirmed Flood Blockage" | "Cleared" | "Rejected" | "Expired";
+export type RoadAlertResolution = "matched_candidate" | "ambiguous" | "unlocated" | "outside_coverage" | "stale_snapshot" | "invalid_source_location";
+export interface RoadAlertProposal {
+  displayLabel: string;
+  method: string;
+  confidenceCategory: "high" | "moderate" | "low";
+  explanation: string;
+}
+export interface RoadAlertCandidate extends RoadAlertProposal {
+  roadId: RealRoadId;
+  matchedEvidence: string[];
+  distanceMeters: number | null;
+  ambiguityMarginMeters: number | null;
+  sourceContext: { source: string; sourceUrl: string; alertSourceUrl: string | null;
+    publishedAt: string | null; retrievedAt: string | null; statedCause: string | null };
+  snapshotGeometryVersion: string;
+  reason: string;
+  confidence: number;
+}
+export interface PublicRoadAlert {
+  id: string;
+  sourceName: string;
+  canonicalSourceUrl: string;
+  advisoryUrl: string | null;
+  sourceType: "traffic_alert" | "traffic_advisory";
+  publishedAtText: string | null;
+  publishedAt: string | null;
+  publishedPrecision: "datetime" | "date" | "missing" | "invalid";
+  retrievedAt: string;
+  originalHeadline: string;
+  statedCause: string | null;
+  affectedLocation: string | null;
+  validFromText: string | null;
+  validUntilText: string | null;
+  sourceAvailability: "available" | "unavailable" | "error";
+  freshness: "Current" | "Expired" | "Unavailable" | "Unverified time" | "Not yet valid";
+  state: RoadAlertState;
+  resolutionState: RoadAlertResolution;
+  /** Only a current unique proposal; no road ID or private source/review fields. */
+  proposal: RoadAlertProposal | null;
+  matchedRoadId: RealRoadId | null;
+  reviewedAt: string | null;
+}
+export interface PrivateRoadAlert extends PublicRoadAlert {
+  originalText: string;
+  sourceIdentifier: string | null;
+  sourceError: string | null;
+  locationHints: Record<string, unknown>;
+  candidateRoads: RoadAlertCandidate[];
+  matchAmbiguity: "unlocated" | "unique_candidate" | "multiple_candidates";
+  reviewState: "Imported" | "Confirmed Flood Blockage" | "Cleared" | "Rejected";
+  reviewHistory: Array<{ decision: string; state: string; roadId: RealRoadId | null; reviewerSub: string; reviewedAt: string; reason: string }>;
+}
 export type RealRoadReviewState = "Pending Review" | "Confirmed Blockage" | "Cleared" | "Rejected";
 
 export interface RealRoadReference {

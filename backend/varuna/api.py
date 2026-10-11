@@ -11,6 +11,7 @@ from typing import Any
 from .models import Report
 from .reporting import DynamoReportStore, PhotoMissing, ReportConflict, ReportWorkflow, S3Media
 from .real_roads import DynamoRealRoadStore, RealRoadWorkflow, RoadSnapshot, UploadLimit
+from .road_alerts import AlertConflict, RoadAlertWorkflow
 from .service import ModeUnavailableError, SnapshotConflictError, VarunaService
 
 
@@ -54,6 +55,7 @@ def dispatch(
     allow_local_mutations: bool = False, operator_token: str | None = None,
     operator_claims: dict[str, Any] | None = None, reporting: ReportWorkflow | None = None,
     real_roads: RealRoadWorkflow | None = None,
+    road_alerts: RoadAlertWorkflow | None = None,
     cors_origin: str = "http://localhost:5173",
     cors_preview_origin: str | None = None,
 ) -> ApiResponse:
@@ -95,6 +97,23 @@ def dispatch(
             return respond(200, real_roads.snapshot.public()) if real_roads else error(503, "real_roads_unavailable", "Real-road reporting is not configured")
         if method == "GET" and path == "/v2/real-road-evidence":
             return respond(200, {"evidence": real_roads.public_evidence()}) if real_roads else error(503, "real_roads_unavailable", "Real-road evidence is not configured")
+        if method == "GET" and path == "/v2/road-alerts":
+            return respond(200, {"alerts": road_alerts.public_list()}) if road_alerts else error(503, "road_alerts_unavailable", "Local-only road alerts are not configured")
+        if path.startswith("/v2/road-alerts/"):
+            if not _authorized(headers, None, operator_claims):
+                return error(403, "forbidden", "responder access is required")
+            if not road_alerts:
+                return error(503, "road_alerts_unavailable", "Local-only road alerts are not configured")
+            if method == "POST" and path == "/v2/road-alerts/import":
+                alert, created = road_alerts.import_document(body)
+                return respond(201 if created else 200, alert)
+            if method == "GET" and path == "/v2/road-alerts/review":
+                return respond(200, {"alerts": road_alerts.private_list()})
+            if method == "GET" and re.fullmatch(r"/v2/road-alerts/RA-[0-9a-f]{32}", path):
+                return respond(200, road_alerts.detail(path.rsplit("/", 1)[-1]))
+            if method == "PATCH" and re.fullmatch(r"/v2/road-alerts/RA-[0-9a-f]{32}/review", path):
+                alert_id = path.split("/")[-2]
+                return respond(200, road_alerts.review(alert_id, body, operator_claims["sub"]))
         if path == "/v2/real-road-reports/upload-url" and method == "POST":
             if not _authenticated(operator_claims):
                 return error(403, "forbidden", "sign-in is required to submit a report")
@@ -196,6 +215,8 @@ def dispatch(
         return error(409, "stale_snapshot", str(exc), True)
     except ReportConflict as exc:
         return error(409, "report_conflict", str(exc))
+    except AlertConflict as exc:
+        return error(409, "alert_conflict", str(exc))
     except UploadLimit as exc:
         return error(429, "upload_limit", str(exc))
     except PhotoMissing as exc:
