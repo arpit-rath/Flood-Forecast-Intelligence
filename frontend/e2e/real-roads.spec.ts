@@ -21,7 +21,7 @@ test.beforeEach(async ({ page }) => {
 test('resident and responder show limited real-road coverage without pilot claims', async ({ page }) => {
   const pilotCalls: string[] = [];
   page.on('request', (request) => { if (/\/v1\//.test(request.url())) pilotCalls.push(request.url()); });
-  await page.goto('/');
+  await page.goto('/#/resident');
   await expect(page.getByRole('heading', { name: 'Real roads, unknown conditions.' })).toBeVisible();
   await expect(page.getByText(/OSM road overlay limited to a DTU-area extract/)).toBeVisible();
   await expect(page.getByText(/Roads elsewhere are unassessed/)).toBeVisible();
@@ -66,7 +66,7 @@ test('configured Standard and Hybrid styles retain selection, camera and attribu
     const match = request.url().match(/\/v2\/styles\/(Standard|Hybrid)\/descriptor/);
     if (match) styles.push(match[1]);
   });
-  await page.goto('/');
+  await page.goto('/#/resident');
   await expect(page.getByRole('region', { name: 'Pannable Delhi street basemap' })).toBeVisible();
   await expect(page.getByRole('button', { name: 'Standard streets' })).toHaveAttribute('aria-pressed', 'true');
   await expect(page.locator('.maplibregl-ctrl-attrib')).toContainText('OpenStreetMap');
@@ -88,7 +88,7 @@ test('configured Standard and Hybrid styles retain selection, camera and attribu
 
 test('no map key is explicit and road list remains keyboard accessible', async ({ page }) => {
   test.skip(configured, 'No-key test');
-  await page.goto('/');
+  await page.goto('/#/resident');
   await expect(page.getByRole('alert')).toContainText('Delhi basemap unavailable');
   await expect(page.getByRole('alert')).toContainText('Roads here remain Unknown');
   await page.getByRole('searchbox', { name: 'Find a mapped road' }).fill('osm:way/');
@@ -101,7 +101,7 @@ test('no map key is explicit and road list remains keyboard accessible', async (
 test('failed Standard descriptor does not imply a clear road', async ({ page }) => {
   test.skip(!configured, 'Needs a test-only descriptor URL');
   await page.route('https://maps.geo.ap-south-1.amazonaws.com/v2/styles/Standard/descriptor*', (route) => route.fulfill({ status: 403, body: 'Forbidden' }));
-  await page.goto('/');
+  await page.goto('/#/resident');
   await expect(page.getByRole('alert')).toContainText('Delhi basemap unavailable');
   await expect(page.getByRole('alert')).toContainText('Roads here remain Unknown');
   await expect(page.getByRole('list', { name: 'Mapped roads' }).getByRole('button').first()).toContainText('Unknown');
@@ -112,7 +112,7 @@ test('failed v2 API stays read-only and never borrows pilot reports', async ({ p
   const pilotCalls: string[] = [];
   page.on('request', (request) => { if (/\/v1\/reports|\/v1\/snapshots/.test(request.url())) pilotCalls.push(request.url()); });
   await page.route('http://127.0.0.1:8000/v2/**', (route) => route.abort());
-  await page.goto('/');
+  await page.goto('/#/resident');
   await expect(page.getByText(/Real-road \/v2 API unavailable/)).toBeVisible();
   await expect(page.getByText(/Anonymous real-road reporting unavailable/)).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Real roads, unknown conditions.' })).toBeVisible();
@@ -126,7 +126,7 @@ test('an unexpected public pending payload fails closed without a map marker', a
     contentType: 'application/json',
     body: JSON.stringify({ evidence: [{ roadId: 'osm:way/171708731', observedAt: new Date().toISOString(), reviewState: 'Pending Review' }] }),
   }));
-  await page.goto('/');
+  await page.goto('/#/resident');
   await expect(page.getByText(/Real-road \/v2 API unavailable/)).toBeVisible();
   await expect(page.getByRole('button', { name: 'Submit photo for review' })).toHaveCount(0);
   await expect(page.getByRole('list', { name: 'Mapped roads' }).getByRole('button').first()).toContainText('Unknown');
@@ -135,7 +135,7 @@ test('an unexpected public pending payload fails closed without a map marker', a
 
 test('preview has no serious accessibility violations', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' });
-  await page.goto('/');
+  await page.goto('/#/resident');
   await page.addScriptTag({ path: axePath });
   const violations = await page.evaluate(async () => {
     const axe = (window as unknown as { axe: { run: (context: unknown, options: unknown) => Promise<{ violations: { id: string; impact: string | null }[] }> } }).axe;

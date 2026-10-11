@@ -18,7 +18,7 @@ test('anonymous resident submission stays Unknown; operator review remains separ
     const path = new URL(request.url()).pathname;
     if (path.startsWith('/v1/') || path.startsWith('/v2/')) calls.push(path);
   });
-  await page.goto('/');
+  await page.goto('/#/resident');
   await expect(page.getByText(/Versioned real-road reporting available/)).toBeVisible();
   const baselineFeed = await page.request.get('http://127.0.0.1:8000/v2/real-road-evidence');
   expect(baselineFeed.ok()).toBe(true);
@@ -90,7 +90,7 @@ test('anonymous resident submission stays Unknown; operator review remains separ
 });
 
 test('public submission error keeps the photo and note for retry', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('/#/resident');
   await expect(page.getByText(/Versioned real-road reporting available/)).toBeVisible();
   await page.getByRole('searchbox', { name: 'Find a mapped road' }).fill('osm:way/171708731');
   await page.getByRole('list', { name: 'Mapped roads' }).getByRole('button').click();
@@ -100,7 +100,7 @@ test('public submission error keeps the photo and note for retry', async ({ page
   await page.getByLabel('Optional observation note').fill('Retry note');
   await page.route('http://127.0.0.1:8000/v2/public/real-road-reports/upload-url', (route) => route.fulfill({ status: 503, contentType: 'application/json', body: JSON.stringify({ error: { message: 'Temporarily unavailable' } }) }));
   await page.getByRole('button', { name: 'Submit photo for review' }).click();
-  await expect(page.getByRole('alert')).toContainText('Temporarily unavailable');
+  await expect(page.getByRole('region', { name: 'Anonymous real-road photo submission' }).getByRole('alert')).toContainText('Temporarily unavailable');
   await expect(page.getByLabel('Optional observation note')).toHaveValue('Retry note');
   await expect(page.getByLabel(/Photo \(JPEG/)).toHaveJSProperty('files.length', 1);
   await page.unroute('http://127.0.0.1:8000/v2/public/real-road-reports/upload-url');

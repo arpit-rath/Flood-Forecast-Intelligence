@@ -11,14 +11,17 @@ import { AnonymousRoadReport } from './AnonymousRoadReport';
 import { RoadAlerts } from './RoadAlerts';
 import { RealRoadMap, type CameraPosition, type StreetStyle } from './RealRoadMap';
 import { RoadStatus } from './RoadStatus';
+import { RealRoadLanding } from './RealRoadLanding';
 import './realroads.css';
 
 const styleUrls = delhiStyleUrls(import.meta.env.VITE_DELHI_STANDARD_STYLE_URL, import.meta.env.VITE_DELHI_HYBRID_STYLE_URL);
 const httpMode = import.meta.env.VITE_USE_MOCKS === 'false';
 const operatorConsoleEnabled = import.meta.env.VITE_OPERATOR_CONSOLE_ENABLED === 'true';
 
-function viewFromHash(): 'resident' | 'responder' | 'unavailable' {
-  return window.location.hash.startsWith('#/responder') ? (operatorConsoleEnabled ? 'responder' : 'unavailable') : 'resident';
+function viewFromHash(): 'landing' | 'resident' | 'responder' | 'unavailable' {
+  if (window.location.hash.startsWith('#/responder')) return operatorConsoleEnabled ? 'responder' : 'unavailable';
+  if (window.location.hash.startsWith('#/resident')) return 'resident';
+  return 'landing';
 }
 
 function formatTime(value: string | null): string {
@@ -28,6 +31,7 @@ function formatTime(value: string | null): string {
 
 export function RealRoadApp() {
   const [view, setView] = useState(viewFromHash);
+  const workspace = view === 'resident' || view === 'responder';
   const [style, setStyle] = useState<StreetStyle>('Standard');
   const [selectedRoadId, setSelectedRoadId] = useState<RealRoadId | null>(null);
   const [search, setSearch] = useState('');
@@ -42,7 +46,7 @@ export function RealRoadApp() {
   const [signedInUser, setSignedInUser] = useState<SignedInUser | null>(null);
 
   useEffect(() => {
-    if (!httpMode) return;
+    if (!httpMode || !workspace) return;
     let active = true;
     void Promise.all([realRoadApi.roads(), realRoadApi.evidence()]).then(([snapshot, result]) => {
       if (!active) return;
@@ -54,7 +58,7 @@ export function RealRoadApp() {
       setApiMessage('Versioned real-road reporting available for this limited OSM extract.');
     }).catch(() => { if (active) { setApiReady(false); setApiMessage('Real-road /v2 API unavailable. The mapped roads below are read-only and remain Unknown without reviewed evidence.'); } });
     return () => { active = false; };
-  }, []);
+  }, [workspace]);
 
   const refreshEvidence = useCallback(async () => {
     if (!apiReady) return;
@@ -73,18 +77,18 @@ export function RealRoadApp() {
   }, [apiReady]);
 
   useEffect(() => {
-    if (!apiReady) return;
+    if (!apiReady || !workspace) return;
     const timer = window.setInterval(() => { void refreshEvidence().catch(() => undefined); }, 60_000);
     return () => window.clearInterval(timer);
-  }, [apiReady, refreshEvidence]);
+  }, [apiReady, refreshEvidence, workspace]);
 
   useEffect(() => {
-    const onHash = () => setView(viewFromHash());
+    const onHash = () => { setView(viewFromHash()); window.scrollTo(0, 0); };
     window.addEventListener('hashchange', onHash);
     const timer = window.setInterval(() => setNow(new Date()), 60_000);
     return () => { window.removeEventListener('hashchange', onHash); window.clearInterval(timer); };
   }, []);
-  useEffect(() => { document.title = `Delhi roads · Varuna ${view}`; }, [view]);
+  useEffect(() => { document.title = view === 'landing' ? 'Varuna · Delhi road intelligence' : `Delhi roads · Varuna ${view}`; }, [view]);
 
   const selectedRoad = roadSnapshot.features.find((road) => road.id === selectedRoadId) ?? null;
   const matches = useMemo(() => {
@@ -98,15 +102,16 @@ export function RealRoadApp() {
         event.preventDefault();
         document.getElementById('real-preview-main')?.focus();
       }}>Skip to main content</a>
-      <header className="app-header real-preview__header">
-        <a className="brand" href="#/" aria-label="Varuna home"><BrandMark /><span className="brand__name">Varuna</span></a>
+      <header className={`app-header real-preview__header${view === 'landing' ? ' real-preview__header--landing' : ''}`}>
+        <a className="brand" href="#/" aria-label="Varuna home" aria-current={view === 'landing' ? 'page' : undefined}><BrandMark /><span className="brand__name">Varuna</span></a>
         <span className="app-header__pilot">Delhi real-road preview · not live flood monitoring</span>
-        <nav aria-label="Views" className="view-nav">
+        {view !== 'landing' && <nav aria-label="Views" className="view-nav">
           <a href="#/resident" aria-current={view === 'resident' ? 'page' : undefined}>Resident</a>
           {operatorConsoleEnabled && <a href="#/responder" aria-current={view === 'responder' ? 'page' : undefined}>Responder</a>}
-        </nav>
+        </nav>}
       </header>
-      {view === 'unavailable' ? <main id="real-preview-main" className="real-preview__main" tabIndex={-1}><section className="real-preview__detail"><h1>Operator console unavailable</h1><p>The submitted public site does not include responder access.</p><a href="#/resident">Return to the resident view</a></section></main> :
+      {view === 'landing' ? <main id="real-preview-main" tabIndex={-1}><RealRoadLanding /></main> :
+      view === 'unavailable' ? <main id="real-preview-main" className="real-preview__main" tabIndex={-1}><section className="real-preview__detail"><h1>Operator console unavailable</h1><p>The submitted public site does not include responder access.</p><a href="#/resident">Return to the resident view</a></section></main> :
       <main id="real-preview-main" className="real-preview__main" tabIndex={-1}>
         <div className="real-preview__coverage" role="status">
           <MapPin aria-hidden="true" size={18} />

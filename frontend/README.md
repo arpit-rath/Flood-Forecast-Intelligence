@@ -1,5 +1,7 @@
 # Varuna frontend
 
+The real-road preview now opens at `#/` with a public landing page. Its single primary action, **Open Delhi road map**, leads to `#/resident`; the Varuna logo returns home, and direct links plus browser back/forward use the same hash routes. The landing explains the limited 84-way OSM coverage, anonymous Pending Review photo workflow, responder verification and unverified official alerts. It does not render synthetic Scenario results or promote the separately enabled operator console. `#/responder` remains available only when `VITE_OPERATOR_CONSOLE_ENABLED=true`.
+
 ## Public anonymous real-road reporting decision (12 October 2026)
 
 The submitted **real-road** resident build uses `VITE_REAL_ROADS_PREVIEW=true`, `VITE_OPERATOR_CONSOLE_ENABLED=false`, `VITE_USE_MOCKS=false`, and `VITE_LOCAL_AUTH=false`. It shows no sign-up, sign-in, sign-out, private “Your reports” list, or responder navigation. A resident selects a way and point from the versioned 84-way snapshot, chooses a JPEG/PNG/WebP image up to 8 MB, optionally writes a note, and submits through the separate public `/v2/public/real-road-reports` two-step contract. The form keeps photo and note on retryable failure and shows only an opaque Pending Review receipt. Copy warns against names, phone numbers, faces and plates; the photo is private; submission does not block a road. The backend kill switch is off by default, so merely building the public UI does not activate anonymous uploads. No mock or `/v1` endpoint substitutes when the real API is unavailable.
@@ -30,7 +32,7 @@ Set `VITE_REAL_ROADS_PREVIEW=true` for the feature preview (also the default on 
 
 An existing restricted Hybrid descriptor URL can supply both map styles: the frontend derives the matching Standard descriptor with the same public key. `VITE_DELHI_STANDARD_STYLE_URL` is optional if a separate Standard descriptor is needed. Both URLs must be HTTPS Amazon Location v2 descriptors; arbitrary tile servers are rejected. With no usable URL, blocked tiles, or WebGL failure, the preview explicitly says the basemap is unavailable while keeping the sourced road list accessible. Style changes reuse one MapLibre camera and reinstate the selected-road and reviewed-report overlay layers. Pending report points are redacted from the public feed and have no map marker.
 
-React + TypeScript + Vite interface for Varuna. The default feature preview is the limited real-road view; the earlier landing page, resident route view, and responder console remain behind the legacy rollback flag. MapLibre GL renders both map experiences. The UI follows [Design-System.md](../Design-System.md) and the separate contracts in [Architecture.md](../Architecture.md).
+React + TypeScript + Vite interface for Varuna. The default feature preview has a public real-road landing and limited Delhi map; the earlier synthetic landing, resident route view, and responder console remain behind the legacy rollback flag. MapLibre GL renders both map experiences. The UI follows [Design-System.md](../Design-System.md) and the separate contracts in [Architecture.md](../Architecture.md).
 
 ## Run
 

@@ -6,7 +6,7 @@ test('mock preview labels unavailable source alerts without network fallback', a
   test.skip(process.env.VITE_USE_MOCKS === 'false', 'Fixture/mock mode only');
   const alertRequests: string[] = [];
   page.on('request', (request) => { if (request.url().includes('/v2/road-alerts')) alertRequests.push(request.url()); });
-  await page.goto('/');
+  await page.goto('/#/resident');
   await expect(page.getByRole('heading', { name: 'Delhi Traffic Police source alerts' })).toBeVisible();
   await expect(page.getByText('Road-alert API is not part of fixture/mock mode. No source alerts are shown.')).toBeVisible();
   if (process.env.VITE_OPERATOR_CONSOLE_ENABLED === 'true') {
@@ -19,7 +19,7 @@ test('mock preview labels unavailable source alerts without network fallback', a
 
 test('HTTP preview keeps imported source unverified and review responder-only', async ({ page, request }) => {
   test.skip(process.env.VITE_USE_MOCKS !== 'false' || process.env.VITE_OPERATOR_CONSOLE_ENABLED !== 'true', 'Local operator API mode only');
-  await page.goto('/');
+  await page.goto('/#/resident');
   await expect(page.getByRole('heading', { name: 'Delhi Traffic Police source alerts' })).toBeVisible();
   const api = 'http://127.0.0.1:8000';
   const residentAuth = await request.post(`${api}/v1/auth/local-session`, { data: { username: 'resident', password: 'throwaway-resident-test' } });
