@@ -1,6 +1,14 @@
 # Varuna frontend
 
-React + TypeScript + Vite interface for the Varuna pilot: a landing page, the resident route view and the responder console. MapLibre GL renders the map. The UI follows [Design-System.md](../Design-System.md) and consumes the API described in [Architecture.md](../Architecture.md) §7.
+## Real-road feature preview
+
+This feature branch defaults to a separate Delhi real-road preview. Resident and Responder open a citywide pannable Amazon Location **Standard** street basemap; **Hybrid** is the satellite option. The only overlaid roads are a [static, attributed 84-way OSM extract near DTU](src/data/README.md). Each is Unknown without actual current, responder-reviewed evidence; no such real-road evidence feed is deployed yet. The rest of the Delhi basemap is geographic context and is **not monitored**. The preview does not mount the pilot state provider, fetch `/v1` Scenario data, draw synthetic routes/drains, or place pilot photos on real roads. Real-road submissions and reviews are visibly unavailable until versioned server-side road matching and the separate proposed v2 contract exist.
+
+Set `VITE_REAL_ROADS_PREVIEW=true` for the feature preview (also the default on this branch). `VITE_REAL_ROADS_PREVIEW=false` restores the untouched legacy synthetic interface as a **rollback** without altering the backend or `main`. This switch is build-time Vite configuration; rebuild the preview after changing it. The legacy `/v1` API continues to serve `main` independently.
+
+An existing restricted Hybrid descriptor URL can supply both map styles: the frontend derives the matching Standard descriptor with the same public key. `VITE_DELHI_STANDARD_STYLE_URL` is optional if a separate Standard descriptor is needed. Both URLs must be HTTPS Amazon Location v2 descriptors; arbitrary tile servers are rejected. With no usable URL, blocked tiles, or WebGL failure, the preview explicitly says the basemap is unavailable while keeping the sourced road list accessible. Style changes reuse one MapLibre camera and reinstate the selected-road and real-report overlay layers. The production preview contains no report markers because no real-road evidence endpoint exists.
+
+React + TypeScript + Vite interface for Varuna. The default feature preview is the limited real-road view; the earlier landing page, resident route view, and responder console remain behind the legacy rollback flag. MapLibre GL renders both map experiences. The UI follows [Design-System.md](../Design-System.md) and the separate contracts in [Architecture.md](../Architecture.md).
 
 ## Run
 
@@ -12,10 +20,12 @@ npm run build      # type-check and production build into frontend/dist
 npm run lint       # oxlint
 npm run test:unit  # API adapter, terrain contour and label unit checks
 npm run fixtures   # regenerate mock fixture JSON
-npm run test:e2e   # Playwright: landing and both core flows at 360 px and 1280 px
+npm run test:e2e   # Playwright: configured flows at 360, 1280 and 1920 px
 ```
 
-`test:e2e` uses the locally installed Microsoft Edge (`PW_CHANNEL=chrome` for Chrome) and starts the dev server itself. In mock mode it covers landing, resident/responder fixture flows, navigation and accessibility at 360 px and 1280 px. With `VITE_USE_MOCKS=false`, it starts the local Python API and tests Scenario/routing/interventions plus private photo submission and human review. Live remains unavailable. If another checkout already serves port 5173, stop it for HTTP-mode tests; the local API allows only `http://localhost:5173`. Automated map tests do not make real tile requests.
+`test:e2e` uses the locally installed Microsoft Edge (`PW_CHANNEL=chrome` for Chrome) and starts the dev server itself. With `VITE_REAL_ROADS_PREVIEW=true`, run `npx playwright test e2e/real-roads.spec.ts` to check the real-road preview at 360, 1280 and 1920 px. To test both styles, supply test-only Amazon descriptor URLs with a `key=TEST` placeholder; Playwright intercepts those requests before they reach AWS. Run again with both style URL variables empty for the no-key state. The separate `e2e/road-status.html` test fixture exercises pending, confirmed, cleared, rejected and expired states at those widths; it is not in the production build and does not inject reports into the preview.
+
+With `VITE_REAL_ROADS_PREVIEW=false`, mock mode covers the legacy landing, resident/responder fixture flows, navigation and accessibility. Add `VITE_USE_MOCKS=false` for the local Python API tests of Scenario/routing/interventions plus private photo submission and human review. Live remains unavailable. If another checkout already serves port 5173, stop it for HTTP-mode tests; the local API allows only `http://localhost:5173`. Automated map tests do not make real tile requests.
 
 Views: `#/` (landing), `#/resident` and `#/responder`. Add `?map=static` before the hash (for example `/?map=static#/resident`) to see the static SVG fallback that replaces the interactive map when WebGL or the map style is unavailable.
 
@@ -27,28 +37,30 @@ Copy `.env.example` to `.env.local`.
 | --- | --- | --- |
 | `VITE_USE_MOCKS` | `true` | `false` calls the API at `VITE_API_BASE_URL`; anything else uses local fixtures |
 | `VITE_API_BASE_URL` | empty | Deployed API base URL (API Gateway) |
-| `VITE_DELHI_HYBRID_STYLE_URL` | empty | Public Amazon Location Service Hybrid style descriptor URL for the Delhi-only overview |
+| `VITE_DELHI_HYBRID_STYLE_URL` | empty | Public restricted Amazon Location Hybrid descriptor; also supplies the Standard descriptor unless separately configured |
+| `VITE_DELHI_STANDARD_STYLE_URL` | empty | Optional public restricted Standard descriptor URL |
+| `VITE_REAL_ROADS_PREVIEW` | `true` | Feature-preview default; `false` restores the legacy synthetic UI for rollback |
 | `VITE_COGNITO_DOMAIN` | empty | HTTPS Cognito managed-login origin for deployed sign-in |
 | `VITE_COGNITO_CLIENT_ID` | empty | Public browser app-client ID, never a client secret |
 | `VITE_COGNITO_REDIRECT_URI` | current site root | Exact Cognito allowed callback URL, without a fragment |
 | `VITE_PUBLIC_SIGNUP_ENABLED` | `true` | Public UI wording only; set `false` and rebuild when Cognito self-sign-up is disabled |
 | `VITE_LOCAL_AUTH` | `false` | Enable loopback-only demo sign-in when using the local Python API |
 
-The Map coverage switch in the resident and responder workspaces separates two views. **Pilot scenario** keeps the neutral-background synthetic DTU-area grid and all risk, route, report and drain features. **Delhi satellite overview** displays only the Amazon Location Hybrid basemap, with no pilot overlays or citywide flood assessment. The Scenario/Live weather strip and pilot decision cards are absent from the Delhi view. Its persistent label says “Delhi basemap · flood risk not assessed outside the pilot.” Imagery is geographic context, not current flood evidence. The Delhi view does not extend the pilot's analysis area or imply citywide forecasting.
+In rollback mode (`VITE_REAL_ROADS_PREVIEW=false`), the old Map coverage switch remains: **Pilot scenario** keeps the neutral-background synthetic DTU-area grid and all risk, route, report and drain features, while **Delhi satellite overview** is basemap-only. This legacy switch is not shown in the default real-road preview. No mode claims citywide flood assessment.
 
-For Hybrid imagery, create an Amazon Location API key in the intended region, restrict it to **map-reading/rendering actions and the required map resource only**, and allow only approved website referrers (development and deployed domains). Then set the following in your ignored `frontend/.env.local` before starting Vite:
+For Standard streets and optional Hybrid imagery, use an Amazon Location API key in the intended region, restricted to **map-reading/rendering actions only** and approved website referrers (development and deployed domains). Verify that the key permits both Standard and Hybrid descriptor, tile, glyph, and sprite requests. Then set the following in your ignored `frontend/.env.local` before starting Vite:
 
 ```text
 VITE_DELHI_HYBRID_STYLE_URL=https://maps.geo.<region>.amazonaws.com/v2/styles/Hybrid/descriptor?key=<restricted-map-key>
 ```
 
-This URL and key are public in the browser bundle and network requests, so a Location API key is **not** an AWS credential or a secret storage mechanism. Never commit a real key or `.env.local`; never grant Places, Routes, or write actions to this key. The frontend accepts only an HTTPS `maps.geo.<region>.amazonaws.com` Hybrid descriptor URL. With no key, an invalid URL, blocked tiles, or no WebGL, Delhi shows an explicit **basemap unavailable** state and a way back to the fully working pilot; it never renders the synthetic grid over Delhi streets. The former `VITE_BASEMAP_STYLE_URL` is intentionally no longer applied to the pilot, which always uses a neutral background.
+This URL and key are public in the browser bundle and network requests, so a Location API key is **not** an AWS credential or a secret storage mechanism. Never commit a real key or `.env.local`; never grant Places, Routes, or write actions to this key. The frontend accepts only HTTPS `maps.geo.<region>.amazonaws.com` Standard and Hybrid descriptor URLs. With no key, an invalid URL, blocked tiles, or no WebGL, Delhi shows an explicit **basemap unavailable** state; it never renders a synthetic grid over real streets. The former `VITE_BASEMAP_STYLE_URL` is intentionally no longer applied to the pilot, which always uses a neutral background.
 
 Reference: [Amazon Location map styles](https://docs.aws.amazon.com/location/latest/developerguide/map-styles.html), [display a map](https://docs.aws.amazon.com/location/latest/developerguide/how-to-display-a-map.html), and [API-key restrictions](https://docs.aws.amazon.com/location/latest/APIReference/API_geoapikeys_ApiKeyRestrictions.html).
 
 The browser never holds AWS credentials or Bedrock access. In deployed HTTP mode, Resident and Responder use Cognito managed login with authorization-code/PKCE. The managed login offers “Create an account” while temporary hackathon self-sign-up is enabled; the site uses the same sign-in action for both flows. After the event, disable Cognito self-sign-up, set `VITE_PUBLIC_SIGNUP_ENABLED=false` and rebuild/release the frontend so it advertises sign-in only; this flag does not enforce account policy. The access token is kept only in page memory, sent on protected report requests, and cleared on sign-out or expiry; refreshing the page requires signing in again. A new account has resident-level submission access, not review access. Any signed-in user can submit a Pending Review report; only administrator-assigned `varuna-responder` members can list, view, accept or reject private reports. The backend, not the browser's displayed role, enforces this. Do not put a Cognito client secret in frontend configuration.
 
-For the connected `feature/delhi-hybrid-overview` Amplify preview, configure **branch-only** environment-variable overrides, not app-wide changes. The exact origin, Cognito callback URL (including its trailing slash), and required values are in [the deployment checklist](../infra/README.md#main-and-delhi-preview-cors). Keep `main` unchanged. The preview must use the existing deployed `ApiBaseUrl` output with `VITE_USE_MOCKS=false` and `VITE_LOCAL_AUTH=false`; never substitute the local fixture URL in a deployed build.
+For the connected `feature/delhi-hybrid-overview` Amplify preview, configure **branch-only** environment-variable overrides, not app-wide changes. The exact origin, Cognito callback URL (including its trailing slash), and required values are in [the deployment checklist](../infra/README.md#main-and-delhi-preview-cors). Keep `main` unchanged. Keep `VITE_USE_MOCKS=false` and `VITE_LOCAL_AUTH=false`; they matter if the legacy rollback is used. The default real-road preview does not call the Scenario API.
 
 ## Local API mode
 

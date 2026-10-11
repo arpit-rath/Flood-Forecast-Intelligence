@@ -1,5 +1,13 @@
 # Backend contract
 
+## Preview-only real-road contract (not deployed)
+
+The feature preview has a **static**, manually exported OSM road snapshot and does not call the Scenario endpoints to render Delhi. The existing `/v1/*` API and its synthetic IDs remain unchanged for `main`; its photo reports must never be joined to OSM ways. `types.ts` declares the separate proposed `RealRoadReference`, `RealRoadReportDraft`, and `RealRoadEvidence` shapes. They are not an implemented API.
+
+A later `/v2/real-road-reports` intake would require a validated access token for both the upload request and report creation, derive the owner from the token subject, and reuse the private S3 presigned POST with a 1-byte-to-8-MB policy, MIME/size/decode validation, metadata stripping, retention, and idempotency. The client may propose an `osm:way/<id>` and WGS84 point with a geometry version, but the server must resolve the versioned road geometry, snap the point within a documented tolerance, and reject ambiguous, stale, or out-of-coverage matches. Until this exists, real-road submission is disabled. Do not send a real-road draft to `/v1/reports`.
+
+New evidence would start `Pending Review` and never change road status. Only `varuna-responder` members could list private records, obtain short-lived photo access, and decide `Confirmed Blockage`, `Cleared`, or `Rejected`. A confirmed blockage is **not** a road closure or flood-depth measurement. Cleared means a responder's observation at a stated time, **not** a safety guarantee; flood risk remains Unknown. Display a non-Unknown condition only while reviewed evidence is current and unexpired. No v2 handlers, storage migration, or automated ingestion are part of this stage.
+
 The JSON schemas define the wire shape for `Segment` and `Report`. [`types.ts`](types.ts) defines the response types for TypeScript consumers. Coordinates are `[longitude, latitude]` in WGS84. Scores are ordinal 0–1 indicators, not water depth or flood probability. `null` means missing data; it must never be interpreted as zero.
 
 ## Read endpoints

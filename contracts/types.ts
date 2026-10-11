@@ -49,6 +49,39 @@ export interface Report {
   expiresAt?: string;
 }
 
+/** Proposed v2 real-road contract. No v2 endpoint is deployed in this stage. */
+export type RealRoadId = `osm:way/${number}`;
+export type RealRoadReviewState = "Pending Review" | "Confirmed Blockage" | "Cleared" | "Rejected";
+
+export interface RealRoadReference {
+  roadId: RealRoadId;
+  /** Versioned OSM extract identifier; the server must resolve geometry itself. */
+  geometryVersion: string;
+  /** User-selected WGS84 point, never authoritative without server-side snapping. */
+  point: Point;
+}
+
+export interface RealRoadReportDraft {
+  idempotencyKey: string;
+  road: RealRoadReference;
+  imageKey: string;
+  capturedAt: string | null;
+  note?: string;
+}
+
+export interface RealRoadEvidence {
+  id: string;
+  roadId: RealRoadId;
+  point: Point;
+  reviewState: RealRoadReviewState;
+  observedAt: string;
+  reviewedAt: string | null;
+  expiresAt: string;
+  source: "resident_photo" | "responder_field_check";
+  /** Only protected responder detail may return a short-lived private photo URL. */
+  photoUrl?: string;
+}
+
 export interface DrainCandidate {
   id: string;
   label: string;

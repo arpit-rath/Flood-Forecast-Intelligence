@@ -20,9 +20,10 @@ export default defineConfig({
   projects: [
     { name: 'mobile-360', use: { viewport: { width: 360, height: 760 }, hasTouch: true, isMobile: true } },
     { name: 'desktop-1280', use: { viewport: { width: 1280, height: 800 } } },
+    { name: 'wide-1920', use: { viewport: { width: 1920, height: 1080 } } },
   ],
   webServer: [
-    ...(process.env.VITE_USE_MOCKS === 'false' ? [{
+    ...(process.env.VITE_USE_MOCKS === 'false' && process.env.VITE_REAL_ROADS_PREVIEW !== 'true' ? [{
       command: 'python -m backend.varuna.local_server --host 127.0.0.1 --port 8000',
       cwd: '..',
       env: { VARUNA_LOCAL_USERS_JSON: JSON.stringify({
@@ -37,7 +38,13 @@ export default defineConfig({
       command: `npm run dev -- --port ${port} --strictPort`,
       // Tests use an empty URL unless explicitly supplied. An ignored local
       // key must never cause automated checks to request live map tiles.
-      env: { VITE_DELHI_HYBRID_STYLE_URL: '', VITE_LOCAL_AUTH: process.env.VITE_USE_MOCKS === 'false' ? 'true' : 'false', VITE_COGNITO_DOMAIN: '', VITE_COGNITO_CLIENT_ID: '' },
+      env: {
+        VITE_REAL_ROADS_PREVIEW: process.env.VITE_REAL_ROADS_PREVIEW ?? 'false',
+        VITE_DELHI_STANDARD_STYLE_URL: process.env.VITE_DELHI_STANDARD_STYLE_URL ?? '',
+        VITE_DELHI_HYBRID_STYLE_URL: process.env.VITE_DELHI_HYBRID_STYLE_URL ?? '',
+        VITE_LOCAL_AUTH: process.env.VITE_USE_MOCKS === 'false' ? 'true' : 'false',
+        VITE_COGNITO_DOMAIN: '', VITE_COGNITO_CLIENT_ID: '',
+      },
       url: `http://localhost:${port}`,
       reuseExistingServer: true,
       timeout: 60_000,

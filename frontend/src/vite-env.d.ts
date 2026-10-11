@@ -7,6 +7,10 @@ interface ImportMetaEnv {
   readonly VITE_USE_MOCKS?: string;
   /** Public Amazon Location Hybrid descriptor URL for the Delhi-only basemap. */
   readonly VITE_DELHI_HYBRID_STYLE_URL?: string;
+  /** Optional public Standard descriptor; otherwise derived from the restricted Hybrid URL. */
+  readonly VITE_DELHI_STANDARD_STYLE_URL?: string;
+  /** Set to "false" only for rollback to the legacy synthetic interface. */
+  readonly VITE_REAL_ROADS_PREVIEW?: string;
   /** Public Cognito managed-login origin; never a client secret. */
   readonly VITE_COGNITO_DOMAIN?: string;
   readonly VITE_COGNITO_CLIENT_ID?: string;

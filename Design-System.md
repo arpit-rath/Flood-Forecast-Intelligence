@@ -89,6 +89,10 @@ Use a 4 px spacing base; common gaps are 8, 12, 16, 24, and 32 px. The content a
 
 In HTTP mode, show a labelled sign-in/create-account action in Resident and Responder while Cognito public sign-up is enabled; switch to sign-in-only wording when it is disabled. Local development uses labelled account/password fields and deployed mode opens Cognito managed login. Explain that a new account can submit a pilot report but cannot open the private responder queue. Never ask users to paste a JWT. Show `Pending review` immediately after upload, `No automated observation` in the review card, and the responder's manual visible-water decision separately from mock fixture analysis. Show the private photo only to a responder with access; render no public map photo. An accepted manual observation is explicitly a replay in the synthetic DTU-area Scenario, never Live or Delhi-wide. Submission errors keep the file/note for retry and appear beside the field or as an alert. The Delhi Hybrid overview remains basemap-only regardless of report state.
 
+### Real-road preview labels
+
+In the feature preview, make Standard street map the default and Hybrid the labelled satellite option. The persistent coverage note must say the imported OSM roads are limited to a DTU-area extract and the rest of Delhi is unassessed. Use a dashed neutral line and a text/icon `Unknown` state for roads without current, reviewed evidence. Show `Unreviewed report` separately from `Responder-confirmed blockage` and `Responder-cleared report`; neither a pending report nor satellite imagery changes Unknown into a confirmed condition. A cleared report includes its observation time and does not mean safe. The real-road report action is visibly disabled with the road-matching reason; never offer an enabled action that submits a synthetic ID. Keep OSM/ODbL and basemap attribution visible or one accessible control away. The real preview contains no Scenario weather strip, route recommendation, drain action, or synthetic report marker.
+
 ## 5. Layouts
 
 ### Resident view
